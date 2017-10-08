@@ -12,7 +12,7 @@ const mailgun = require('mailgun-js')({
 })
 
 async function _generateMail (templateName, data) {
-  if (!['action', 'alert', 'info', 'billing', 'welcome'].includes(templateName)) throw new Error('invalid email template name')
+  if (!['action', 'alert', 'info', 'welcome'].includes(templateName)) throw new Error('invalid email template name')
 
   let schema
 
