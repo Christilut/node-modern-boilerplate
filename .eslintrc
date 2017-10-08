@@ -1,0 +1,19 @@
+{
+  "env": {
+    "node": true,
+    "mocha": true
+  },
+  "globals": {
+    "httpStatus": true,
+    "logger": true,
+    "config": true
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "extends": "standard",
+  "rules": {
+  }
+}
