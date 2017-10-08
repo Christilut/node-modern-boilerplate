@@ -25,7 +25,7 @@ if (config.NODE_ENV === 'test') {
   const Mockgoose = require('mockgoose').Mockgoose
   const mockgoose = new Mockgoose(mongoose)
 
-  mockgoose.helper.setDbVersion('3.4.3') // TODO newest version fails on tests
+  // mockgoose.helper.setDbVersion('3.4.3') // Set this (to newest mongo version) if tests keep re-downloading prebuilt mongo
 
   mockgoose.prepareStorage().then(function () {
     mongoose.connect('mongodb://example.com/boilerplate-test')
