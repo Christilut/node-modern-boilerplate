@@ -4,6 +4,8 @@ const fs = require('fs-extra')
 const path = require('path')
 const Joi = require('joi')
 
+const DEV_EMAIL = 'todo'
+
 const mailgun = require('mailgun-js')({
   apiKey: config.MAILGUN_API_KEY,
   domain: config.MAILGUN_DOMAIN
@@ -58,12 +60,15 @@ async function _generateMail (templateName, data) {
 
 async function sendMail ({ to, subject, text, templateName, templateData }) {
   if (config.NODE_ENV === 'development') {
-    to = 'c.maks@innovadis.com'
+    to = DEV_EMAIL
+    throw new Error('fill in development email')
   }
 
   try {
+    /* eslint-disable no-unreachable */
+    throw new Error('fill in FROM email address')
     const rawMessage = mailcomposer({
-      from: 'Christiaan Maks <c.maks@innovadis.com>',
+      from: 'todo', // TODO fill in from email
       to,
       subject,
       text, // text that is shown incase client doesnt support HTML
@@ -93,7 +98,7 @@ async function sendMail ({ to, subject, text, templateName, templateData }) {
 
 async function sendDevMail (subject, text) {
   await sendMail({
-    to: 'c.maks@innovadis.com',
+    to: DEV_EMAIL,
     subject,
     text,
     templateName: 'info',
