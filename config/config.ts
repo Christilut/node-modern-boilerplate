@@ -1,7 +1,7 @@
-const Joi = require('joi')
+import Joi from 'joi'
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
-if (process.env !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
 
@@ -36,7 +36,9 @@ if (process.env.NODE_ENV === 'production') {
 
   envVarsSchema = envVarsSchema.concat(envVarsProduction)
 }
+
 const { error, value: envVars } = Joi.validate(process.env, envVarsSchema)
+
 if (error) {
   throw new Error(`Config validation error: ${error.message}`)
 }
@@ -49,4 +51,6 @@ for (const key of envKeys) {
   config[key] = envVars[key]
 }
 
-module.exports = config
+// TODO typings from typescript without duplicating code
+
+export default config

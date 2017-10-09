@@ -42,6 +42,8 @@
     "boilerplate"
   ],
   "dependencies": {
+    "@types/node": "8.0.33",
+    "@types/winston": "^2.3.6",
     "app-module-path": "2.2.0",
     "ava": "0.22.0",
     "axios": "0.16.2",
@@ -57,9 +59,6 @@
     "dot-object": "1.7.0",
     "dotenv": "^4.0.0",
     "eslint-config-standard": "10.2.1",
-    "eslint-plugin-node": "5.2.0",
-    "eslint-plugin-promise": "^3.5.0",
-    "eslint-plugin-standard": "3.0.1",
     "express": "4.16.1",
     "express-jwt": "5.3.0",
     "express-promise-router": "2.0.0",
@@ -85,6 +84,8 @@
     "passport-jwt": "3.0.0",
     "passport-local": "^1.0.0",
     "randomstring": "^1.1.5",
+    "tslint": "5.7.0",
+    "tslint-config-standard": "6.0.1",
     "url-parse": "1.1.9",
     "winston": "2.4.0",
     "winston-cloudwatch": "1.12.0"
@@ -96,9 +97,6 @@
     "cross-env": "5.0.5",
     "cz-conventional-changelog": "2.0.0",
     "del": "3.0.0",
-    "eslint": "4.8.0",
-    "eslint-plugin-import": "2.7.0",
-    "eslint-watch": "3.1.2",
     "husky": "0.14.3",
     "istanbul": "1.1.0-alpha.1",
     "mocha": "4.0.1",

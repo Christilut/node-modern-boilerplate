@@ -30,6 +30,8 @@ app.use(methodOverride())
 
 app.use(passport.initialize())
 
+app.enable('trust proxy') // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
+
 // secure apps by setting various HTTP headers
 app.use(helmet())
 
@@ -78,10 +80,10 @@ app.use((err, req, res, next) => {
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   if (req.url === '/favicon.ico') {
-    return res.sendStatus(httpStatus.NOT_FOUND)
+    return res.sendStatus(global.httpStatus.NOT_FOUND)
   }
 
-  const err = new APIError('API not found', httpStatus.NOT_FOUND)
+  const err = new APIError('API not found', global.httpStatus.NOT_FOUND)
   return next(err)
 })
 
@@ -118,7 +120,7 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     const headersWithoutAuth = req.headers
     delete headersWithoutAuth.authorization
 
-    logger.error('Unhandled exception occurred', {
+    global.logger.error('Unhandled exception occurred', {
       err,
       stack: err.stack,
       request: {
@@ -135,14 +137,14 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 
   if (config.NODE_ENV === 'development') {
     res.status(err.status).json({
-      message: err.isPublic ? err.message : httpStatus[err.status],
+      message: err.isPublic ? err.message : global.httpStatus[err.status],
       stack: err.stack
     })
   } else {
     res.status(err.status).json({
-      message: err.isPublic ? err.message : httpStatus[err.status]
+      message: err.isPublic ? err.message : global.httpStatus[err.status]
     })
   }
 })
 
-module.exports = app
+export default app

@@ -4,5 +4,6 @@
     "dist/": true,
     "node_modules": true
   },
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "eslint.enable": false
 }

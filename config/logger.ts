@@ -1,14 +1,14 @@
-const winston = require('winston')
-const config = require('./config')
+import winston, { Logger, LoggerInstance } from 'winston'
+// const config = require('./config')
 // const crypto = require('crypto')
 // const WinstonCloudwatch = require('winston-cloudwatch')
 
 const transports = []
 // const startTime = new Date().toISOString()
 
-if (config.NODE_ENV === 'production') {
-  // transports.push(new (WinstonCloudwatch)({
-  //   logGroupName: 'headless-api',
+if (global.config.NODE_ENV === 'production') {
+  // transports.push(new WinstonCloudwatch({
+  //   logGroupName: 'boilerplate-api',
   //   logStreamName: function () {
   //     // Spread log streams across dates as the server stays up
   //     let date = new Date().toISOString().split('T')[0]
@@ -18,21 +18,18 @@ if (config.NODE_ENV === 'production') {
   //         .digest('hex')
   //   },
   //   jsonMessage: true,
-  //   awsAccessKeyId: config.awsAccessKey,
+  //   awsAccessKeyId: config.awsAccessKey, // TODO
   //   awsSecretKey: config.awsSecret,
   //   awsRegion: config.awsRegion
   // }))
 } else {
-  transports.push(new (winston.transports.Console)({
+  transports.push(new winston.transports.Console({
     json: true,
     colorize: true
   }))
 }
 
-const logger = new (winston.Logger)({
+export default new Logger({
   transports
 })
 
-global.logger = logger
-
-module.exports = logger

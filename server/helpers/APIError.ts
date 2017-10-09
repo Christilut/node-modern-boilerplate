@@ -3,7 +3,7 @@
  */
 class ExtendableError extends Error {
   constructor (message, status, isPublic) {
-    if (config.NODE_ENV === 'test') console.log('\t', status, message)
+    if (global.config.NODE_ENV === 'test') console.log('\t', status, message)
     super(message)
     this.name = this.constructor.name
     this.message = message
@@ -25,7 +25,7 @@ class APIError extends ExtendableError {
    * @param {number} status - HTTP status code of error.
    * @param {boolean} isPublic - Whether the message should be visible to user or not.
    */
-  constructor (message, status = httpStatus.INTERNAL_SERVER_ERROR, isPublic = false) {
+  constructor (message, status = global.httpStatus.INTERNAL_SERVER_ERROR, isPublic = false) {
     super(message, status, isPublic)
   }
 }
