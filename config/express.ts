@@ -1,22 +1,23 @@
-const express = require('express')
-const Morgan = require('morgan')
-const bodyParser = require('body-parser')
-const cookieParser = require('cookie-parser')
-const compress = require('compression')
-const methodOverride = require('method-override')
-const cors = require('cors')
-const winstonInstance = require('./winston')
-const expressWinston = require('express-winston')
-const expressValidation = require('express-validation')
-const helmet = require('helmet')
-const routes = require('../server/routes/index.route')
-const config = require('./config')
-const APIError = require('../server/helpers/APIError')
-const passport = require('passport')
+import env from 'config/env'
+import logger from 'config/logger'
+import httpStatus from 'http-status'
+import express from 'express'
+import Morgan from 'morgan'
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+import compress from 'compression'
+import methodOverride from 'method-override'
+import cors from 'cors'
+import expressWinston from 'express-winston'
+import expressValidation from 'express-validation'
+import helmet from 'helmet'
+import routes from 'server/routes/index.route'
+import APIError from 'server/helpers/APIError'
+import passport from 'passport'
 
 const app = express()
 
-if (config.NODE_ENV === 'development') {
+if (env.NODE_ENV === 'development') {
   app.use(Morgan('dev'))
 }
 
@@ -36,7 +37,7 @@ app.enable('trust proxy') // only if you're behind a reverse proxy (Heroku, Blue
 app.use(helmet())
 
 // enable CORS - Cross Origin Resource Sharing
-if (config.NODE_ENV === 'production') {
+if (env.NODE_ENV === 'production') {
   app.use(cors())
   // app.use(cors({
   //   origin: [], // TODO add origins for production
@@ -50,11 +51,11 @@ if (config.NODE_ENV === 'production') {
 app.use('/api/v1', routes)
 
 // enable detailed API logging
-if (config.NODE_ENV !== 'test') {
+if (env.NODE_ENV !== 'test') {
   expressWinston.requestWhitelist.push('body')
   expressWinston.responseWhitelist.push('body')
   app.use(expressWinston.logger({
-    winstonInstance,
+    logger,
     meta: true, // optional: log meta data about request (defaults to true)
     msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
     colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
@@ -80,15 +81,15 @@ app.use((err, req, res, next) => {
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   if (req.url === '/favicon.ico') {
-    return res.sendStatus(global.httpStatus.NOT_FOUND)
+    return res.sendStatus(httpStatus.NOT_FOUND)
   }
 
-  const err = new APIError('API not found', global.httpStatus.NOT_FOUND)
+  const err = new APIError('API not found', httpStatus.NOT_FOUND)
   return next(err)
 })
 
 // enable error logging
-if (config.NODE_ENV !== 'test') { // This is extended logging? not really needed
+if (env.NODE_ENV !== 'test') { // This is extended logging? not really needed
   // app.use(expressWinston.errorLogger({
   //   winstonInstance
   // }))
@@ -96,11 +97,11 @@ if (config.NODE_ENV !== 'test') { // This is extended logging? not really needed
 
 // error handler, send stacktrace only during development
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  if (config.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development') {
     console.log(err.stack)
   }
 
-  if (config.NODE_ENV !== 'test') {
+  if (env.NODE_ENV !== 'test') {
     // if (err.status === httpStatus.CONFLICT || // username taken, website name taken, etc
     //   err.status === httpStatus.UNAUTHORIZED || // bad login
     //   err.status === httpStatus.NOT_FOUND || // user not found, website not found, etc
@@ -120,7 +121,7 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     const headersWithoutAuth = req.headers
     delete headersWithoutAuth.authorization
 
-    global.logger.error('Unhandled exception occurred', {
+    logger.error('Unhandled exception occurred', {
       err,
       stack: err.stack,
       request: {
@@ -135,14 +136,14 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     // }
   }
 
-  if (config.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development') {
     res.status(err.status).json({
-      message: err.isPublic ? err.message : global.httpStatus[err.status],
+      message: err.isPublic ? err.message : httpStatus[err.status],
       stack: err.stack
     })
   } else {
     res.status(err.status).json({
-      message: err.isPublic ? err.message : global.httpStatus[err.status]
+      message: err.isPublic ? err.message : httpStatus[err.status]
     })
   }
 })

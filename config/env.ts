@@ -1,5 +1,18 @@
 import Joi from 'joi'
 
+export interface IConfig {
+  NODE_ENV?: string
+  PORT?: number
+  MONGOOSE_DEBUG?: boolean
+  JWT_SECRET?: string
+  MONGO_HOST?: string
+  MONGO_PORT?: number
+  MAILGUN_API_KEY?: string
+  MAILGUN_DOMAIN?: string
+  EMAIL_FORGOT_SECRET?: string
+  EMAIL_VERIFY_SECRET?: string
+}
+
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -45,12 +58,10 @@ if (error) {
 
 const envKeys = envVarsSchema._inner.children.map(x => x.key)
 
-const config = {}
+const config: IConfig = {}
 
 for (const key of envKeys) {
   config[key] = envVars[key]
 }
-
-// TODO typings from typescript without duplicating code
 
 export default config

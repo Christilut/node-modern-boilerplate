@@ -11,10 +11,10 @@
     "listFiles": false,
     "traceResolution": false,
     "pretty": true,
-    "lib" : [
+    "lib": [
       "es6"
     ],
-    "types" : [
+    "types": [
       "node"
     ],
     "baseUrl": "."
@@ -24,9 +24,6 @@
   ],
   "exclude": [
     "node_modules/**"
-  ],
-  "files": [
-    "types/global.d.ts"
   ],
   "compileOnSave": false
 }

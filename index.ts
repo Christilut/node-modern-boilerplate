@@ -1,11 +1,11 @@
 // require('app-module-path').addPath(__dirname)
 
-global.httpStatus = import('http-status')
-global.config = import('./config/config')
-global.logger = import('./config/logger')
+import config from './config/env'
+import logger from './config/logger'
+import httpStatus from 'http-status'
 
 import mongoose from 'mongoose'
-import util from 'util'
+import * as util from 'util'
 import Joi from 'joi'
 
 Joi.objectId = require('joi-objectid')(Joi)
@@ -21,7 +21,7 @@ const debug = require('debug')('express-mongoose-es6-rest-api:index')
 // mongoose.Promise = Promise
 
 // connect to mongo db
-if (global.config.NODE_ENV === 'test') {
+if (config.NODE_ENV === 'test') {
   const Mockgoose = require('mockgoose').Mockgoose
   const mockgoose = new Mockgoose(mongoose)
 
@@ -31,7 +31,7 @@ if (global.config.NODE_ENV === 'test') {
     mongoose.connect('mongodb://example.com/boilerplate-test')
   })
 } else {
-  mongoose.connect(global.config.MONGO_HOST, {
+  mongoose.connect(config.MONGO_HOST, {
     server: {
       socketOptions: {
         keepAlive: 1
@@ -45,7 +45,7 @@ mongoose.connection.on('error', () => {
 })
 
 // print mongoose logs in dev env
-if (global.config.MONGOOSE_DEBUG) {
+if (config.MONGOOSE_DEBUG) { // TODO is this needed?
   mongoose.set('debug', (collectionName, method, query, doc) => {
     debug(`${collectionName}.${method}`, util.inspect(query, false, 20), doc)
   })
@@ -55,7 +55,7 @@ if (global.config.MONGOOSE_DEBUG) {
 // src: https://github.com/mochajs/mocha/issues/1912
 if (!module.parent) {
   // listen on port config.PORT
-  app.listen(global.config.PORT, () => {
-    global.logger.info(`server started on port ${global.config.PORT} (${global.config.NODE_ENV})`)
+  app.listen(config.PORT, () => {
+    logger.info(`server started on port ${config.PORT} (${config.NODE_ENV})`)
   })
 }

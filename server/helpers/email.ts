@@ -1,29 +1,36 @@
-const Handlebars = require('handlebars')
-const mailcomposer = require('mailcomposer')
-const fs = require('fs-extra')
-const path = require('path')
-const Joi = require('joi')
+import Handlebars from 'handlebars'
+import mailcomposer from 'mailcomposer'
+import fs from 'fs-extra'
+import * as path from 'path'
+import Joi from 'joi'
+import env from 'config/env'
+import logger from 'config/logger'
 
 const DEV_EMAIL = 'todo'
 
+export enum EMAIL_TEMPLATES {
+  Action,
+  Alert,
+  Info,
+  Welcome
+}
+
 const mailgun = require('mailgun-js')({
-  apiKey: config.MAILGUN_API_KEY,
-  domain: config.MAILGUN_DOMAIN
+  apiKey: env.MAILGUN_API_KEY,
+  domain: env.MAILGUN_DOMAIN
 })
 
-async function _generateMail (templateName, data) {
-  if (!['action', 'alert', 'info', 'welcome'].includes(templateName)) throw new Error('invalid email template name')
-
+async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
   let schema
 
-  if (templateName === 'action') {
+  if (templateName === EMAIL_TEMPLATES.Action) {
     schema = Joi.object().keys({
       title: Joi.string().required(),
       message: Joi.string().required(),
       buttonText: Joi.string().required(),
       buttonUrl: Joi.string().uri().required()
     })
-  } else if (templateName === 'alert') {
+  } else if (templateName === EMAIL_TEMPLATES.Alert) {
     schema = Joi.object().keys({
       title: Joi.string().required(),
       lead: Joi.string().required(),
@@ -32,7 +39,7 @@ async function _generateMail (templateName, data) {
       buttonText: Joi.string().optional(),
       buttonUrl: Joi.string().uri().optional()
     })
-  } else if (templateName === 'info') {
+  } else if (templateName === EMAIL_TEMPLATES.Info) {
     schema = Joi.object().keys({
       title: Joi.string().required(),
       lead: Joi.string().required(),
@@ -40,7 +47,7 @@ async function _generateMail (templateName, data) {
       buttonText: Joi.string().optional(),
       buttonUrl: Joi.string().uri().optional()
     })
-  } else if (templateName === 'welcome') {
+  } else if (templateName === EMAIL_TEMPLATES.Welcome) {
     schema = Joi.object().keys({
       name: Joi.string().required(),
       domain: Joi.string().uri().required()
@@ -58,14 +65,13 @@ async function _generateMail (templateName, data) {
   return rawTemplate(data)
 }
 
-async function sendMail ({ to, subject, text, templateName, templateData }) {
-  if (config.NODE_ENV === 'development') {
+export  async function sendMail(to: string, subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object) {
+  if (env.NODE_ENV === 'development') {
     to = DEV_EMAIL
-    throw new Error('fill in development email')
+    throw new Error('fill in development email & remove this throw')
   }
 
   try {
-    /* eslint-disable no-unreachable */
     throw new Error('fill in FROM email address')
     const rawMessage = mailcomposer({
       from: 'todo', // TODO fill in from email
@@ -83,7 +89,7 @@ async function sendMail ({ to, subject, text, templateName, templateData }) {
         message: builtMessage.toString('ascii')
       }
 
-      if (config.NODE_ENV === 'test') {
+      if (env.NODE_ENV === 'test') {
         console.log('TEST: not actually sending mail')
       } else {
         const res = await mailgun.messages().sendMime(mail)
@@ -96,21 +102,16 @@ async function sendMail ({ to, subject, text, templateName, templateData }) {
   }
 }
 
-async function sendDevMail (subject, text) {
-  await sendMail({
-    to: DEV_EMAIL,
+export async function sendDevMail(subject: string, text: string) {
+  await sendMail(
+    DEV_EMAIL,
     subject,
     text,
-    templateName: 'info',
-    templateData: {
+    EMAIL_TEMPLATES.Info,
+    {
       title: subject,
       lead: 'Automated message from API server',
       message: text
     }
-  })
-}
-
-module.exports = {
-  sendMail,
-  sendDevMail
+  )
 }
