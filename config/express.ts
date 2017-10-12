@@ -1,19 +1,18 @@
 import env from 'config/env'
 import logger from 'config/logger'
 import httpStatus from 'http-status'
-import express from 'express'
-import Morgan from 'morgan'
-import bodyParser from 'body-parser'
-import cookieParser from 'cookie-parser'
-import compress from 'compression'
-import methodOverride from 'method-override'
-import cors from 'cors'
-import expressWinston from 'express-winston'
+import * as express from 'express'
+import * as Morgan from 'morgan'
+import * as bodyParser from 'body-parser'
+import * as cookieParser from 'cookie-parser'
+import * as compress from 'compression'
+import * as methodOverride from 'method-override'
+import * as cors from 'cors'
+// import * as expressWinston from 'express-winston'
 import expressValidation from 'express-validation'
-import helmet from 'helmet'
-import routes from 'server/routes/index.route'
+import * as helmet from 'helmet'
 import APIError from 'server/helpers/APIError'
-import passport from 'passport'
+import * as passport from 'passport'
 
 const app = express()
 
@@ -48,18 +47,18 @@ if (env.NODE_ENV === 'production') {
 }
 
 // mount all routes on /api/v1 path
-app.use('/api/v1', routes)
+// TODO graphql
 
 // enable detailed API logging
 if (env.NODE_ENV !== 'test') {
-  expressWinston.requestWhitelist.push('body')
-  expressWinston.responseWhitelist.push('body')
-  app.use(expressWinston.logger({
-    logger,
-    meta: true, // optional: log meta data about request (defaults to true)
-    msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
-    colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
-  }))
+  // expressWinston.requestWhitelist.push('body')
+  // expressWinston.responseWhitelist.push('body')
+  // app.use(expressWinston.logger({
+  //   logger,
+  //   meta: true, // optional: log meta data about request (defaults to true)
+  //   msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
+  //   colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
+  // }))
 }
 
 // if error is not an instanceOf APIError, convert it.

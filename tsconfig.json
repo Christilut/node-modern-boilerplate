@@ -11,6 +11,8 @@
     "listFiles": false,
     "traceResolution": false,
     "pretty": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "lib": [
       "es6"
     ],

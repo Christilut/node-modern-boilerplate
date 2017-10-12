@@ -21,9 +21,13 @@ Not yet added:
 - TypeORM
 - LumberJS
 - AVA for parallel unit testing (and test cases for everything)
+- absolute module imports
+- TSLint auto fix
+- roll db secrets
 
 Not yet tested:
 - Code coverage
+- mailgun
 
 ## Overview
 

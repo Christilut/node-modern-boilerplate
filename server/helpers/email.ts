@@ -2,7 +2,7 @@ import Handlebars from 'handlebars'
 import mailcomposer from 'mailcomposer'
 import fs from 'fs-extra'
 import * as path from 'path'
-import Joi from 'joi'
+import * as Joi from 'joi'
 import env from 'config/env'
 import logger from 'config/logger'
 
@@ -20,7 +20,7 @@ const mailgun = require('mailgun-js')({
   domain: env.MAILGUN_DOMAIN
 })
 
-async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
+async function _generateMail (templateName: EMAIL_TEMPLATES, data: Object) {
   let schema
 
   if (templateName === EMAIL_TEMPLATES.Action) {
@@ -58,14 +58,14 @@ async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
 
   const result = Joi.validate(data, schema)
 
-  if (result.error) throw new Error(result.error)
+  if (result.error) throw new Error(result.error.message)
 
   const rawTemplate = Handlebars.compile((await fs.readFile(path.join(__dirname, '..', '..', 'email-templates', templateName + '.handlebars'))).toString())
 
   return rawTemplate(data)
 }
 
-export  async function sendMail(to: string, subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object) {
+export async function sendMail (to: string, subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object) {
   if (env.NODE_ENV === 'development') {
     to = DEV_EMAIL
     throw new Error('fill in development email & remove this throw')
@@ -102,7 +102,7 @@ export  async function sendMail(to: string, subject: string, text: string, templ
   }
 }
 
-export async function sendDevMail(subject: string, text: string) {
+export async function sendDevMail (subject: string, text: string) {
   await sendMail(
     DEV_EMAIL,
     subject,

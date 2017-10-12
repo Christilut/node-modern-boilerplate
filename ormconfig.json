@@ -1,0 +1,16 @@
+{
+  "entities": [
+     "server/models/**/*.ts"
+  ],
+  "migrations": [
+     "migrations/**/*.ts"
+  ],
+  "subscribers": [
+     "server/subscribers/**/*.ts"
+  ],
+  "cli": {
+     "entitiesDir": "src/entity",
+     "migrationsDir": "src/migration",
+     "subscribersDir": "src/subscriber"
+  }
+}

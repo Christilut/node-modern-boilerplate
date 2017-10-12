@@ -1,9 +1,8 @@
-import Joi from 'joi'
+import * as Joi from 'joi'
 
 export interface IConfig {
   NODE_ENV?: string
   PORT?: number
-  MONGOOSE_DEBUG?: boolean
   JWT_SECRET?: string
   MONGO_HOST?: string
   MONGO_PORT?: number
@@ -11,6 +10,11 @@ export interface IConfig {
   MAILGUN_DOMAIN?: string
   EMAIL_FORGOT_SECRET?: string
   EMAIL_VERIFY_SECRET?: string
+  DATABASE_HOST?: string
+  DATABASE_PORT?: number
+  DATABASE_USERNAME?: string
+  DATABASE_PASSWORD?: string
+  DATABASE_NAME?: string
 }
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
@@ -19,17 +23,11 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // define validation for all the env vars
-let envVarsSchema = Joi.object({
+const allowedEnvKeys: Joi.SchemaMap = {
   NODE_ENV: Joi.string()
     .valid(['development', 'production', 'test'])
     .required(),
   PORT: Joi.number().default(4040).required(),
-  MONGOOSE_DEBUG: Joi.boolean()
-    .when('NODE_ENV', {
-      is: Joi.string().equal('development'),
-      then: Joi.boolean().default(true),
-      otherwise: Joi.boolean().default(false)
-    }),
   JWT_SECRET: Joi.string().required()
     .description('JWT Secret required to sign'),
   MONGO_HOST: Joi.string().required()
@@ -38,9 +36,15 @@ let envVarsSchema = Joi.object({
   MAILGUN_API_KEY: Joi.string().required(),
   MAILGUN_DOMAIN: Joi.string().required(),
   EMAIL_FORGOT_SECRET: Joi.string().required(),
-  EMAIL_VERIFY_SECRET: Joi.string().required()
-}).unknown()
-  .required()
+  EMAIL_VERIFY_SECRET: Joi.string().required(),
+  DATABASE_HOST: Joi.string().required(),
+  DATABASE_PORT: Joi.number().required(),
+  DATABASE_USERNAME: Joi.string().required(),
+  DATABASE_PASSWORD: Joi.string().required(),
+  DATABASE_NAME: Joi.string().required()
+}
+
+let envVarsSchema = Joi.object(allowedEnvKeys).unknown().required()
 
 if (process.env.NODE_ENV === 'production') {
   const envVarsProduction = Joi.object({
@@ -56,7 +60,7 @@ if (error) {
   throw new Error(`Config validation error: ${error.message}`)
 }
 
-const envKeys = envVarsSchema._inner.children.map(x => x.key)
+const envKeys = Object.keys(allowedEnvKeys)
 
 const config: IConfig = {}
 

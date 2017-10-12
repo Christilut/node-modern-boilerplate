@@ -1,12 +1,13 @@
-import winston, { Logger, LoggerInstance } from 'winston'
+const winston = require('winston')
 import env from 'config/env'
 // const crypto = require('crypto')
-// const WinstonCloudwatch = require('winston-cloudwatch')
+// import * as WinstonCloudwatch from 'winston-cloudwatch'
 
 const transports = []
-// const startTime = new Date().toISOString()
 
 if (env.NODE_ENV === 'production') {
+  // const startTime = new Date().toISOString()
+
   // transports.push(new WinstonCloudwatch({
   //   logGroupName: 'boilerplate-api',
   //   logStreamName: function () {
@@ -29,7 +30,6 @@ if (env.NODE_ENV === 'production') {
   }))
 }
 
-export default new Logger({
+export default new winston.Logger({
   transports
 })
-
