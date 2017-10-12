@@ -2,15 +2,28 @@
 
 Based on [this boilerplate](https://github.com/KunalKapadia/express-mongoose-es6-rest-api).
 
-### TL;DR:
+### Changes with above boilerplate:
 
-Removed: Babel, npm run
+Removed:
+- Babel
+- Yarn
 
-Added: some email templates, mailgun helper, User CRUD + admin, rate limiter, cloudwatch logger
+Added:
+- TypeScript
+- Email templates
+- Mailgun helper
+- User CRUD
+- Rate limiter
+- Cloudwatch logger
 
-Not yet added: TypeScript, GraphQL, AVA for parallel unit testing, TypeORM
+Not yet added:
+- GraphQL
+- TypeORM
+- LumberJS
+- AVA for parallel unit testing (and test cases for everything)
 
-Not properly tested: code coverage
+Not yet tested:
+- Code coverage
 
 ## Overview
 

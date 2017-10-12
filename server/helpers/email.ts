@@ -72,7 +72,7 @@ export  async function sendMail(to: string, subject: string, text: string, templ
   }
 
   try {
-    throw new Error('fill in FROM email address')
+    // throw new Error('fill in FROM email address')
     const rawMessage = mailcomposer({
       from: 'todo', // TODO fill in from email
       to,
