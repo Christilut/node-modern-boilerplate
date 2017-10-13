@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm'
 import bcrypt from 'bcrypt'
 import { sendMail, EMAIL_TEMPLATES } from 'server/helpers/email'
+import { IsEmail } from 'class-validator'
 
 export enum Roles {
   User = 'user',
@@ -8,7 +9,7 @@ export enum Roles {
 }
 
 @Entity()
-export class User {
+export class User extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')
   id: number
@@ -16,6 +17,7 @@ export class User {
   @Column()
   name: string
 
+  @IsEmail() // TODO test this
   @Column({
     unique: true
   })
@@ -31,7 +33,7 @@ export class User {
 
   @Column({
     type: 'simple-array',
-    enum: Roles, // TODO test this
+    enum: Roles, // TODO doesnt work, make custom validator?
     default: Roles.User
   })
   roles: string

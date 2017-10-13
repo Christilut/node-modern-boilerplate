@@ -1,7 +1,8 @@
 import 'reflect-metadata'
 import { Connection, ConnectionOptions, createConnection } from 'typeorm'
-import { User } from 'server/models/user.model'
+import { User, Roles } from 'server/models/user.model'
 import env from 'config/env'
+import { validate } from 'class-validator'
 
 const options: ConnectionOptions = {
   type: 'postgres',
@@ -21,23 +22,22 @@ const options: ConnectionOptions = {
 export async function init () {
   const connection: Connection = await createConnection(options)
 
-  console.log('Inserting a new user into the database...')
+  // TODO temp for testing
+  const user = await User.findOne({
+    email: 'test@test.com'
+  })
 
-  const user = new User()
+  user.email = 'test'
 
-  user.name = 'Jan Klap'
-  user.email = 'test@test.com'
-  user.password = 'wachtwoord'
+  const errors = await validate(user) // TODO do this in pre-save
 
-  await connection.manager.save(user)
+  if (errors.length > 0) {
+    return console.log(errors)
+  }
 
-  console.log('Saved a new user with id: ' + user.id)
+  await user.save()
 
-  console.log('Loading users from the database...')
+  console.log('Loaded users: ', user)
 
-  const users = await connection.manager.find(User)
-
-  console.log('Loaded users: ', users)
-
-  console.log('Here you can setup and run express/koa/any other framework.')
+  // TODO dont load express until init complete
 }
