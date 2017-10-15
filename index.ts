@@ -1,23 +1,33 @@
 require('app-module-path').addPath(__dirname)
 
-import config from 'config/env'
+import env from 'config/env'
+import * as AWS from 'aws-sdk'
+
+// TODO move to AWS helper file, class based?
+// AWS.config.update({
+//   accessKeyId: env.AWS_ACCESS_KEY,
+//   secretAccessKey: env.AWS_SECRET,
+//   region: env.AWS_REGION
+// })
+
 import logger from 'config/logger'
 import httpStatus from 'http-status'
 
-import mongoose from 'mongoose'
 import * as util from 'util'
 
 import app from 'config/express'
 
-import { init } from 'config/typeorm'
+import { init as initDatabase } from 'config/typeorm'
 
-init()
+(async () => {
+  await initDatabase()
 
-// module.parent check is required to support mocha watch
-// src: https://github.com/mochajs/mocha/issues/1912
-if (!module.parent) { // TODO check this with ava
-  // listen on port config.PORT
-  app.listen(config.PORT, () => {
-    logger.info(`server started on port ${config.PORT} (${config.NODE_ENV})`)
-  })
-}
+  // module.parent check is required to support mocha watch
+  // src: https://github.com/mochajs/mocha/issues/1912
+  if (!module.parent) { // TODO check this with ava
+    // listen on port config.PORT
+    app.listen(env.PORT, () => {
+      logger.info(`server started on port ${env.PORT} (${env.NODE_ENV})`)
+    })
+  }
+})()

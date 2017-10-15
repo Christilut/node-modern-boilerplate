@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2017",
     "outDir": "dist",
     "rootDir": "",
     "moduleResolution": "node",
@@ -14,7 +14,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "lib": [
-      "es6"
+      "es2017",
+      "dom"
     ],
     "types": [
       "node"

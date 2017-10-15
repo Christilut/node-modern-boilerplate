@@ -8,7 +8,7 @@ import * as cookieParser from 'cookie-parser'
 import * as compress from 'compression'
 import * as methodOverride from 'method-override'
 import * as cors from 'cors'
-// import * as expressWinston from 'express-winston'
+import * as expressWinston from 'express-winston'
 import expressValidation from 'express-validation'
 import * as helmet from 'helmet'
 import APIError from 'server/helpers/APIError'
@@ -51,14 +51,14 @@ if (env.NODE_ENV === 'production') {
 
 // enable detailed API logging
 if (env.NODE_ENV !== 'test') {
-  // expressWinston.requestWhitelist.push('body')
-  // expressWinston.responseWhitelist.push('body')
-  // app.use(expressWinston.logger({
-  //   logger,
-  //   meta: true, // optional: log meta data about request (defaults to true)
-  //   msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
-  //   colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
-  // }))
+  expressWinston.requestWhitelist.push('body')
+  expressWinston.responseWhitelist.push('body')
+  app.use(expressWinston.logger({
+    winstonInstance: logger,
+    meta: true, // optional: log meta data about request (defaults to true)
+    msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
+    colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
+  }))
 }
 
 // if error is not an instanceOf APIError, convert it.
@@ -88,9 +88,9 @@ app.use((req, res, next) => {
 })
 
 // enable error logging
-if (env.NODE_ENV !== 'test') { // This is extended logging? not really needed
+if (env.NODE_ENV !== 'test') { // TODO This is extended logging? not really needed
   // app.use(expressWinston.errorLogger({
-  //   winstonInstance
+  //   winstonInstance: logger
   // }))
 }
 

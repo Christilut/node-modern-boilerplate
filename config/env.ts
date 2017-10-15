@@ -4,8 +4,6 @@ export interface IConfig {
   NODE_ENV?: string
   PORT?: number
   JWT_SECRET?: string
-  MONGO_HOST?: string
-  MONGO_PORT?: number
   MAILGUN_API_KEY?: string
   MAILGUN_DOMAIN?: string
   EMAIL_FORGOT_SECRET?: string
@@ -15,6 +13,9 @@ export interface IConfig {
   DATABASE_USERNAME?: string
   DATABASE_PASSWORD?: string
   DATABASE_NAME?: string
+  AWS_ACCESS_KEY?: string
+  AWS_SECRET?: string
+  AWS_REGION?: string
 }
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
@@ -30,9 +31,6 @@ const allowedEnvKeys: Joi.SchemaMap = {
   PORT: Joi.number().default(4040).required(),
   JWT_SECRET: Joi.string().required()
     .description('JWT Secret required to sign'),
-  MONGO_HOST: Joi.string().required()
-    .description('Mongo DB host url'),
-  MONGO_PORT: Joi.number().default(27017),
   MAILGUN_API_KEY: Joi.string().required(),
   MAILGUN_DOMAIN: Joi.string().required(),
   EMAIL_FORGOT_SECRET: Joi.string().required(),
@@ -41,7 +39,10 @@ const allowedEnvKeys: Joi.SchemaMap = {
   DATABASE_PORT: Joi.number().required(),
   DATABASE_USERNAME: Joi.string().required(),
   DATABASE_PASSWORD: Joi.string().required(),
-  DATABASE_NAME: Joi.string().required()
+  DATABASE_NAME: Joi.string().required(),
+  AWS_ACCESS_KEY: Joi.string().required(),
+  AWS_SECRET: Joi.string().required(),
+  AWS_REGION: Joi.string().required()
 }
 
 let envVarsSchema = Joi.object(allowedEnvKeys).unknown().required()

@@ -18,12 +18,14 @@ Added:
 
 Not yet added:
 - GraphQL
-- TypeORM
+- winston to cloudwatch logging
 - LumberJS
 - AVA for parallel unit testing (and test cases for everything)
+  - mockgoose for typeorm?
 - absolute module imports
 - TSLint auto fix
 - roll db secrets
+- AWS upload to s3 from client
 
 Not yet tested:
 - Code coverage

@@ -2,7 +2,6 @@ import 'reflect-metadata'
 import { Connection, ConnectionOptions, createConnection } from 'typeorm'
 import { User, Roles } from 'server/models/user.model'
 import env from 'config/env'
-import { validate } from 'class-validator'
 
 const options: ConnectionOptions = {
   type: 'postgres',
@@ -23,21 +22,13 @@ export async function init () {
   const connection: Connection = await createConnection(options)
 
   // TODO temp for testing
-  const user = await User.findOne({
-    email: 'test@test.com'
-  })
+  // const user = await User.findOne({
+  //   email: 'test@test.com'
+  // })
 
-  user.email = 'test'
+  // user.password = 'test'
 
-  const errors = await validate(user) // TODO do this in pre-save
+  // await user.save()
 
-  if (errors.length > 0) {
-    return console.log(errors)
-  }
-
-  await user.save()
-
-  console.log('Loaded users: ', user)
-
-  // TODO dont load express until init complete
+  // console.log('Loaded users: ', user)
 }

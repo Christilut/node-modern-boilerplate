@@ -10,7 +10,7 @@
     "npm": ">=5"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "ts-node index.ts",
     "dev": "cross-env NODE_ENV=development nodemon --exec 'ts-node' index.ts",
     "deploy": "git push heroku master",
     "lint": "esw *.js server config --color",
@@ -24,20 +24,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:KunalKapadia/express-mongoose-es6-rest-api.git"
+    "url": "git@github.com:Christilut/node-api-boilerplate.git"
   },
   "keywords": [
     "express",
     "node",
     "node.js",
-    "mongodb",
-    "mongoose",
-    "es6",
-    "mocha",
-    "istanbul",
-    "REST",
+    "es2017",
     "API",
-    "boilerplate"
+    "boilerplate",
+    "graphql",
+    "typeorm",
+    "postgres",
+    "sql",
+    "typescript"
   ],
   "dependencies": {
     "@types/joi": "^10.4.3",
@@ -45,6 +45,7 @@
     "@types/winston": "^2.3.6",
     "app-module-path": "2.2.0",
     "ava": "0.22.0",
+    "aws-sdk": "^2.133.0",
     "axios": "0.16.2",
     "babel-eslint": "8.0.1",
     "bcrypt": "1.0.3",
@@ -76,7 +77,6 @@
     "mailcomposer": "4.0.2",
     "mailgun-js": "0.13.1",
     "method-override": "2.3.10",
-    "mongoose": "^4.12.1",
     "morgan": "1.9.0",
     "nodemon": "1.12.1",
     "nyc": "11.2.1",
@@ -105,7 +105,6 @@
     "husky": "0.14.3",
     "istanbul": "1.1.0-alpha.1",
     "mocha": "4.0.1",
-    "mockgoose": "^7.3.0",
     "run-sequence": "2.2.0",
     "supertest": "3.0.0",
     "validate-commit-msg": "2.14.0"
