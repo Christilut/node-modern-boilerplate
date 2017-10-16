@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm'
-import bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt'
 import { sendMail, EMAIL_TEMPLATES } from 'server/helpers/email'
 import { IsEmail, IsIn, ArrayUnique, ArrayNotEmpty } from 'class-validator'
 import { validate, ValidationError } from 'class-validator'
@@ -29,9 +29,6 @@ export class User extends BaseEntity {
   })
   created: Date
 
-  @Column()
-  password: string
-
   @IsIn(Object.values(Roles), {
     each: true
   })
@@ -43,6 +40,9 @@ export class User extends BaseEntity {
   })
   roles: string[]
 
+  @Column()
+  private password: string
+
   /**
    * Compares given password with stored password hash
    */
@@ -52,6 +52,21 @@ export class User extends BaseEntity {
     const isMatch = await bcrypt.compare(candidatePassword, this.password)
 
     return isMatch
+  }
+
+  /**
+   * Provide new password that will get hashed and salted, then saved
+   */
+  async setPassword(password: string): Promise<void> {
+    const SALT_FACTOR = 5
+
+    // TODO confirm that a throw here results in a proper JSON response
+
+    const salt = await bcrypt.genSalt(SALT_FACTOR)
+
+    const hash = await bcrypt.hash(password, salt)
+
+    this.password = hash
   }
 
   /**
@@ -76,8 +91,6 @@ export class User extends BaseEntity {
     if (validationErrors.length > 0) {
       throw new Error('User model validation failed: ' + Object.values(validationErrors[0].constraints).join(', '))
     }
-
-    // TODO pre-save for password hash
 
     super.save()
 

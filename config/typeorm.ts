@@ -22,13 +22,13 @@ export async function init () {
   const connection: Connection = await createConnection(options)
 
   // TODO temp for testing
-  // const user = await User.findOne({
-  //   email: 'test@test.com'
-  // })
+  const user = await User.findOne({
+    email: 'test@test.com'
+  })
 
-  // user.password = 'test'
+  user.setPassword('test')
 
-  // await user.save()
+  await user.save()
 
   // console.log('Loaded users: ', user)
 }
