@@ -1,6 +1,12 @@
 {
   "extends": "tslint-config-standard",
   "rules": {
-    "space-before-function-paren": false // TODO fix auto-format to do this
+    "space-before-function-paren": false, // TODO fix auto-format to do this
+    "interface-name": [
+      true,
+      "always-prefix"
+    ],
+    "array-type": [true, "array"],
+    "no-angle-bracket-type-assertion": true
   }
 }

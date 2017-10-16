@@ -65,7 +65,7 @@ async function _generateMail (templateName: EMAIL_TEMPLATES, data: Object) {
   return rawTemplate(data)
 }
 
-export async function sendMail (to: string, subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object) {
+export async function sendMail (to: String, subject: String, text: String, templateName: EMAIL_TEMPLATES, templateData: Object) {
   if (env.NODE_ENV === 'development') {
     to = DEV_EMAIL
     throw new Error('fill in development email & remove this throw')
@@ -102,7 +102,7 @@ export async function sendMail (to: string, subject: string, text: string, templ
   }
 }
 
-export async function sendDevMail (subject: string, text: string) {
+export async function sendDevMail (subject: String, text: String) {
   await sendMail(
     DEV_EMAIL,
     subject,
