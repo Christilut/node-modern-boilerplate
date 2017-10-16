@@ -12,23 +12,28 @@ export enum Roles {
 @Entity()
 export class User extends BaseEntity {
 
+  // Id
   @PrimaryGeneratedColumn('uuid')
   id: string
 
+  // Name
   @Column()
   name: string
 
+  // Email
   @IsEmail()
   @Column({
     unique: true
   })
   email: string
 
+  // Date created
   @Column({
     default: new Date()
   })
   created: Date
 
+  // Roles
   @IsIn(Object.values(Roles), {
     each: true
   })
@@ -40,8 +45,28 @@ export class User extends BaseEntity {
   })
   roles: string[]
 
-  @Column()
-  private password: string
+  // Password hash
+  @Column({ name: 'password' })
+  private _password: string
+  set password(password: String) {
+    const SALT_FACTOR = 5
+
+    // TODO confirm that a throw here results in a proper JSON response
+
+    bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
+      if (err) throw err
+
+      bcrypt.hash(password, salt, (err, hash) => {
+        if (err) throw err
+
+        this._password = hash
+      })
+    })
+  }
+
+  /**
+   * METHODS
+   */
 
   /**
    * Compares given password with stored password hash
@@ -52,21 +77,6 @@ export class User extends BaseEntity {
     const isMatch = await bcrypt.compare(candidatePassword, this.password)
 
     return isMatch
-  }
-
-  /**
-   * Provide new password that will get hashed and salted, then saved
-   */
-  async setPassword(password: string): Promise<void> {
-    const SALT_FACTOR = 5
-
-    // TODO confirm that a throw here results in a proper JSON response
-
-    const salt = await bcrypt.genSalt(SALT_FACTOR)
-
-    const hash = await bcrypt.hash(password, salt)
-
-    this.password = hash
   }
 
   /**

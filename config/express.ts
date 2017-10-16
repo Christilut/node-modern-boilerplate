@@ -56,6 +56,8 @@ if (env.NODE_ENV === 'production') {
 
 // TODO admin graphql endpoint
 
+// TODO internal server error logging
+
 // mount graphql routes
 import GraphqlSchema from 'server/models'
 

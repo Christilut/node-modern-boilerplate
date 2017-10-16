@@ -1,8 +1,9 @@
 import { User } from './model'
+import * as mutations from './mutations'
 
 export default {
   Query: {
-    user(root, { email }) {
+    user(_, { email }) {
       return User.findOne({
         email
       })
@@ -10,8 +11,8 @@ export default {
   },
 
   Mutation: {
-    updateUser(root, { name, email }) {
-      return User.findOne({ name, email })
+    updateUser(_, args) {
+      return mutations.updateUser(args.id, args)
     }
   }
 }
