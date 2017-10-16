@@ -18,7 +18,7 @@ Added:
 
 Not yet added:
 - GraphQL
-- winston to cloudwatch logging
+- debugging in vscode
 - LumberJS
 - AVA for parallel unit testing (and test cases for everything)
   - mockgoose for typeorm?

@@ -1,6 +1,6 @@
 import env from 'config/env'
 import logger from 'config/logger'
-import httpStatus from 'http-status'
+import * as httpStatus from 'http-status'
 import * as express from 'express'
 import * as Morgan from 'morgan'
 import * as bodyParser from 'body-parser'
@@ -13,6 +13,8 @@ import expressValidation from 'express-validation'
 import * as helmet from 'helmet'
 import APIError from 'server/helpers/APIError'
 import * as passport from 'passport'
+import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
+import * as GraphQl from 'graphql-tools'
 
 const app = express()
 
@@ -46,8 +48,30 @@ if (env.NODE_ENV === 'production') {
   app.use(cors())
 }
 
-// mount all routes on /api/v1 path
-// TODO graphql
+// TODO add joi to graphql
+
+// TODO check that user is logged in
+
+// TODO get logged in user info
+
+// TODO admin graphql endpoint
+
+// mount graphql routes
+import GraphqlSchema from 'server/models'
+
+app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
+app.use('/graphql', bodyParser.json(), graphqlExpress({
+  schema: GraphqlSchema,
+  formatError: (err, asef) => {
+    if (env.NODE_ENV === 'production') {
+      logger.warn('GraphQL query failed', err)
+    } else {
+      console.warn(err.stack)
+    }
+
+    return err
+  }
+}))
 
 // enable detailed API logging
 if (env.NODE_ENV !== 'test') {
@@ -62,89 +86,94 @@ if (env.NODE_ENV !== 'test') {
 }
 
 // if error is not an instanceOf APIError, convert it.
-app.use((err, req, res, next) => {
-  if (err instanceof expressValidation.ValidationError) {
-    // validation error contains errors which is an array of error each containing message[]
-    const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ')
-    const error = new APIError(unifiedErrorMessage, err.status, true)
+// app.use((err, req, res, next) => {
+//   if (err instanceof expressValidation.ValidationError) {
+//     // validation error contains errors which is an array of error each containing message[]
+//     const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ')
+//     const error = new APIError(unifiedErrorMessage, err.status, true)
 
-    return next(error)
-  } else if (!(err instanceof APIError)) {
-    const apiError = new APIError(err.message, err.status, err.isPublic)
+//     return next(error)
+//   } else if (!(err instanceof APIError)) {
+//     const apiError = new APIError(err.message, err.status, err.isPublic)
 
-    return next(apiError)
-  }
-  return next(err)
-})
+//     return next(apiError)
+//   }
+//   return next(err)
+// })
 
 // catch 404 and forward to error handler
-app.use((req, res, next) => {
-  if (req.url === '/favicon.ico') {
-    return res.sendStatus(httpStatus.NOT_FOUND)
-  }
+// app.use((req, res, next) => {
+//   if (req.url === '/favicon.ico') {
+//     return res.sendStatus(httpStatus.NOT_FOUND)
+//   }
 
-  const err = new APIError('API not found', httpStatus.NOT_FOUND)
-  return next(err)
-})
+//   const err = new APIError('API not found', httpStatus.NOT_FOUND)
+//   return next(err)
+// })
 
 // enable error logging
-if (env.NODE_ENV !== 'test') { // TODO This is extended logging? not really needed
-  // app.use(expressWinston.errorLogger({
-  //   winstonInstance: logger
-  // }))
-}
+// if (env.NODE_ENV !== 'test') { // TODO This is extended logging? not really needed
+//   app.use(expressWinston.errorLogger({
+//     winstonInstance: logger
+//   }))
+// }
 
 // error handler, send stacktrace only during development
-app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  if (env.NODE_ENV === 'development') {
-    console.log(err.stack)
-  }
+// app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+//   if (env.NODE_ENV === 'development') {
+//     // console.log(err.stack)
+//   }
 
-  if (env.NODE_ENV !== 'test') {
-    // if (err.status === httpStatus.CONFLICT || // username taken, website name taken, etc
-    //   err.status === httpStatus.UNAUTHORIZED || // bad login
-    //   err.status === httpStatus.NOT_FOUND || // user not found, website not found, etc
-    //   err.status === httpStatus.NOT_ACCEPTABLE || // used for when social login has same email as existing account or bad google translate action
-    //   err.status === httpStatus.EXPECTATION_FAILED) { // 409 is not an error
-    //   logger.warn('Handled error', {
-    //     err,
-    //     request: {
-    //       url: req.url,
-    //       params: req.params,
-    //       query: req.query,
-    //       method: req.method,
-    //       body: req.body
-    //     }
-    //   })
-    // } else {
-    const headersWithoutAuth = req.headers
-    delete headersWithoutAuth.authorization
+//   // console.log(err)
+//   console.log(req)
 
-    logger.error('Unhandled exception occurred', {
-      err,
-      stack: err.stack,
-      request: {
-        url: req.url,
-        params: req.params,
-        query: req.query,
-        method: req.method,
-        headers: headersWithoutAuth,
-        body: req.body
-      }
-    })
-    // }
-  }
+//   return res.sendStatus(httpStatus.OK)
 
-  if (env.NODE_ENV === 'development') {
-    res.status(err.status).json({
-      message: err.isPublic ? err.message : httpStatus[err.status],
-      stack: err.stack
-    })
-  } else {
-    res.status(err.status).json({
-      message: err.isPublic ? err.message : httpStatus[err.status]
-    })
-  }
-})
+//   if (env.NODE_ENV !== 'test') {
+//     // if (err.status === httpStatus.CONFLICT || // username taken, website name taken, etc
+//     //   err.status === httpStatus.UNAUTHORIZED || // bad login
+//     //   err.status === httpStatus.NOT_FOUND || // user not found, website not found, etc
+//     //   err.status === httpStatus.NOT_ACCEPTABLE || // used for when social login has same email as existing account or bad google translate action
+//     //   err.status === httpStatus.EXPECTATION_FAILED) { // 409 is not an error
+//     //   logger.warn('Handled error', {
+//     //     err,
+//     //     request: {
+//     //       url: req.url,
+//     //       params: req.params,
+//     //       query: req.query,
+//     //       method: req.method,
+//     //       body: req.body
+//     //     }
+//     //   })
+//     // } else {
+//     const headersWithoutAuth = req.headers
+//     delete headersWithoutAuth.authorization
+
+//     logger.error('Unhandled exception occurred', {
+//       err,
+//       stack: err.stack,
+//       request: {
+//         url: req.url,
+//         params: req.params,
+//         query: req.query,
+//         method: req.method,
+//         headers: headersWithoutAuth,
+//         body: req.body
+//       }
+//     })
+//     // }
+//   }
+
+//   if (env.NODE_ENV === 'development') {
+//     res.status(err.status).json({
+//       message: err.isPublic ? err.message : httpStatus[err.status],
+//       stack: err.stack
+//     })
+//   } else {
+//     res.status(err.status).json({
+//       message: err.isPublic ? err.message : httpStatus[err.status]
+//     })
+//   }
+// })
 
 export default app

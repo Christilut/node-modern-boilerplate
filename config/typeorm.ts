@@ -1,6 +1,5 @@
 import 'reflect-metadata'
 import { Connection, ConnectionOptions, createConnection } from 'typeorm'
-import { User, Roles } from 'server/models/user.model'
 import env from 'config/env'
 
 const options: ConnectionOptions = {
@@ -14,21 +13,14 @@ const options: ConnectionOptions = {
   logging: false,
   ssl: true,
   entities: [
-    'server/models/*'
+    'server/models/user/model.ts'
   ]
 }
 
-export async function init () {
-  const connection: Connection = await createConnection(options)
-
-  // TODO temp for testing
-  const user = await User.findOne({
-    email: 'test@test.com'
-  })
-
-  user.setPassword('test')
-
-  await user.save()
-
-  // console.log('Loaded users: ', user)
+export async function init() {
+  try {
+    const connection: Connection = await createConnection(options)
+  } catch (error) {
+    console.log('Database initialization failed: ' + error.message)
+  }
 }

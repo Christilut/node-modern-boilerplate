@@ -13,7 +13,7 @@ export enum Roles {
 export class User extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')
-  id: number
+  id: string
 
   @Column()
   name: string

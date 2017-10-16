@@ -15,9 +15,9 @@ import httpStatus from 'http-status'
 
 import * as util from 'util'
 
-import app from 'config/express'
-
 import { init as initDatabase } from 'config/typeorm'
+
+import app from 'config/express'
 
 (async () => {
   await initDatabase()
