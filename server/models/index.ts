@@ -3,8 +3,8 @@ import * as fs from 'fs'
 import { fileLoader, mergeTypes, mergeResolvers, GraphQlSchema } from 'merge-graphql-schemas'
 import * as GraphQl from 'graphql-tools'
 
-const schemas: String[] = []
-const resolvers: String[] = []
+const schemas: string[] = []
+const resolvers: string[] = []
 
 fs.readdirSync(__dirname).forEach(dir => {
   if (dir === 'index.ts') return
@@ -19,7 +19,7 @@ fs.readdirSync(__dirname).forEach(dir => {
 })
 
 const mergedSchemas = mergeTypes(schemas)
-const mergedResolvers = mergeResolvers(resolvers)
+const mergedResolvers = resolvers.length > 1 ? mergeResolvers(resolvers) : resolvers[0]
 
 const schema: GraphQlSchema = GraphQl.makeExecutableSchema({ typeDefs: mergedSchemas, resolvers: mergedResolvers })
 

@@ -14,18 +14,18 @@ export class User extends BaseEntity {
 
   // Id
   @PrimaryGeneratedColumn('uuid')
-  id: String
+  id: string
 
   // Name
   @Column()
-  name: String
+  name: string
 
   // Email
   @IsEmail()
   @Column({
     unique: true
   })
-  email: String
+  email: string
 
   // Date created
   @Column({
@@ -43,15 +43,13 @@ export class User extends BaseEntity {
     type: 'simple-array',
     default: Roles.User
   })
-  roles: String[]
+  roles: string[]
 
   // Password hash
   @Column({ name: 'password' })
-  private _password: String
-  set password(password: String) {
+  private _password: string
+  set password(password: string) {
     const SALT_FACTOR = 5
-
-    // TODO confirm that a throw here results in a proper JSON response
 
     bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
       if (err) throw err
@@ -71,7 +69,7 @@ export class User extends BaseEntity {
   /**
    * Compares given password with stored password hash
    */
-  async comparePassword(candidatePassword: String): Promise<void> {
+  async comparePassword(candidatePassword: string): Promise<void> {
     if (!this.password) throw new Error('User does not have password')
 
     const isMatch = await bcrypt.compare(candidatePassword, this.password)
@@ -82,7 +80,7 @@ export class User extends BaseEntity {
   /**
    * Send email to user based on template and data object
    */
-  async sendMail(subject: String, text: String, templateName: EMAIL_TEMPLATES, templateData: Object): Promise<void> {
+  async sendMail(subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object): Promise<void> {
     await sendMail(
       this.email,
       subject,

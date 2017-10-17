@@ -1,21 +1,21 @@
 import * as Joi from 'joi'
 
 export interface IConfig {
-  NODE_ENV?: String
+  NODE_ENV?: string
   PORT?: number
-  JWT_SECRET?: String
-  MAILGUN_API_KEY?: String
-  MAILGUN_DOMAIN?: String
-  EMAIL_FORGOT_SECRET?: String
-  EMAIL_VERIFY_SECRET?: String
-  DATABASE_HOST?: String
+  JWT_SECRET?: string
+  MAILGUN_API_KEY?: string
+  MAILGUN_DOMAIN?: string
+  EMAIL_FORGOT_SECRET?: string
+  EMAIL_VERIFY_SECRET?: string
+  DATABASE_HOST?: string
   DATABASE_PORT?: number
-  DATABASE_USERNAME?: String
-  DATABASE_PASSWORD?: String
-  DATABASE_NAME?: String
-  AWS_ACCESS_KEY?: String
-  AWS_SECRET?: String
-  AWS_REGION?: String
+  DATABASE_USERNAME?: string
+  DATABASE_PASSWORD?: string
+  DATABASE_NAME?: string
+  AWS_ACCESS_KEY?: string
+  AWS_SECRET?: string
+  AWS_REGION?: string
 }
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV

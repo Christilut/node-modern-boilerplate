@@ -5,15 +5,15 @@ import httpStatus from 'http-status'
  * @extends Error
  */
 export class ExtendableError extends Error {
-  status: Number
-  isPublic: Boolean
-  isOperational: Boolean
+  status: number
+  isPublic: boolean
+  isOperational: boolean
 
-  constructor (message: String, status: Number, isPublic: Boolean) {
+  constructor (message: string, status: number, isPublic: boolean) {
     if (env.NODE_ENV === 'test') console.log('\t', status, message)
-    super(message.toString())
+    super(message)
     this.name = this.constructor.name
-    this.message = message.toString()
+    this.message = message
     this.status = status
     this.isPublic = isPublic
     this.isOperational = true // This is required since bluebird 4 doesn't append it anymore.
@@ -30,11 +30,11 @@ export class ExtendableError extends Error {
 export default class APIError extends ExtendableError {
   /**
    * Creates an API error.
-   * @param {String} message - Error message.
-   * @param {Number} status - HTTP status code of error.
-   * @param {Boolean} isPublic - Whether the message should be visible to user or not.
+   * @param {string} message - Error message.
+   * @param {number} status - HTTP status code of error.
+   * @param {boolean} isPublic - Whether the message should be visible to user or not.
    */
-  constructor (message: String, status: Number = httpStatus.INTERNAL_SERVER_ERROR, isPublic: Boolean = false) {
+  constructor (message: string, status: number = httpStatus.INTERNAL_SERVER_ERROR, isPublic: boolean = false) {
     super(message, status, isPublic)
   }
 }
