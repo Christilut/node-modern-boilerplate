@@ -4,16 +4,19 @@ import * as httpStatus from 'http-status'
 import * as express from 'express'
 import * as Morgan from 'morgan'
 import * as bodyParser from 'body-parser'
-import * as cookieParser from 'cookie-parser'
+// import * as cookieParser from 'cookie-parser'
 import * as compress from 'compression'
-import * as methodOverride from 'method-override'
+// import * as methodOverride from 'method-override'
 import * as cors from 'cors'
 import * as expressWinston from 'express-winston'
 import * as helmet from 'helmet'
 import APIError from 'server/helpers/APIError'
-import * as passport from 'passport'
+// import * as passport from 'passport'
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
 import * as GraphQl from 'graphql-tools'
+import { login } from 'server/controllers/auth.controller'
+import validate from 'server/helpers/validation'
+import * as Joi from 'joi'
 
 const app = express()
 
@@ -25,11 +28,11 @@ if (env.NODE_ENV === 'development') {
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use(cookieParser())
+// app.use(cookieParser())
 app.use(compress())
-app.use(methodOverride())
+// app.use(methodOverride())
 
-app.use(passport.initialize())
+// app.use(passport.initialize())
 
 app.enable('trust proxy') // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
 
@@ -47,17 +50,30 @@ if (env.NODE_ENV === 'production') {
   app.use(cors())
 }
 
-// TODO add joi to graphql
-
-// TODO check that user is logged in
-
 // TODO get logged in user info
+
+// TODO check that user is logged in (JWT)
+// maybe annotation or something for easy permission checking?
 
 // TODO admin graphql endpoint
 
 // TODO internal server error logging
 
-// mount graphql routes
+// TODO register
+
+// TODO split up code below
+
+// Public routes for login and registration
+app.post('/login', (req, res, next) => {
+  validate(req.body, {
+    email: Joi.string().required(),
+    password: Joi.string().required()
+  })
+
+  next()
+}, login)
+
+// Private GraphQL routes, require authentication
 import GraphqlSchema from 'server/models'
 
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
@@ -103,14 +119,14 @@ if (env.NODE_ENV !== 'test') {
 // })
 
 // catch 404 and forward to error handler
-// app.use((req, res, next) => {
-//   if (req.url === '/favicon.ico') {
-//     return res.sendStatus(httpStatus.NOT_FOUND)
-//   }
+app.use((req, res, next) => {
+  if (req.url === '/favicon.ico') {
+    return res.sendStatus(httpStatus.NOT_FOUND)
+  }
 
-//   const err = new APIError('API not found', httpStatus.NOT_FOUND)
-//   return next(err)
-// })
+  const err = new APIError('API not found', httpStatus.NOT_FOUND)
+  return next(err)
+})
 
 // enable error logging
 // if (env.NODE_ENV !== 'test') { // TODO This is extended logging? not really needed
@@ -120,15 +136,15 @@ if (env.NODE_ENV !== 'test') {
 // }
 
 // error handler, send stacktrace only during development
-// app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 //   if (env.NODE_ENV === 'development') {
 //     // console.log(err.stack)
 //   }
 
 //   // console.log(err)
-//   console.log(req)
+  // console.log(req)
 
-//   return res.sendStatus(httpStatus.OK)
+  // return res.sendStatus(httpStatus.OK)
 
 //   if (env.NODE_ENV !== 'test') {
 //     // if (err.status === httpStatus.CONFLICT || // username taken, website name taken, etc
@@ -165,16 +181,16 @@ if (env.NODE_ENV !== 'test') {
 //     // }
 //   }
 
-//   if (env.NODE_ENV === 'development') {
-//     res.status(err.status).json({
-//       message: err.isPublic ? err.message : httpStatus[err.status],
-//       stack: err.stack
-//     })
-//   } else {
-//     res.status(err.status).json({
-//       message: err.isPublic ? err.message : httpStatus[err.status]
-//     })
-//   }
-// })
+  if (env.NODE_ENV === 'development') {
+    res.status(httpStatus.BAD_REQUEST).json({
+      message: err.isPublic ? err.message : httpStatus[err.status],
+      stack: err.stack
+    })
+  } else {
+    res.status(httpStatus.BAD_REQUEST).json({
+      message: err.isPublic ? err.message : httpStatus[err.status]
+    })
+  }
+})
 
 export default app

@@ -20,13 +20,6 @@ export class User extends BaseEntity {
   @Column()
   name: string
 
-  // Email
-  @IsEmail()
-  @Column({
-    unique: true
-  })
-  email: string
-
   // Date created
   @Column({
     default: new Date()
@@ -44,6 +37,18 @@ export class User extends BaseEntity {
     default: Roles.User
   })
   roles: string[]
+
+  // Email
+  @IsEmail()
+  @Column({
+    unique: true,
+    name: 'email'
+  })
+  private _email: string
+  get email() { return this._email }
+  set email(email: string) {
+    this._email = email.toLowerCase()
+  }
 
   // Password hash
   @Column({ name: 'password' })
@@ -69,7 +74,7 @@ export class User extends BaseEntity {
   /**
    * Compares given password with stored password hash
    */
-  async comparePassword(candidatePassword: string): Promise<void> {
+  async comparePassword(candidatePassword: string): Promise<boolean> {
     if (!this.password) throw new Error('User does not have password')
 
     const isMatch = await bcrypt.compare(candidatePassword, this.password)

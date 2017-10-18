@@ -26,6 +26,7 @@ Not yet added:
 - TSLint auto fix
 - roll db secrets
 - AWS upload to s3 from client
+- generator for model
 
 Not yet tested:
 - Code coverage
