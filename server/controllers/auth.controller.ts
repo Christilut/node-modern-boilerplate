@@ -125,11 +125,11 @@ export async function login(req, res, next): Promise<void> {
   const { email, password } = req.body
 
   const user: User = await User.findOne({
-    email: email // TODO broken for now
+    email
   })
-  console.log(user)
+
   if (!user || !await user.comparePassword(password)) { // TODO fix no-floating-promises linting, maybe TSLINT vnext?
-    throw new Error('Access denied')
+    throw new Error('Access denied') // TODO end request after error
   }
 
   const token = 'Bearer ' + generateToken(user)

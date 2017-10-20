@@ -27,6 +27,8 @@ Not yet added:
 - roll db secrets
 - AWS upload to s3 from client
 - generator for model
+- add error if production and typeorm synchronize=true
+- beforeInsert listener for created, updated
 
 Not yet tested:
 - Code coverage

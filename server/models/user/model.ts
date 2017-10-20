@@ -42,17 +42,40 @@ export class User extends BaseEntity {
   @IsEmail()
   @Column({
     unique: true,
-    name: 'email'
+    name: 'email',
+    transformer: {
+      to(value: string): string {
+        console.log('transforming')
+        return value.toLowerCase() // TODO the lowercase email gets saved to db but the save() doesnt return the transformed prop
+      },
+      from(value: string): string {
+        return value
+      }
+    }
   })
-  private _email: string
-  get email() { return this._email }
-  set email(email: string) {
-    this._email = email.toLowerCase()
-  }
+  email: string
 
   // Password hash
+  // @Column({
+  //   transformer: {
+  //     async to(password: string): Promise<string> {
+  //       const SALT_FACTOR = 5
+
+  //       const salt: string = await bcrypt.genSalt(SALT_FACTOR)
+
+  //       const hash: string = await bcrypt.hash(password, salt)
+
+  //       return hash // TODO not working yet
+  //     },
+  //     from(hash: string): string {
+  //       return hash
+  //     }
+  //   }
+  // })
+  // password: string
   @Column({ name: 'password' })
   private _password: string
+  get password(): string { return this._password }
   set password(password: string) {
     const SALT_FACTOR = 5
 
