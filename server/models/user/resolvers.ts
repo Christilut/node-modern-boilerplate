@@ -1,4 +1,4 @@
-import { User } from './model'
+import { UserClass, UserType } from './model'
 import * as mutations from './mutations'
 import { strongPasswordRegex } from 'server/helpers/regex'
 import validate from 'server/helpers/validation'
@@ -31,7 +31,11 @@ export default {
   },
 
   Mutation: {
-    async updateUser(_, args): Promise<User> {
+    async addUser(_, args): Promise<UserType> {
+      return mutations.addUser(args)
+    },
+
+    async updateUser(_, args): Promise<UserType> {
       // Remove id from args because otherwise it will try to update ID (which is pointless)
       const id = args.id
       delete args.id

@@ -1,13 +1,27 @@
-import { User } from './model'
+import { User, UserType } from './model'
 
-export interface IUpdateUserArgs {
+export interface IUpsertUserArgs {
   name: string
   email: string
   password: string
 }
 
-export async function updateUser(id: string, args: IUpdateUserArgs) {
-  const user = await User.findOneById(id)
+export async function addUser(args: IUpsertUserArgs): Promise<UserType> {
+  const user: UserType = new User()
+
+  user.name = args.name
+  user.email = args.email
+  user.password = args.password
+
+  await user.save()
+
+  return user
+}
+
+export async function updateUser(id: string, args: IUpsertUserArgs) {
+  const user = await User.findOneById(id) // TODO
+
+  // TODO update password caues graphql error
 
   for (const key of Object.keys(args)) {
     if (args[key] !== undefined) user[key] = args[key]

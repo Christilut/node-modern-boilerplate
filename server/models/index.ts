@@ -7,7 +7,7 @@ const schemas: string[] = []
 const resolvers: string[] = []
 
 fs.readdirSync(__dirname).forEach(dir => {
-  if (dir === 'index.ts') return
+  if (dir.lastIndexOf('.ts') === dir.length - '.ts'.length) return
 
   fs.readdirSync(path.join(__dirname, dir)).forEach(file => {
     if (file.includes('.gql') || file.includes('.graphql')) {

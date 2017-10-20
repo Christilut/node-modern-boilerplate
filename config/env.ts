@@ -3,16 +3,12 @@ import * as Joi from 'joi'
 export interface IConfig {
   NODE_ENV?: string
   PORT?: number
+  MONGO_HOST?: string
   JWT_SECRET?: string
   MAILGUN_API_KEY?: string
   MAILGUN_DOMAIN?: string
   EMAIL_FORGOT_SECRET?: string
   EMAIL_VERIFY_SECRET?: string
-  DATABASE_HOST?: string
-  DATABASE_PORT?: number
-  DATABASE_USERNAME?: string
-  DATABASE_PASSWORD?: string
-  DATABASE_NAME?: string
   AWS_ACCESS_KEY?: string
   AWS_SECRET?: string
   AWS_REGION?: string
@@ -29,17 +25,12 @@ const allowedEnvKeys: Joi.SchemaMap = {
     .valid(['development', 'production', 'test'])
     .required(),
   PORT: Joi.number().default(4040).required(),
-  JWT_SECRET: Joi.string().required()
-    .description('JWT Secret required to sign'),
+  MONGO_HOST: Joi.string().required(),
+  JWT_SECRET: Joi.string().required(),
   MAILGUN_API_KEY: Joi.string().required(),
   MAILGUN_DOMAIN: Joi.string().required(),
   EMAIL_FORGOT_SECRET: Joi.string().required(),
   EMAIL_VERIFY_SECRET: Joi.string().required(),
-  DATABASE_HOST: Joi.string().required(),
-  DATABASE_PORT: Joi.number().required(),
-  DATABASE_USERNAME: Joi.string().required(),
-  DATABASE_PASSWORD: Joi.string().required(),
-  DATABASE_NAME: Joi.string().required(),
   AWS_ACCESS_KEY: Joi.string().required(),
   AWS_SECRET: Joi.string().required(),
   AWS_REGION: Joi.string().required()

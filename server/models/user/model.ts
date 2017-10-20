@@ -1,94 +1,31 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm'
 import * as bcrypt from 'bcrypt'
+import * as mongoose from 'mongoose'
 import { sendMail, EMAIL_TEMPLATES } from 'server/helpers/email'
-import { IsEmail, IsIn, ArrayUnique, ArrayNotEmpty } from 'class-validator'
-import { validate, ValidationError } from 'class-validator'
+import { AbstractModel, IAbstractModel } from 'server/models/model'
+import { Model, SchemaField, Instance, model, schema } from '@decorators/mongoose'
 
 export enum Roles {
   User = 'user',
   Admin = 'admin'
 }
 
-@Entity()
-export class User extends BaseEntity {
+@Model('User')
+export class UserClass extends AbstractModel {
 
-  // Id
-  @PrimaryGeneratedColumn('uuid')
-  id: string
-
-  // Name
-  @Column()
+  @SchemaField(String) // TODO mongoose field properties
   name: string
 
-  // Date created
-  @Column({
-    default: new Date()
-  })
-  created: Date
-
-  // Roles
-  @IsIn(Object.values(Roles), {
-    each: true
-  })
-  @ArrayUnique()
-  @ArrayNotEmpty()
-  @Column({
-    type: 'simple-array',
-    default: Roles.User
-  })
-  roles: string[]
-
-  // Email
-  @IsEmail()
-  @Column({
-    unique: true,
-    name: 'email',
-    transformer: {
-      to(value: string): string {
-        console.log('transforming')
-        return value.toLowerCase() // TODO the lowercase email gets saved to db but the save() doesnt return the transformed prop
-      },
-      from(value: string): string {
-        return value
-      }
-    }
-  })
+  @SchemaField(String)
   email: string
 
-  // Password hash
-  // @Column({
-  //   transformer: {
-  //     async to(password: string): Promise<string> {
-  //       const SALT_FACTOR = 5
+  @SchemaField(Array) // TODO
+  roles: string[]
 
-  //       const salt: string = await bcrypt.genSalt(SALT_FACTOR)
+  @SchemaField(Date)
+  created: Date // TODO readonly
 
-  //       const hash: string = await bcrypt.hash(password, salt)
-
-  //       return hash // TODO not working yet
-  //     },
-  //     from(hash: string): string {
-  //       return hash
-  //     }
-  //   }
-  // })
-  // password: string
-  @Column({ name: 'password' })
-  private _password: string
-  get password(): string { return this._password }
-  set password(password: string) {
-    const SALT_FACTOR = 5
-
-    bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
-      if (err) throw err
-
-      bcrypt.hash(password, salt, (err, hash) => {
-        if (err) throw err
-
-        this._password = hash
-      })
-    })
-  }
+  @SchemaField(String)
+  password: string
 
   /**
    * METHODS
@@ -97,6 +34,7 @@ export class User extends BaseEntity {
   /**
    * Compares given password with stored password hash
    */
+  @Instance()
   async comparePassword(candidatePassword: string): Promise<boolean> {
     if (!this.password) throw new Error('User does not have password')
 
@@ -108,6 +46,7 @@ export class User extends BaseEntity {
   /**
    * Send email to user based on template and data object
    */
+  @Instance()
   async sendMail(subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object): Promise<void> {
     await sendMail(
       this.email,
@@ -121,15 +60,39 @@ export class User extends BaseEntity {
   /**
    * Performs model validation, pre-save events and saves the user to the database
    */
-  async save(): Promise<this> {
-    const validationErrors: ValidationError[] = await validate(this)
+  // async save(): Promise<this> {
+  //   const validationErrors: ValidationError[] = await validate(this)
 
-    if (validationErrors.length > 0) {
-      throw new Error('User model validation failed: ' + Object.values(validationErrors[0].constraints).join(', '))
-    }
+  //   if (validationErrors.length > 0) {
+  //     throw new Error('User model validation failed: ' + Object.values(validationErrors[0].constraints).join(', '))
+  //   }
 
-    super.save()
+  //   super.save()
 
-    return this
-  }
+  //   return this
+  // }
 }
+
+export type UserType = UserClass & mongoose.Document
+export type UserModel = mongoose.Model<UserType>
+
+export const User = model<UserType>({ provide: UserClass })
+export const UserSchema = schema({ provide: UserClass })
+
+UserSchema.pre('save', async function (next) {
+  const SALT_FACTOR = 5
+  console.log('pre save !!!') // TODO make presave work
+  if (this.isNew) {
+    this.created = new Date()
+  }
+
+  if (this.isModified('password')) {
+    const salt: string = await bcrypt.genSalt(SALT_FACTOR)
+
+    const hash: string = await bcrypt.hash(this.password, salt)
+
+    this.password = hash
+  }
+
+  next()
+})

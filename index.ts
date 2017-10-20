@@ -15,13 +15,11 @@ import httpStatus from 'http-status'
 
 import * as util from 'util'
 
-import { init as initDatabase } from 'config/typeorm'
+import 'config/mongoose'
 
 import app from 'config/express'
 
 (async () => {
-  await initDatabase()
-
   // module.parent check is required to support mocha watch
   // src: https://github.com/mochajs/mocha/issues/1912
   if (!module.parent) { // TODO check this with ava

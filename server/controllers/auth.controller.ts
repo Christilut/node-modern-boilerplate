@@ -1,6 +1,6 @@
 import env from 'config/env'
 import httpStatus from 'http-status'
-import { User } from 'server/models/user/model'
+import { UserClass } from 'server/models/user/model'
 const APIError = require('../helpers/APIError')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
@@ -124,25 +124,25 @@ const LocalStrategy = require('passport-local')
 export async function login(req, res, next): Promise<void> {
   const { email, password } = req.body
 
-  const user: User = await User.findOne({
-    email
-  })
+  // const user: UserClass = await UserClass.findOne({
+  //   email
+  // })
 
-  if (!user || !await user.comparePassword(password)) { // TODO fix no-floating-promises linting, maybe TSLINT vnext?
-    throw new Error('Access denied') // TODO end request after error
-  }
+  // if (!user || !await user.comparePassword(password)) { // TODO fix no-floating-promises linting, maybe TSLINT vnext?
+  //   throw new Error('Access denied') // TODO end request after error
+  // }
 
-  const token = 'Bearer ' + generateToken(user)
+  // const token = 'Bearer ' + generateToken(user)
 
-  res.json({
-    token
-  })
+  // res.json({
+  //   token
+  // })
 }
 
 /*
 * Generates a Json Web Token
 */
-function generateToken(user: User) {
+function generateToken(user: UserClass) {
   // Only add essential information to the JWT
   const jwtUser = {
     email: user.email.toLowerCase()
