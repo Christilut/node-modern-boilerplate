@@ -38,7 +38,9 @@ export class UserClass extends AbstractModel {
   async comparePassword(candidatePassword: string): Promise<boolean> {
     if (!this.password) throw new Error('User does not have password')
 
-    const isMatch = await bcrypt.compare(candidatePassword, this.password)
+    // TODO temp
+    const isMatch = candidatePassword === this.password
+    // const isMatch = await bcrypt.compare(candidatePassword, this.password)
 
     return isMatch
   }

@@ -5,6 +5,7 @@
     "rootDir": "",
     "moduleResolution": "node",
     "module": "commonjs",
+    "sourceMap": true,
     "declaration": true,
     "importHelpers": true,
     "inlineSourceMap": true,

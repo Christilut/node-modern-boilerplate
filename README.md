@@ -10,29 +10,29 @@ Removed:
 
 Added:
 - TypeScript
+- GraphQL
 - Email templates
 - Mailgun helper
 - User CRUD
+- User registration / login
 - Rate limiter
 - Cloudwatch logger
 
 Not yet added:
-- GraphQL
+- admin endpoint
 - debugging in vscode
 - LumberJS
 - AVA for parallel unit testing (and test cases for everything)
   - mockgoose for typeorm?
-- absolute module imports
 - TSLint auto fix
 - roll db secrets
 - AWS upload to s3 from client
 - generator for model
-- add error if production and typeorm synchronize=true
-- beforeInsert listener for created, updated
 
 Not yet tested:
 - Code coverage
 - mailgun
+- deploy to heroku
 
 ## Overview
 

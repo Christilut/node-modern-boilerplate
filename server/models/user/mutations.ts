@@ -2,6 +2,7 @@ import { User, UserType, UserSchema } from './model'
 import { strongPasswordRegex } from 'server/helpers/regex'
 import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
+import APIError from 'server/helpers/APIError'
 
 export interface IUpsertUserArgs {
   name: string
