@@ -43,6 +43,7 @@
   "dependencies": {
     "@decorators/mongoose": "^2.0.1",
     "@types/joi": "^10.4.3",
+    "@types/jsonwebtoken": "^7.2.3",
     "@types/mongoose": "^4.7.24",
     "@types/node": "^8.0.41",
     "@types/winston": "^2.3.6",

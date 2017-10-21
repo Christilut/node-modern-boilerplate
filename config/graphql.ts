@@ -11,7 +11,9 @@ export const graphiQL = graphiqlExpress({ endpointURL: '/graphql' })
 export const graphQlRoute = graphqlExpress(req => ({
   schema: GraphqlSchema,
   context: {
-    req: req
+    user: {
+      email: req.user.email
+    }
   },
   formatError: (err) => {
     if (env.NODE_ENV === 'production') {

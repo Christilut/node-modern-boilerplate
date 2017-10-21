@@ -1,12 +1,17 @@
 import env from 'config/env'
 import httpStatus from 'http-status'
 import { User, UserType } from 'server/models/user/model'
+import * as JWT from 'jsonwebtoken'
 const APIError = require('../helpers/APIError')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const LocalStrategy = require('passport-local')
+
+export interface IJsonWebTokenContents {
+  email: string
+}
 
 // const ROLES = require('../models/user.model').ROLES
 
@@ -60,6 +65,18 @@ const LocalStrategy = require('passport-local')
 // passport.use(_jwtLogin)
 // passport.use(_localLogin)
 
+export async function checkAuthentication(req, res, next) {
+  const token: string = req.headers.authorization
+
+  const decodedToken = await JWT.verify(token, env.JWT_SECRET) as IJsonWebTokenContents
+
+  req.user = {
+    email: decodedToken.email
+  }
+
+  next()
+}
+
 /**
  * Returns User when succesfully registered
  * @param req
@@ -67,7 +84,7 @@ const LocalStrategy = require('passport-local')
  * @param next
  * @returns {*}
  */
-export async function register (req, res, next) {
+export async function register(req, res, next) {
   const { name, email, password } = req.body
 
   const existingUser = await User.findByEmail(email)
@@ -96,7 +113,7 @@ export async function register (req, res, next) {
     user = await user.save()
 
     res.json({
-      token: 'JWT ' + generateToken(user),
+      token: generateToken(user),
       user: setUserInfo(user)
     })
   } catch (error) {
@@ -115,10 +132,10 @@ export async function login(req, res, next): Promise<void> {
   })
 
   if (!user || !await user.comparePassword(password)) { // TODO fix no-floating-promises linting, maybe TSLINT vnext?
-    throw new Error('Access denied') // TODO end request after error
+    throw new Error('Access denied')
   }
 
-  const token = 'Bearer ' + generateToken(user)
+  const token = generateToken(user)
 
   res.json({
     token
@@ -130,7 +147,7 @@ export async function login(req, res, next): Promise<void> {
 */
 function generateToken(user: UserType): string {
   // Only add essential information to the JWT
-  const jwtUser = {
+  const jwtUser: IJsonWebTokenContents = {
     email: user.email.toLowerCase()
   }
 
@@ -143,7 +160,7 @@ function generateToken(user: UserType): string {
  * Returns sanitized user object that is safe for sending to the user
  * @param {*} user
  */
-function setUserInfo (user: UserType) {
+function setUserInfo(user: UserType) {
   return { // TODO interfacea
     _id: user._id,
     name: user.name,

@@ -1,6 +1,6 @@
 import rateLimiter from 'server/system/ratelimiter'
 
-const router = require('express-promise-router')() // eslint-disable-line new-cap
+const router = require('express-promise-router')()
 
 // mount misc routes at /api/v1/misc
 import miscRoutes from './misc'

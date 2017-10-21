@@ -11,6 +11,8 @@ import * as cors from 'cors'
 import * as expressWinston from 'express-winston'
 import * as helmet from 'helmet'
 import APIError from 'server/helpers/APIError'
+import { checkAuthentication } from 'server/controllers/auth.controller'
+const router = require('express-promise-router')()
 
 const app = express()
 
@@ -44,11 +46,6 @@ if (env.NODE_ENV === 'production') {
   app.use(cors())
 }
 
-// TODO get logged in user info
-
-// TODO check that user is logged in (JWT)
-// maybe annotation or something for easy permission checking?
-
 // TODO admin graphql endpoint
 
 // TODO register, email verification
@@ -62,8 +59,12 @@ app.use('/', publicRoutes)
 // Private GraphQL routes, require authentication
 import { graphiQL, graphQlRoute } from 'config/graphql'
 
-app.use('/graphiql', graphiQL)
-app.use('/graphql', bodyParser.json(), graphQlRoute)
+if (env.NODE_ENV === 'development') {
+  app.use('/graphiql', graphiQL)
+}
+
+router.use('/graphql', bodyParser.json(), checkAuthentication, graphQlRoute)
+app.use('/', router)
 
 // enable detailed API logging
 if (env.NODE_ENV !== 'test') {
