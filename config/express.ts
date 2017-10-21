@@ -12,11 +12,7 @@ import * as expressWinston from 'express-winston'
 import * as helmet from 'helmet'
 import APIError from 'server/helpers/APIError'
 // import * as passport from 'passport'
-import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
 import * as GraphQl from 'graphql-tools'
-import { login } from 'server/controllers/auth.controller'
-import validate from 'server/helpers/validation'
-import * as Joi from 'joi'
 
 const app = express()
 
@@ -57,49 +53,19 @@ if (env.NODE_ENV === 'production') {
 
 // TODO admin graphql endpoint
 
-// TODO internal server error logging
-
 // TODO register
 
 // TODO split up code below
 
-const router = require('express-promise-router')()
-
 // Public routes for login and registration
-router.route('/login')
-  .post((req, res, next) => {
-    validate(req.body, {
-      email: Joi.string().required(),
-      password: Joi.string().required()
-    })
-
-    next()
-  }, login)
-
-app.use('/', router)
+import publicRoutes from 'server/public_routes'
+app.use('/', publicRoutes)
 
 // Private GraphQL routes, require authentication
-import GraphqlSchema from 'server/models'
+import { graphiQL, graphQlRoute } from 'config/graphql'
 
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
-app.use('/graphql', bodyParser.json(), graphqlExpress({
-  schema: GraphqlSchema,
-  formatError: (err) => {
-    if (env.NODE_ENV === 'production') {
-      logger.warn('GraphQL query failed', err)
-    } else {
-      console.warn(err.stack)
-    }
-
-    if (err.originalError instanceof APIError) {
-      if (!err.originalError.isPublic) {
-        err.message = 'Internal server error'
-      }
-    }
-
-    return err
-  }
-}))
+app.use('/graphiql', graphiQL)
+app.use('/graphql', bodyParser.json(), graphQlRoute)
 
 // enable detailed API logging
 if (env.NODE_ENV !== 'test') {

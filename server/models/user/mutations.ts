@@ -10,20 +10,20 @@ export interface IUpsertUserArgs {
   password: string
 }
 
-const addUserValidations: IUpsertUserArgs = {
+export const addUserValidation: IUpsertUserArgs = {
   name: Joi.string().max(64).min(2).required() as any,
   email: Joi.string().email().required() as any,
   password: Joi.string().regex(strongPasswordRegex).required() as any
 }
 
-const updateUserValidations: IUpsertUserArgs = {
+const updateUserValidation: IUpsertUserArgs = {
   name: Joi.string().max(64).min(2).optional() as any,
   email: Joi.string().email().optional() as any,
   password: Joi.string().regex(strongPasswordRegex).optional() as any
 }
 
 export async function addUser(args: IUpsertUserArgs): Promise<UserType> {
-  validate(args, addUserValidations)
+  validate(args, addUserValidation)
 
   const user: UserType = new User()
 
@@ -37,7 +37,7 @@ export async function addUser(args: IUpsertUserArgs): Promise<UserType> {
 }
 
 export async function updateUser(id: string, args: IUpsertUserArgs): Promise<UserType> {
-  validate(args, updateUserValidations)
+  validate(args, updateUserValidation)
 
   const user = await User.findById(id)
 

@@ -60,63 +60,49 @@ const LocalStrategy = require('passport-local')
 // passport.use(_jwtLogin)
 // passport.use(_localLogin)
 
-// /**
-//  * Returns sanitized user object that is safe for sending to the user
-//  * @param {*} user
-//  */
-// function setUserInfo (user) {
-//   return {
-//     _id: user._id,
-//     name: user.name,
-//     email: user.email,
-//     roles: user.roles
-//     // dont expose password hash or other sensitive/unnecesary data
-//   }
-// }
+/**
+ * Returns User when succesfully registered
+ * @param req
+ * @param res
+ * @param next
+ * @returns {*}
+ */
+export async function register (req, res, next) {
+  const { name, email, password } = req.body
 
-// /**
-//  * Returns User when succesfully registered
-//  * @param req
-//  * @param res
-//  * @param next
-//  * @returns {*}
-//  */
-// async function register (req, res, next) {
-//   const { name, email, password } = req.body
+  const existingUser = await User.findByEmail(email)
 
-//   const existingUser = await User.findByEmail(email)
+  // If user is not unique, return error
+  if (existingUser) {
+    const error = new APIError('Email address is already in use', httpStatus.CONFLICT, true)
 
-//   // If user is not unique, return error
-//   if (existingUser) {
-//     const error = new APIError('Email address is already in use', httpStatus.CONFLICT, true)
+    return next(error)
+  }
 
-//     return next(error)
-//   }
+  // If email is unique and password was provided, create account
+  let user = new User({
+    name,
+    email,
+    password // this is a hash, see user.pre-save
+  })
 
-//   // If email is unique and password was provided, create account
-//   let user = new User({
-//     name,
-//     email,
-//     password // this is a hash, see user.pre-save
-//   })
+  if (env.NODE_ENV === 'test') {
+    if (email === 'admin@admin.admin') {
+      // user.roles.push(ROLES.ADMIN) // TODO
+    }
+  }
 
-//   if (config.NODE_ENV === 'test') {
-//     if (email === 'admin@admin.admin') {
-//       user.roles.push(ROLES.ADMIN)
-//     }
-//   }
+  try {
+    user = await user.save()
 
-//   try {
-//     user = await user.save()
-
-//     res.json({
-//       token: 'JWT ' + generateToken({ user }),
-//       user: setUserInfo(user)
-//     })
-//   } catch (error) {
-//     return next(error)
-//   }
-// }
+    res.json({
+      token: 'JWT ' + generateToken(user),
+      user: setUserInfo(user)
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
 
 /**
  * Returns passport login response (jwt) when valid username and password is provided
@@ -151,6 +137,20 @@ function generateToken(user: UserType): string {
   return jwt.sign(jwtUser, env.JWT_SECRET, {
     expiresIn: '7d'
   })
+}
+
+/**
+ * Returns sanitized user object that is safe for sending to the user
+ * @param {*} user
+ */
+function setUserInfo (user: UserType) {
+  return { // TODO interfacea
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    roles: user.roles
+    // dont expose password hash or other sensitive/unnecesary data
+  }
 }
 
 // function getLoggedInUser (req, res) {
