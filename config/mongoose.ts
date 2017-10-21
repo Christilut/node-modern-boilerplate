@@ -2,6 +2,8 @@ import env from 'config/env'
 import * as mongoose from 'mongoose'
 import * as mockgoose from 'mockgoose'
 
+(mongoose as any).Promise = Promise
+
 // connect to mongo db
 if (env.NODE_ENV === 'test') {
   const mock = new mockgoose.Mockgoose(mongoose)
@@ -13,12 +15,9 @@ if (env.NODE_ENV === 'test') {
   })
 } else {
   mongoose.connect(env.MONGO_HOST, {
-    server: {
-      socketOptions: {
-        keepAlive: 1
-      }
-    }
-  })
+    useMongoClient: true,
+    keepAlive: true
+  } as any) // mongoose typings dont appear to be up to date
 }
 
 mongoose.connection.on('error', () => {

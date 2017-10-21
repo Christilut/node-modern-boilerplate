@@ -1,4 +1,7 @@
-import { User, UserType } from './model'
+import { User, UserType, UserSchema } from './model'
+import { strongPasswordRegex } from 'server/helpers/regex'
+import validate from 'server/helpers/validation'
+import * as Joi from 'joi'
 
 export interface IUpsertUserArgs {
   name: string
@@ -6,22 +9,36 @@ export interface IUpsertUserArgs {
   password: string
 }
 
+const addUserValidations: IUpsertUserArgs = {
+  name: Joi.string().max(64).min(2).required() as any,
+  email: Joi.string().email().required() as any,
+  password: Joi.string().regex(strongPasswordRegex).required() as any
+}
+
+const updateUserValidations: IUpsertUserArgs = {
+  name: Joi.string().max(64).min(2).optional() as any,
+  email: Joi.string().email().optional() as any,
+  password: Joi.string().regex(strongPasswordRegex).optional() as any
+}
+
 export async function addUser(args: IUpsertUserArgs): Promise<UserType> {
+  validate(args, addUserValidations)
+
   const user: UserType = new User()
 
-  user.name = args.name
-  user.email = args.email
-  user.password = args.password
+  for (const key of Object.keys(args)) {
+    if (args[key] !== undefined) user[key] = args[key]
+  }
 
   await user.save()
 
   return user
 }
 
-export async function updateUser(id: string, args: IUpsertUserArgs) {
-  const user = await User.findOneById(id) // TODO
+export async function updateUser(id: string, args: IUpsertUserArgs): Promise<UserType> {
+  validate(args, updateUserValidations)
 
-  // TODO update password caues graphql error
+  const user = await User.findById(id)
 
   for (const key of Object.keys(args)) {
     if (args[key] !== undefined) user[key] = args[key]
