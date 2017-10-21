@@ -11,8 +11,6 @@ import * as cors from 'cors'
 import * as expressWinston from 'express-winston'
 import * as helmet from 'helmet'
 import APIError from 'server/helpers/APIError'
-// import * as passport from 'passport'
-import * as GraphQl from 'graphql-tools'
 
 const app = express()
 
@@ -53,9 +51,9 @@ if (env.NODE_ENV === 'production') {
 
 // TODO admin graphql endpoint
 
-// TODO register
+// TODO register, email verification
 
-// TODO split up code below
+// TODO reset password
 
 // Public routes for login and registration
 import publicRoutes from 'server/public_routes'

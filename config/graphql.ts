@@ -8,8 +8,11 @@ import * as bodyParser from 'body-parser'
 
 export const graphiQL = graphiqlExpress({ endpointURL: '/graphql' })
 
-export const graphQlRoute = graphqlExpress({
+export const graphQlRoute = graphqlExpress(req => ({
   schema: GraphqlSchema,
+  context: {
+    req: req
+  },
   formatError: (err) => {
     if (env.NODE_ENV === 'production') {
       logger.warn('GraphQL query failed', err)
@@ -25,4 +28,4 @@ export const graphQlRoute = graphqlExpress({
 
     return err
   }
-})
+}))

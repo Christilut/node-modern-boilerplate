@@ -5,14 +5,8 @@ type User {
   roles: [String!]
 }
 
-type LoginResponse {
-  token: String
-}
-
 type Query {
-  user(email: String): User
-
-  login(email: String, password: String): LoginResponse
+  me: User
 }
 
 type Mutation {

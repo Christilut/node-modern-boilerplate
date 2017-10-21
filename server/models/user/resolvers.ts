@@ -7,24 +7,13 @@ export default {
     /**
      * Returns sanitized User object of the currently logged in user (based on the request JWT)
      */
-    user(_) {
-      console.log(_)
+    me(_, args, context) {
+      console.log(context)
 
       return {
         id: 123
       }
     }
-
-    // async login(_, args): Promise<Object> {
-    //   validate(args, Joi.object().keys({
-    //     email: Joi.string().required(),
-    //     password: Joi.string().required()
-    //   }))
-
-    //   return {
-    //     token: login(args.email, args.password)
-    //   }
-    // }
   },
 
   Mutation: {

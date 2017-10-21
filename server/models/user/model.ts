@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt'
 import * as mongoose from 'mongoose'
 import { sendMail, EMAIL_TEMPLATES } from 'server/helpers/email'
-import { AbstractModel, IAbstractModel } from 'server/models/model'
+import { AbstractModel, IAbstractModel } from 'config/mongoose'
 import { Model, SchemaField, Instance, model, schema } from '@decorators/mongoose'
 
 export enum Roles {
