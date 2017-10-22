@@ -1,71 +1,63 @@
 import env from 'config/env'
+import logger from 'config/logger'
 import * as httpStatus from 'http-status'
 import { User, UserType } from 'server/models/user/model'
 import * as JWT from 'jsonwebtoken'
 import APIError from 'server/helpers/APIError'
-const passport = require('passport')
-const jwt = require('jsonwebtoken')
-const JwtStrategy = require('passport-jwt').Strategy
-const ExtractJwt = require('passport-jwt').ExtractJwt
-const LocalStrategy = require('passport-local')
+import { addUserValidation } from 'server/models/user/mutations'
+import { EMAIL_TEMPLATES } from 'server/helpers/email'
 
 export interface IJsonWebTokenContents {
   id: string,
   roles: string[]
 }
 
-// const ROLES = require('../models/user.model').ROLES
+interface IUserInfo {
+  id: string
+  name: string
+  email: string
+  roles: string[]
+}
 
-// const localOptions = { usernameField: 'email', passReqToCallback: true }
-// const jwtOptions = {
-//   jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('jwt'),
-//   secretOrKey: config.JWT_SECRET
-// }
+interface IVerificationMailTokenContents {
+  id: string
+}
 
-// const _localLogin = new LocalStrategy(localOptions, async function (req, email, password, next) {
-//   let user = null
-//   email = email.toLowerCase()
+interface IForgotPasswordTokenContents {
+  id: string
+}
 
-//   try {
-//     user = await User.findByEmail(email)
-//   } catch (err) {
-//     return next(new APIError(err.message, httpStatus.UNAUTHORIZED), false)
-//   }
+/*
+* Generates a Json Web Token
+*/
+function _generateToken(user: UserType): string {
+  // Only add essential information to the JWT
+  const jwtUser: IJsonWebTokenContents = {
+    id: user.id,
+    roles: user.roles
+  }
 
-//   if (!user) {
-//     return next(null, false, { error: 'Your login details could not be verified. Please try again.' })
-//   }
+  return JWT.sign(jwtUser, env.JWT_SECRET, {
+    expiresIn: '7d'
+  })
+}
 
-//   let isMatch = false
-//   try {
-//     isMatch = await user.comparePassword(password)
-//   } catch (err) {
-//     return next(err)
-//   }
+/**
+ * Returns sanitized user object that is safe for sending to the user
+ */
+function _setUserInfo(user: UserType): IUserInfo {
+  return {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    roles: user.roles
+    // dont expose password hash or other sensitive/unnecesary data
+  }
+}
 
-//   if (!isMatch) {
-//     return next(null, false, { error: 'Your login details could not be verified. Please try again.' })
-//   }
-
-//   // Login succes
-//   return next(null, user)
-// })
-
-// const _jwtLogin = new JwtStrategy(jwtOptions, function (payload, next) {
-//   User.findById(payload._id, function (err, user) { // TODO this can be removed when JWT blacklisting is in
-//     if (err) { return next(err, false) }
-
-//     if (user) {
-//       next(null, user)
-//     } else {
-//       next(null, false)
-//     }
-//   })
-// })
-
-// passport.use(_jwtLogin)
-// passport.use(_localLogin)
-
+/**
+ * Verifies JWT and throws error if invalid
+ */
 export async function checkAuthentication(req, res, next) {
   const token: string = req.headers.authorization
 
@@ -79,6 +71,9 @@ export async function checkAuthentication(req, res, next) {
   next()
 }
 
+/**
+ * Checks if user has the admin role will throw an error if not
+ */
 export async function checkAdminRole(req, res, next) {
   if (req.user && req.user.roles && req.user.roles.includes('admin')) {
     return next()
@@ -88,16 +83,14 @@ export async function checkAdminRole(req, res, next) {
 }
 
 /**
- * Returns User when succesfully registered
- * @param req
- * @param res
- * @param next
- * @returns {*}
+ * Registers a new user and returns JWT & User when succesfully registered
  */
 export async function register(req, res, next) {
-  const { name, email, password } = req.body
+  const name: string = req.body.name
+  const email: string = req.body.email
+  const password: string = req.body.password
 
-  const existingUser = await User.findByEmail(email)
+  const existingUser: UserType = await User.findOne({ email })
 
   // If user is not unique, return error
   if (existingUser) {
@@ -107,13 +100,15 @@ export async function register(req, res, next) {
   }
 
   // If email is unique and password was provided, create account
-  let user = new User({
+  let user: UserType = new User({
     name,
     email,
-    password // this is a hash, see user.pre-save
+    password // this is a hash, see User.pre-save
   })
 
   if (env.NODE_ENV === 'test') {
+    user.verified = true
+
     if (email === 'admin@admin.admin') {
       // user.roles.push(ROLES.ADMIN) // TODO
     }
@@ -122,9 +117,11 @@ export async function register(req, res, next) {
   try {
     user = await user.save()
 
-    res.json({
-      token: generateToken(user),
-      user: setUserInfo(user)
+    await user.sendVerificationMail()
+
+    return res.json({
+      token: _generateToken(user),
+      user: _setUserInfo(user)
     })
   } catch (error) {
     return next(error)
@@ -145,55 +142,200 @@ export async function login(req, res, next): Promise<void> {
     throw new Error('Access denied')
   }
 
-  const token = generateToken(user)
+  const token = _generateToken(user)
 
   res.json({
     token
   })
 }
 
-/*
-* Generates a Json Web Token
-*/
-function generateToken(user: UserType): string {
-  // Only add essential information to the JWT
-  const jwtUser: IJsonWebTokenContents = {
-    id: user.id,
-    roles: user.roles
-  }
-
-  return jwt.sign(jwtUser, env.JWT_SECRET, {
-    expiresIn: '7d'
+export async function sendVerificationMail(userId: string) {
+  const token = await JWT.sign({ id: userId } as IVerificationMailTokenContents, env.EMAIL_VERIFY_SECRET, {
+    expiresIn: '1 day'
   })
+
+  const verificationLink = env.FRONTEND_DOMAIN + `/verify?token=${token}`
+
+  await this.sendMail(
+    'Account verification',
+    `Please verify your account by clicking the following link: ${verificationLink}`,
+    EMAIL_TEMPLATES.Action,
+    {
+      title: 'Account verification',
+      message: 'Please verify your account by clicking the button below.',
+      buttonText: 'Verify now',
+      buttonUrl: verificationLink
+    }
+  )
 }
 
 /**
- * Returns sanitized user object that is safe for sending to the user
- * @param {*} user
+ * If token valid, will verify user account of the user ID that is inside the JWT. Token should come from a verification email sent to the user (see User.sendVerificationmail).
  */
-function setUserInfo(user: UserType) {
-  return { // TODO interfacea
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    roles: user.roles
-    // dont expose password hash or other sensitive/unnecesary data
+export async function verifyAccount (req, res, next) {
+  const token: string = req.body.token
+
+  try {
+    const decodedToken: IVerificationMailTokenContents = await JWT.verify(token, env.EMAIL_VERIFY_SECRET) as IVerificationMailTokenContents
+
+    const user: UserType = await User.findById(decodedToken.id)
+
+    if (!user) {
+      logger.warn('account verification triggered for non-existant user but token was valid', {
+        userId: decodedToken.id,
+        req
+      })
+
+      return next(new APIError('User does not exist', httpStatus.UNAUTHORIZED))
+    }
+
+    if (user.verified) {
+      logger.warn('user account verification triggered for already verified user', {
+        userId: decodedToken.id,
+        req
+      })
+
+      return next(new APIError('User already verified', httpStatus.UNAUTHORIZED))
+    }
+
+    user.verified = true
+
+    await user.save()
+
+    return res.sendStatus(httpStatus.OK)
+  } catch (error) {
+    logger.warn('invalid JWT was used for account verification', {
+      token,
+      req
+    })
+
+    if (error.name === 'TokenExpiredError') {
+      return res.sendStatus(httpStatus.PRECONDITION_FAILED)
+    }
+
+    return next(new APIError(error, httpStatus.BAD_REQUEST, false))
   }
 }
 
-// function getLoggedInUser (req, res) {
-//   const userInfo = setUserInfo(req.user)
+/**
+ * Sends the email verification mail again
+ */
+export async function resendVerification (req, res, next) {
+  const email: string = req.body.email
 
-//   res.json(userInfo)
-// }
+  if (!email) {
+    return next(new APIError('Missing email parameter', httpStatus.UNAUTHORIZED))
+  }
 
-// /**
-//  * Middleware to check for Admin role
-//  */
-// async function checkAdminRole (req, res, next) {
-//   if (req.user.roles.includes(ROLES.ADMIN)) {
-//     return next()
-//   }
+  const user: UserType = await User.findOne({ email })
 
-//   return next(new APIError('User does not have required Admin role', httpStatus.UNAUTHORIZED))
-// }
+  if (!user) {
+    logger.warn('user resend verification mail triggered for non-existant user', {
+      email,
+      req
+    })
+
+    return next(new APIError('User does not exist', httpStatus.UNAUTHORIZED))
+  }
+
+  if (user.verified) {
+    logger.warn('user resend verification mail triggered for already verified user', {
+      email,
+      req
+    })
+
+    return next(new APIError('User already verified', httpStatus.UNAUTHORIZED))
+  }
+
+  await user.sendVerificationMail()
+
+  res.sendStatus(httpStatus.OK)
+}
+
+/**
+ * Requests a "forgot password" email that contains a link to reset the password
+ */
+export async function sendForgotPasswordMail (req, res, next) {
+  const email: string = req.body.email
+
+  const user: UserType = await User.findOne({ email })
+
+  if (!user) {
+    logger.warn('user forgot password triggered for non-existant user', {
+      email,
+      req
+    })
+
+    return res.sendStatus(httpStatus.OK) // Dont error on invalid email as it exposes which emails have accounts here
+  }
+
+  const token: string = await JWT.sign({
+    id: user._id
+  } as IForgotPasswordTokenContents, env.EMAIL_FORGOT_SECRET, {
+    expiresIn: '1 day' // 1 day
+  })
+
+  await user.sendMail(
+    'Password reset instructions',
+    `Someone has triggered password reset on your email. You can reset your password at ${env.FRONTEND_DOMAIN + '/forgot'}. If you did not expect this email, you can safely ignore it.`,
+    EMAIL_TEMPLATES.Action,
+    {
+      title: 'Forgot password',
+      message: 'Someone has triggered password reset on your email. You can reset your password with the button below. If you did not expect this email, you can safely ignore it.',
+      buttonText: 'Reset password',
+      buttonUrl: env.FRONTEND_DOMAIN + `/forgot?token=${token}`
+    }
+  )
+
+  res.sendStatus(httpStatus.OK)
+}
+
+/**
+ * Resets a user password. If the token is valid, takes the user ID from inside the JWT and changes that user to the new password.
+ */
+export async function resetPassword (req, res, next) {
+  const token: string = req.body.token
+  const password: string = req.body.password
+
+  try {
+    const decodedToken: IForgotPasswordTokenContents = await JWT.verify(token, env.EMAIL_FORGOT_SECRET) as IForgotPasswordTokenContents
+
+    const user: UserType = await User.findById(decodedToken.id)
+
+    if (!user) {
+      logger.warn('reset password triggered for non-existant user but token was valid', {
+        decodedJwt: decodedToken,
+        req
+      })
+
+      return next(new APIError('User does not exist', httpStatus.UNAUTHORIZED))
+    }
+
+    user.password = password
+
+    await user.save()
+
+    await user.sendMail(
+      'Password changed',
+      `Your password has been changed. If this was not you, please reset your password immediately on the login screen and check who can access your email.`,
+      EMAIL_TEMPLATES.Info,
+      {
+        title: 'Password changed',
+        lead: 'Your password has been updated successfully.',
+        message: 'If you did not do this, please reset your password immediately on the login screen and check who can access your email.'
+      }
+    )
+
+    return res.sendStatus(httpStatus.OK)
+  } catch (error) {
+    logger.warn('invalid JWT was used for password reset', {
+      req
+    })
+
+    if (error.name === 'TokenExpiredError') {
+      return res.sendStatus(httpStatus.PRECONDITION_FAILED)
+    }
+
+    return next(new APIError(error, httpStatus.BAD_REQUEST, false))
+  }
+}

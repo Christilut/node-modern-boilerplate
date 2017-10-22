@@ -1,8 +1,11 @@
+import env from 'config/env'
 import * as bcrypt from 'bcrypt'
 import * as mongoose from 'mongoose'
 import { sendMail, EMAIL_TEMPLATES } from 'server/helpers/email'
 import { AbstractModel, IAbstractModel } from 'config/mongoose'
 import { Model, SchemaField, Instance, Static, model, schema } from '@decorators/mongoose'
+import * as JWT from 'jsonwebtoken'
+import * as authController from 'server/controllers/auth.controller'
 
 export enum Roles {
   User = 'user',
@@ -12,20 +15,25 @@ export enum Roles {
 @Model('User')
 export class UserClass extends AbstractModel {
 
-  @SchemaField(String) // TODO mongoose field properties
+  _id: string
+
+  @SchemaField(String) // TODO required
   name: string
 
-  @SchemaField(String)
+  @SchemaField(String) // TODO required
   email: string
 
-  @SchemaField(Array) // TODO
+  @SchemaField(Array) // TODO enum, default: []
   roles: string[]
 
   @SchemaField(Date)
   created: Date // TODO readonly
 
-  @SchemaField(String)
+  @SchemaField(String) // TODO required
   password: string
+
+  @SchemaField(Boolean) // TODO default: false
+  verified: boolean
 
   /**
    * METHODS
@@ -65,6 +73,11 @@ export class UserClass extends AbstractModel {
       templateName,
       templateData
     )
+  }
+
+  @Instance()
+  async sendVerificationMail() {
+    return authController.sendVerificationMail(this._id)
   }
 
   /**

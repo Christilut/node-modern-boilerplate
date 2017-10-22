@@ -4,9 +4,7 @@ import * as httpStatus from 'http-status'
 import * as express from 'express'
 import * as Morgan from 'morgan'
 import * as bodyParser from 'body-parser'
-// import * as cookieParser from 'cookie-parser'
 import * as compress from 'compression'
-// import * as methodOverride from 'method-override'
 import * as cors from 'cors'
 import * as expressWinston from 'express-winston'
 import * as helmet from 'helmet'
@@ -25,9 +23,7 @@ if (env.NODE_ENV === 'development') {
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 
-// app.use(cookieParser())
 app.use(compress())
-// app.use(methodOverride())
 
 // app.use(passport.initialize())
 
@@ -46,10 +42,6 @@ if (env.NODE_ENV === 'production') {
 } else {
   app.use(cors())
 }
-
-// TODO register, email verification
-
-// TODO reset password
 
 // Public routes for login and registration
 import publicRoutes from 'server/public_routes'

@@ -14,22 +14,20 @@ Added:
 - Email templates
 - Mailgun helper
 - User CRUD
-- User registration / login
+- User login, registration, email verification & password reset
 - Rate limiter
 - Cloudwatch logger
 
 Not yet added:
-- admin endpoint
-- debugging in vscode
 - LumberJS
 - AVA for parallel unit testing (and test cases for everything)
-  - mockgoose for typeorm?
-- TSLint auto fix
 - roll db secrets
 - AWS upload to s3 from client
 - generator for model
 
 Not yet tested:
+- commitizen
+- debugging in vscode
 - Code coverage
 - mailgun
 - deploy to heroku

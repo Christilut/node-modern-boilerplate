@@ -1,18 +1,16 @@
 import Handlebars from 'handlebars'
-import mailcomposer from 'mailcomposer'
-import fs from 'fs-extra'
+import * as mailcomposer from 'mailcomposer'
+import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as Joi from 'joi'
 import env from 'config/env'
 import logger from 'config/logger'
 
-const DEV_EMAIL = 'todo'
-
 export enum EMAIL_TEMPLATES {
-  Action,
-  Alert,
-  Info,
-  Welcome
+  Action = 'action',
+  Alert = 'alert',
+  Info = 'info',
+  Welcome = 'welcome'
 }
 
 const mailgun = require('mailgun-js')({
@@ -67,14 +65,12 @@ async function _generateMail (templateName: EMAIL_TEMPLATES, data: Object) {
 
 export async function sendMail (to: string, subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object) {
   if (env.NODE_ENV === 'development') {
-    to = DEV_EMAIL
-    throw new Error('fill in development email & remove this throw')
+    to = env.EMAIL_FROM_ADDRESS
   }
 
   try {
-    // throw new Error('fill in FROM email address')
     const rawMessage = mailcomposer({
-      from: 'todo', // TODO fill in from email
+      from: env.EMAIL_FROM_ADDRESS,
       to,
       subject,
       text, // text that is shown incase client doesnt support HTML
@@ -104,7 +100,7 @@ export async function sendMail (to: string, subject: string, text: string, templ
 
 export async function sendDevMail (subject: string, text: string) {
   await sendMail(
-    DEV_EMAIL,
+    env.EMAIL_FROM_ADDRESS,
     subject,
     text,
     EMAIL_TEMPLATES.Info,

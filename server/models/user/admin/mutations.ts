@@ -3,13 +3,7 @@ import { strongPasswordRegex } from 'server/helpers/regex'
 import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
 import APIError from 'server/helpers/APIError'
-import { IUpsertUserArgs, updateUser as defaultUpdateUser } from 'server/models/user/mutations'
-
-export const addUserValidation: IUpsertUserArgs = {
-  name: Joi.string().max(64).min(2).required() as any,
-  email: Joi.string().email().required() as any,
-  password: Joi.string().regex(strongPasswordRegex).required() as any
-}
+import { IUpsertUserArgs, updateUser as defaultUpdateUser, addUserValidation } from 'server/models/user/mutations'
 
 export async function addUser(args: IUpsertUserArgs): Promise<UserType> {
   validate(args, addUserValidation)

@@ -9,9 +9,11 @@ export interface IConfig {
   MAILGUN_DOMAIN?: string
   EMAIL_FORGOT_SECRET?: string
   EMAIL_VERIFY_SECRET?: string
+  EMAIL_FROM_ADDRESS?: string
   AWS_ACCESS_KEY?: string
   AWS_SECRET?: string
   AWS_REGION?: string
+  FRONTEND_DOMAIN?: string
 }
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
@@ -31,9 +33,11 @@ const allowedEnvKeys: Joi.SchemaMap = {
   MAILGUN_DOMAIN: Joi.string().required(),
   EMAIL_FORGOT_SECRET: Joi.string().required(),
   EMAIL_VERIFY_SECRET: Joi.string().required(),
+  EMAIL_FROM_ADDRESS: Joi.string().email().required(),
   AWS_ACCESS_KEY: Joi.string().required(),
   AWS_SECRET: Joi.string().required(),
-  AWS_REGION: Joi.string().required()
+  AWS_REGION: Joi.string().required(),
+  FRONTEND_DOMAIN: Joi.string().uri().required()
 }
 
 let envVarsSchema = Joi.object(allowedEnvKeys).unknown().required()

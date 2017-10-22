@@ -11,6 +11,12 @@ export interface IUpsertUserArgs {
   password: string
 }
 
+export const addUserValidation: IUpsertUserArgs = {
+  name: Joi.string().max(64).min(2).required() as any,
+  email: Joi.string().email().required() as any,
+  password: Joi.string().regex(strongPasswordRegex).required() as any
+}
+
 const updateUserValidation: IUpsertUserArgs = {
   name: Joi.string().max(64).min(2).optional() as any,
   email: Joi.string().email().optional() as any,
