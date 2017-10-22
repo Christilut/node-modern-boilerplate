@@ -11,7 +11,7 @@ import * as AWS from 'aws-sdk'
 // })
 
 import logger from 'config/logger'
-import httpStatus from 'http-status'
+import * as httpStatus from 'http-status'
 
 import * as util from 'util'
 

@@ -30,6 +30,13 @@ export class UserClass extends AbstractModel {
   /**
    * METHODS
    */
+  async get(id: String): Promise<UserType> {
+    const user: UserType = await User.findById(id)
+
+    if (!user) throw new Error('user not found')
+
+    return user
+  }
 
   /**
    * Compares given password with stored password hash

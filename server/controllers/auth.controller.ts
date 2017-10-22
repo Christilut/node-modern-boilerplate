@@ -1,8 +1,8 @@
 import env from 'config/env'
-import httpStatus from 'http-status'
+import * as httpStatus from 'http-status'
 import { User, UserType } from 'server/models/user/model'
 import * as JWT from 'jsonwebtoken'
-const APIError = require('../helpers/APIError')
+import APIError from 'server/helpers/APIError'
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const JwtStrategy = require('passport-jwt').Strategy
@@ -10,7 +10,8 @@ const ExtractJwt = require('passport-jwt').ExtractJwt
 const LocalStrategy = require('passport-local')
 
 export interface IJsonWebTokenContents {
-  email: string
+  id: string,
+  roles: string[]
 }
 
 // const ROLES = require('../models/user.model').ROLES
@@ -71,10 +72,19 @@ export async function checkAuthentication(req, res, next) {
   const decodedToken = await JWT.verify(token, env.JWT_SECRET) as IJsonWebTokenContents
 
   req.user = {
-    email: decodedToken.email
+    id: decodedToken.id,
+    roles: decodedToken.roles
   }
 
   next()
+}
+
+export async function checkAdminRole(req, res, next) {
+  if (req.user && req.user.roles && req.user.roles.includes('admin')) {
+    return next()
+  }
+
+  next(new APIError('admin role not found', httpStatus.FORBIDDEN, false))
 }
 
 /**
@@ -148,7 +158,8 @@ export async function login(req, res, next): Promise<void> {
 function generateToken(user: UserType): string {
   // Only add essential information to the JWT
   const jwtUser: IJsonWebTokenContents = {
-    email: user.email.toLowerCase()
+    id: user.id,
+    roles: user.roles
   }
 
   return jwt.sign(jwtUser, env.JWT_SECRET, {

@@ -11,7 +11,8 @@ import * as cors from 'cors'
 import * as expressWinston from 'express-winston'
 import * as helmet from 'helmet'
 import APIError from 'server/helpers/APIError'
-import { checkAuthentication } from 'server/controllers/auth.controller'
+import { graphiqlExpress } from 'apollo-server-express'
+import { checkAuthentication, checkAdminRole } from 'server/controllers/auth.controller'
 const router = require('express-promise-router')()
 
 const app = express()
@@ -46,8 +47,6 @@ if (env.NODE_ENV === 'production') {
   app.use(cors())
 }
 
-// TODO admin graphql endpoint
-
 // TODO register, email verification
 
 // TODO reset password
@@ -57,13 +56,15 @@ import publicRoutes from 'server/public_routes'
 app.use('/', publicRoutes)
 
 // Private GraphQL routes, require authentication
-import { graphiQL, graphQlRoute } from 'config/graphql'
+import { graphQlRoute, graphQlAdminRoute } from 'config/graphql'
 
 if (env.NODE_ENV === 'development') {
-  app.use('/graphiql', graphiQL)
+  app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
+  app.use('/admin-graphiql', graphiqlExpress({ endpointURL: '/admin-graphql' }))
 }
 
 router.use('/graphql', bodyParser.json(), checkAuthentication, graphQlRoute)
+router.use('/admin-graphql', bodyParser.json(), checkAuthentication, checkAdminRole, graphQlAdminRoute)
 app.use('/', router)
 
 // enable detailed API logging
