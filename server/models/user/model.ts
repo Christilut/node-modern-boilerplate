@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt'
 import * as mongoose from 'mongoose'
 import { sendMail, EMAIL_TEMPLATES } from 'server/helpers/email'
 import { AbstractModel, IAbstractModel } from 'config/mongoose'
-import { Model, SchemaField, Instance, model, schema } from '@decorators/mongoose'
+import { Model, SchemaField, Instance, Static, model, schema } from '@decorators/mongoose'
 
 export enum Roles {
   User = 'user',
@@ -30,6 +30,7 @@ export class UserClass extends AbstractModel {
   /**
    * METHODS
    */
+  @Static()
   async get(id: String): Promise<UserType> {
     const user: UserType = await User.findById(id)
 
