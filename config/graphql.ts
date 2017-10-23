@@ -1,31 +1,36 @@
 import env from 'config/env'
 import logger from 'config/logger'
-import APIError from 'server/helpers/APIError'
+import { APIError, ValidationError, ExtendableError } from 'server/helpers/APIError'
 import { ExpressHandler } from 'apollo-server-express'
 import { schema, adminSchema } from 'server/models'
 import { graphqlExpress } from 'apollo-server-express'
 import * as bodyParser from 'body-parser'
+import * as Raven from 'raven'
+
+function formatError(err, admin: boolean = false) {
+  logger.warn(admin ? 'Admin ' : '' + 'GraphQL query failed', err)
+
+  if (err.originalError instanceof ExtendableError && (err.originalError as ExtendableError).reportToSentry === false) {
+      // dont send to sentry
+  } else {
+    Raven.captureException(err) // TODO add logged in user info here
+  }
+
+  if (err.originalError instanceof APIError) {
+    if (env.NODE_ENV === 'production' && !err.originalError.isPublic) {
+      err.message = 'Internal server error'
+    }
+  }
+
+  return err
+}
 
 export const graphQlRoute = graphqlExpress(req => ({
   schema,
   context: {
     user: req.user
   },
-  formatError: (err) => {
-    if (env.NODE_ENV === 'production') {
-      logger.warn('GraphQL query failed', err)
-    } else {
-      console.warn(err.stack)
-    }
-
-    if (err.originalError instanceof APIError) {
-      if (env.NODE_ENV === 'production' && !err.originalError.isPublic) {
-        err.message = 'Internal server error'
-      }
-    }
-
-    return err
-  }
+  formatError
 }))
 
 export const graphQlAdminRoute = graphqlExpress(req => ({
@@ -33,19 +38,5 @@ export const graphQlAdminRoute = graphqlExpress(req => ({
   context: {
     user: req.user
   },
-  formatError: (err) => {
-    if (env.NODE_ENV === 'production') {
-      logger.warn('Admin GraphQL query failed', err)
-    } else {
-      console.warn(err.stack)
-    }
-
-    if (err.originalError instanceof APIError) {
-      if (env.NODE_ENV === 'production' && !err.originalError.isPublic) {
-        err.message = 'Internal server error'
-      }
-    }
-
-    return err
-  }
+  formatError: (err) => formatError(err, true)
 }))

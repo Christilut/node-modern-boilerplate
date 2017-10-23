@@ -8,7 +8,8 @@ import * as compress from 'compression'
 import * as cors from 'cors'
 import * as expressWinston from 'express-winston'
 import * as helmet from 'helmet'
-import APIError from 'server/helpers/APIError'
+import * as Raven from 'raven'
+import { APIError } from 'server/helpers/APIError'
 import { graphiqlExpress } from 'apollo-server-express'
 import { checkAuthentication, checkAdminRole } from 'server/controllers/auth.controller'
 const router = require('express-promise-router')()
@@ -93,50 +94,48 @@ app.use((req, res, next) => {
 
 // error handler, send stacktrace only during development
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  //   if (env.NODE_ENV === 'development') {
-  //     // console.log(err.stack)
-  //   }
 
-  //   // console.log(err)
-  // console.log(req)
+  // Filter errors that are not really errors
+  if (env.NODE_ENV !== 'test') {
+    if (err instanceof APIError) {
+      logger.warn('Handled API error', {
+        err,
+        request: {
+          url: req.url,
+          params: req.params,
+          query: req.query,
+          method: req.method,
+          body: req.body
+        }
+      })
+    } else {
+      const headersWithoutAuth = req.headers
+      delete headersWithoutAuth.authorization
 
-  // return res.sendStatus(httpStatus.OK)
+      const request = {
+        url: req.url,
+        params: req.params,
+        query: req.query,
+        method: req.method,
+        headers: headersWithoutAuth,
+        body: req.body
+      }
 
-  //   if (env.NODE_ENV !== 'test') {
-  //     // if (err.status === httpStatus.CONFLICT || // username taken, website name taken, etc
-  //     //   err.status === httpStatus.UNAUTHORIZED || // bad login
-  //     //   err.status === httpStatus.NOT_FOUND || // user not found, website not found, etc
-  //     //   err.status === httpStatus.NOT_ACCEPTABLE || // used for when social login has same email as existing account or bad google translate action
-  //     //   err.status === httpStatus.EXPECTATION_FAILED) { // 409 is not an error
-  //     //   logger.warn('Handled error', {
-  //     //     err,
-  //     //     request: {
-  //     //       url: req.url,
-  //     //       params: req.params,
-  //     //       query: req.query,
-  //     //       method: req.method,
-  //     //       body: req.body
-  //     //     }
-  //     //   })
-  //     // } else {
-  //     const headersWithoutAuth = req.headers
-  //     delete headersWithoutAuth.authorization
+      logger.error('Unhandled exception occurred', {
+        err,
+        stack: err.stack,
+        request
+      })
 
-  //     logger.error('Unhandled exception occurred', {
-  //       err,
-  //       stack: err.stack,
-  //       request: {
-  //         url: req.url,
-  //         params: req.params,
-  //         query: req.query,
-  //         method: req.method,
-  //         headers: headersWithoutAuth,
-  //         body: req.body
-  //       }
-  //     })
-  //     // }
-  //   }
+      if (env.NODE_ENV === 'production') {
+        Raven.captureException(err, {
+          request
+        } as Raven.CaptureOptions)
+      }
+    }
+  }
 
+  // Determines what to return to user. Add error stack in development. Only add error message if it is set as public.
   if (env.NODE_ENV === 'development') {
     res.status(httpStatus.BAD_REQUEST).json({
       message: err.isPublic ? err.message : httpStatus[err.status],

@@ -2,28 +2,32 @@ import { User, UserType } from './model'
 import { strongPasswordRegex } from 'server/helpers/regex'
 import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
-import APIError from 'server/helpers/APIError'
+import { APIError } from 'server/helpers/APIError'
 import * as query from './query'
 
-export interface IUpsertUserArgs {
+export interface IAddUserArgs {
   name: string
   email: string
   password: string
 }
 
-export const addUserValidation: IUpsertUserArgs = {
+export interface IUpdateUserArgs {
+  name: string
+  password: string
+}
+
+export const addUserValidation: IAddUserArgs = {
   name: Joi.string().max(64).min(2).required() as any,
   email: Joi.string().email().required() as any,
   password: Joi.string().regex(strongPasswordRegex).required() as any
 }
 
-const updateUserValidation: IUpsertUserArgs = {
+const updateUserValidation: IUpdateUserArgs = {
   name: Joi.string().max(64).min(2).optional() as any,
-  email: Joi.string().email().optional() as any,
   password: Joi.string().regex(strongPasswordRegex).optional() as any
 }
 
-export async function updateUser(id: string, args: IUpsertUserArgs): Promise<UserType> {
+export async function updateUser(id: string, args: IUpdateUserArgs): Promise<UserType> {
   validate(args, updateUserValidation)
 
   const user = await User.get(id)

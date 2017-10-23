@@ -3,9 +3,15 @@ import { strongPasswordRegex } from 'server/helpers/regex'
 import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
 import APIError from 'server/helpers/APIError'
-import { IUpsertUserArgs, updateUser as defaultUpdateUser, addUserValidation } from 'server/models/user/mutations'
+import { IAddUserArgs, updateUser as defaultUpdateUser, addUserValidation } from 'server/models/user/mutations'
 
-export async function addUser(args: IUpsertUserArgs): Promise<UserType> {
+export interface IAdminUpdateUserArgs {
+  name: string
+  email: string
+  password: string
+}
+
+export async function addUser(args: IAddUserArgs): Promise<UserType> {
   validate(args, addUserValidation)
 
   const user: UserType = new User()
@@ -19,7 +25,7 @@ export async function addUser(args: IUpsertUserArgs): Promise<UserType> {
   return user
 }
 
-export async function updateUser(id: string, args: IUpsertUserArgs): Promise<UserType> {
+export async function updateUser(id: string, args: IAdminUpdateUserArgs): Promise<UserType> {
   return defaultUpdateUser(id, args)
 }
 

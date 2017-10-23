@@ -1,3 +1,7 @@
 type Query {
   me: User
 }
+
+type Mutation {
+    updateUser(name: String, password: String): User
+}

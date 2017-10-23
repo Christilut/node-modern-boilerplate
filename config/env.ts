@@ -14,6 +14,7 @@ export interface IConfig {
   AWS_SECRET?: string
   AWS_REGION?: string
   FRONTEND_DOMAIN?: string
+  SENTRY_URL?: string
 }
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
@@ -37,7 +38,8 @@ const allowedEnvKeys: Joi.SchemaMap = {
   AWS_ACCESS_KEY: Joi.string().required(),
   AWS_SECRET: Joi.string().required(),
   AWS_REGION: Joi.string().required(),
-  FRONTEND_DOMAIN: Joi.string().uri().required()
+  FRONTEND_DOMAIN: Joi.string().uri().required(),
+  SENTRY_URL: Joi.string().uri().required()
 }
 
 let envVarsSchema = Joi.object(allowedEnvKeys).unknown().required()

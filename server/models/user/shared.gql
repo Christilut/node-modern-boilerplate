@@ -6,5 +6,5 @@ type User {
 }
 
 type Mutation {
-  updateUser(id: String!, name: String, email: String, password: String): User
+
 }

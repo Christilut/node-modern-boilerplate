@@ -16,7 +16,8 @@ Added:
 - User CRUD
 - User login, registration, email verification & password reset
 - Rate limiter
-- Cloudwatch logger
+- Cloudwatch for logging
+- Sentry.io for exceptions
 
 Not yet added:
 - LumberJS

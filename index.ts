@@ -1,6 +1,7 @@
 require('app-module-path').addPath(__dirname)
 
 import env from 'config/env'
+import logger from 'config/logger'
 import * as AWS from 'aws-sdk'
 
 // TODO move to AWS helper file, class based?
@@ -10,10 +11,9 @@ import * as AWS from 'aws-sdk'
 //   region: env.AWS_REGION
 // })
 
-import logger from 'config/logger'
-import * as httpStatus from 'http-status'
-
-import * as util from 'util'
+if (env.NODE_ENV === 'production') {
+  require('config/sentry')
+}
 
 import 'config/mongoose'
 
