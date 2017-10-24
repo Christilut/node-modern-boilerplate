@@ -23,8 +23,6 @@ Not yet added:
 - LumberJS
 - AVA for parallel unit testing (and test cases for everything)
 - roll db secrets
-- AWS upload to s3 from client
-- generator for model
 
 Not yet tested:
 - commitizen

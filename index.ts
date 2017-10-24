@@ -11,13 +11,15 @@ import * as AWS from 'aws-sdk'
 //   region: env.AWS_REGION
 // })
 
-if (env.NODE_ENV === 'production') {
-  require('config/sentry')
-}
-
 import 'config/mongoose'
 
 import app from 'config/express'
+
+if (env.NODE_ENV === 'production') {
+  require('config/sentry')
+
+  require('config/forestadmin')
+}
 
 (async () => {
   // module.parent check is required to support mocha watch

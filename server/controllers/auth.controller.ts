@@ -3,7 +3,7 @@ import logger from 'config/logger'
 import * as httpStatus from 'http-status'
 import { User, UserType } from 'server/models/user/model'
 import * as JWT from 'jsonwebtoken'
-import APIError from 'server/helpers/APIError'
+import { APIError } from 'server/helpers/APIError'
 import { addUserValidation } from 'server/models/user/mutations'
 import { EMAIL_TEMPLATES } from 'server/helpers/email'
 

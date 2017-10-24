@@ -2,7 +2,7 @@ import { User, UserType } from '../model'
 import { strongPasswordRegex } from 'server/helpers/regex'
 import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
-import APIError from 'server/helpers/APIError'
+import { APIError } from 'server/helpers/APIError'
 import { IAddUserArgs, updateUser as defaultUpdateUser, addUserValidation } from 'server/models/user/mutations'
 
 export interface IAdminUpdateUserArgs {

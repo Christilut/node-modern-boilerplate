@@ -13,7 +13,9 @@ function formatError(err, admin: boolean = false) {
   if (err.originalError instanceof ExtendableError && (err.originalError as ExtendableError).reportToSentry === false) {
       // dont send to sentry
   } else {
-    Raven.captureException(err) // TODO add logged in user info here
+    if (env.NODE_ENV === 'production') {
+      Raven.captureException(err) // TODO add logged in user info here
+    }
   }
 
   if (err.originalError instanceof APIError) {

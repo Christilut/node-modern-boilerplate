@@ -17,21 +17,16 @@ const router = require('express-promise-router')()
 const app = express()
 
 if (env.NODE_ENV === 'development') {
-  app.use(Morgan('dev'))
+  app.use(Morgan('dev')) // HTTP request logging
 }
 
-// parse body params and attache them to req.body
+// Parse body params and set them to req.body
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use(compress())
-
-// app.use(passport.initialize())
-
-app.enable('trust proxy') // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
-
-// secure apps by setting various HTTP headers
-app.use(helmet())
+app.use(compress()) // Enable compression
+app.enable('trust proxy') // Needed if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
+app.use(helmet()) // Secure apps by setting various HTTP headers
 
 // enable CORS - Cross Origin Resource Sharing
 if (env.NODE_ENV === 'production') {
@@ -60,7 +55,7 @@ router.use('/graphql', bodyParser.json(), checkAuthentication, graphQlRoute)
 router.use('/admin-graphql', bodyParser.json(), checkAuthentication, checkAdminRole, graphQlAdminRoute)
 app.use('/', router)
 
-// enable detailed API logging
+// Enable detailed API logging
 if (env.NODE_ENV !== 'test') {
   expressWinston.requestWhitelist.push('body')
   expressWinston.responseWhitelist.push('body')
@@ -72,7 +67,7 @@ if (env.NODE_ENV !== 'test') {
   }))
 }
 
-// if error is not an instanceOf APIError, convert it.
+// If error is not an instanceOf APIError, convert it.
 app.use((err, req, res, next) => {
   if (!(err instanceof APIError)) {
     const apiError = new APIError(err.message, err.status, err.isPublic)
@@ -82,7 +77,7 @@ app.use((err, req, res, next) => {
   return next(err)
 })
 
-// catch 404 and forward to error handler
+// Catch 404 and forward to error handler
 app.use((req, res, next) => {
   if (req.url === '/favicon.ico') {
     return res.sendStatus(httpStatus.NOT_FOUND)
@@ -92,7 +87,7 @@ app.use((req, res, next) => {
   return next(err)
 })
 
-// error handler, send stacktrace only during development
+// Error handler, send stacktrace only during development
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 
   // Filter errors that are not really errors
