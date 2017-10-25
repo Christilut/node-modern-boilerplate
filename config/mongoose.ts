@@ -37,3 +37,5 @@ export interface IAbstractModel extends MongooseDocument {
 }
 
 export abstract class AbstractModel {}
+
+console.log('Loaded Mongoose')

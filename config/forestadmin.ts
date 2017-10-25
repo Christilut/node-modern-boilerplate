@@ -1,9 +1,11 @@
-import expressApp from './express'
+import env from 'config/env'
 
-// TODO env
+module.exports = function(expressApp) {
+  expressApp.use(require('forest-express-mongoose').init({
+    envSecret: env.FOREST_ENV_SECRET,
+    authSecret: env.FOREST_AUTH_SECRET,
+    mongoose: require('mongoose')
+  }))
 
-expressApp.use(require('forest-express-mongoose').init({
-  envSecret: FOREST_ENV_SECRET,
-  authSecret: FOREST_AUTH_SECRET,
-  mongoose: require('mongoose')
-}))
+  console.log('Loaded Forest Admin')
+}

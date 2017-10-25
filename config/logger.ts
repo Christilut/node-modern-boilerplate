@@ -26,6 +26,8 @@ if (env.NODE_ENV === 'production') {
     awsSecretKey: env.AWS_SECRET,
     awsRegion: env.AWS_REGION
   }))
+
+  console.log('Loaded Winston to AWS Cloudwatch')
 }
 
 transports.push(new winston.transports.Console({

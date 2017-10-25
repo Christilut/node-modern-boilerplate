@@ -4,3 +4,5 @@ import * as Raven from 'raven'
 Raven.config(env.SENTRY_URL, {
   environment: env.NODE_ENV
 }).install()
+
+console.log('Loaded Sentry')

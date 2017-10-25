@@ -12,7 +12,7 @@
   "scripts": {
     "start": "tsc index.ts",
     "debug": "cross-env NODE_ENV=development tsc index.ts",
-    "dev": "cross-env NODE_ENV=development nodemon --exec 'ts-node' --ext ts,gql index.ts",
+    "dev": "nodemon --exec 'ts-node' --ext ts,gql index.ts",
     "deploy": "git push heroku master",
     "lint": "esw *.js server config --color",
     "lint:watch": "npm run lint -- --watch",
@@ -53,7 +53,6 @@
     "apollo-server-express": "^1.1.7",
     "app-module-path": "2.2.0",
     "ava": "0.22.0",
-    "aws-sdk": "^2.134.0",
     "axios": "0.16.2",
     "bcrypt": "1.0.3",
     "body-parser": "1.18.2",

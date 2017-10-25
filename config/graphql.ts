@@ -42,3 +42,5 @@ export const graphQlAdminRoute = graphqlExpress(req => ({
   },
   formatError: (err) => formatError(err, true)
 }))
+
+console.log('Loaded GraphQL')

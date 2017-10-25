@@ -7,6 +7,8 @@ export interface IConfig {
   JWT_SECRET?: string
   MAILGUN_API_KEY?: string
   MAILGUN_DOMAIN?: string
+  FOREST_ENV_SECRET?: string
+  FOREST_AUTH_SECRET?: string
   EMAIL_FORGOT_SECRET?: string
   EMAIL_VERIFY_SECRET?: string
   EMAIL_FROM_ADDRESS?: string
@@ -18,20 +20,21 @@ export interface IConfig {
 }
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config()
-}
+require('dotenv').config()
 
 // define validation for all the env vars
 const allowedEnvKeys: Joi.SchemaMap = {
   NODE_ENV: Joi.string()
     .valid(['development', 'production', 'test'])
+    .default('development')
     .required(),
-  PORT: Joi.number().default(4040).required(),
+  PORT: Joi.number().default(5000).required(),
   MONGO_HOST: Joi.string().required(),
   JWT_SECRET: Joi.string().required(),
   MAILGUN_API_KEY: Joi.string().required(),
   MAILGUN_DOMAIN: Joi.string().required(),
+  FOREST_ENV_SECRET: Joi.string().required(),
+  FOREST_AUTH_SECRET: Joi.string().required(),
   EMAIL_FORGOT_SECRET: Joi.string().required(),
   EMAIL_VERIFY_SECRET: Joi.string().required(),
   EMAIL_FROM_ADDRESS: Joi.string().email().required(),
