@@ -154,7 +154,7 @@ export async function sendVerificationMail(userId: string) {
     expiresIn: '1 day'
   })
 
-  const verificationLink = env.FRONTEND_DOMAIN + `/verify?token=${token}`
+  const verificationLink = env.DOMAIN + `/verify?token=${token}`
 
   await this.sendMail(
     'Account verification',
@@ -277,13 +277,13 @@ export async function sendForgotPasswordMail (req, res, next) {
 
   await user.sendMail(
     'Password reset instructions',
-    `Someone has triggered password reset on your email. You can reset your password at ${env.FRONTEND_DOMAIN + '/forgot'}. If you did not expect this email, you can safely ignore it.`,
+    `Someone has triggered password reset on your email. You can reset your password at ${env.DOMAIN + '/forgot'}. If you did not expect this email, you can safely ignore it.`,
     EMAIL_TEMPLATES.Action,
     {
       title: 'Forgot password',
       message: 'Someone has triggered password reset on your email. You can reset your password with the button below. If you did not expect this email, you can safely ignore it.',
       buttonText: 'Reset password',
-      buttonUrl: env.FRONTEND_DOMAIN + `/forgot?token=${token}`
+      buttonUrl: env.DOMAIN + `/forgot?token=${token}`
     }
   )
 

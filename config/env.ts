@@ -4,18 +4,18 @@ export interface IConfig {
   NODE_ENV?: string
   PORT?: number
   MONGO_HOST?: string
+  DOMAIN?: string
   JWT_SECRET?: string
-  MAILGUN_API_KEY?: string
-  MAILGUN_DOMAIN?: string
   FOREST_ENV_SECRET?: string
   FOREST_AUTH_SECRET?: string
+  MAILGUN_API_KEY?: string
+  MAILGUN_DOMAIN?: string
   EMAIL_FORGOT_SECRET?: string
   EMAIL_VERIFY_SECRET?: string
   EMAIL_FROM_ADDRESS?: string
-  AWS_ACCESS_KEY?: string
-  AWS_SECRET?: string
-  AWS_REGION?: string
-  FRONTEND_DOMAIN?: string
+  CLOUDWATCH_ACCESS_KEY?: string
+  CLOUDWATCH_SECRET?: string
+  CLOUDWATCH_REGION?: string
   SENTRY_URL?: string
 }
 
@@ -30,19 +30,19 @@ const allowedEnvKeys: Joi.SchemaMap = {
     .required(),
   PORT: Joi.number().default(5000).required(),
   MONGO_HOST: Joi.string().required(),
+  DOMAIN: Joi.string().uri().optional(),
   JWT_SECRET: Joi.string().required(),
-  MAILGUN_API_KEY: Joi.string().required(),
-  MAILGUN_DOMAIN: Joi.string().required(),
-  FOREST_ENV_SECRET: Joi.string().required(),
-  FOREST_AUTH_SECRET: Joi.string().required(),
+  FOREST_ENV_SECRET: Joi.string().optional(),
+  FOREST_AUTH_SECRET: Joi.string().optional(),
+  MAILGUN_API_KEY: Joi.string().optional(),
+  MAILGUN_DOMAIN: Joi.string().optional(),
   EMAIL_FORGOT_SECRET: Joi.string().required(),
   EMAIL_VERIFY_SECRET: Joi.string().required(),
-  EMAIL_FROM_ADDRESS: Joi.string().email().required(),
-  AWS_ACCESS_KEY: Joi.string().required(),
-  AWS_SECRET: Joi.string().required(),
-  AWS_REGION: Joi.string().required(),
-  FRONTEND_DOMAIN: Joi.string().uri().required(),
-  SENTRY_URL: Joi.string().uri().required()
+  EMAIL_FROM_ADDRESS: Joi.string().email().optional(),
+  CLOUDWATCH_ACCESS_KEY: Joi.string().optional(),
+  CLOUDWATCH_SECRET: Joi.string().optional(),
+  CLOUDWATCH_REGION: Joi.string().optional(),
+  SENTRY_URL: Joi.string().uri().optional()
 }
 
 let envVarsSchema = Joi.object(allowedEnvKeys).unknown().required()

@@ -13,12 +13,19 @@ export enum EMAIL_TEMPLATES {
   Welcome = 'welcome'
 }
 
-const mailgun = require('mailgun-js')({
-  apiKey: env.MAILGUN_API_KEY,
-  domain: env.MAILGUN_DOMAIN
-})
+let mailgun
+if (env.MAILGUN_API_KEY && env.MAILGUN_DOMAIN) {
+  mailgun = require('mailgun-js')({
+    apiKey: env.MAILGUN_API_KEY,
+    domain: env.MAILGUN_DOMAIN
+  })
 
-async function _generateMail (templateName: EMAIL_TEMPLATES, data: Object) {
+  console.log('Loaded Mailgun')
+} else {
+  console.log('Missing Mailgun crendetials, not loading')
+}
+
+async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
   let schema
 
   if (templateName === EMAIL_TEMPLATES.Action) {
@@ -63,7 +70,15 @@ async function _generateMail (templateName: EMAIL_TEMPLATES, data: Object) {
   return rawTemplate(data)
 }
 
-export async function sendMail (to: string, subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object) {
+export async function sendMail(to: string, subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object) {
+  if (!env.NODE_ENV) {
+    throw new Error('No EMAIL_FROM_ADDRESS set, not sending mail')
+  }
+
+  if (!mailgun) {
+    throw new Error('Mailgun not loaded, did you provide credentials?')
+  }
+
   if (env.NODE_ENV === 'development') {
     to = env.EMAIL_FROM_ADDRESS
   }
@@ -98,7 +113,7 @@ export async function sendMail (to: string, subject: string, text: string, templ
   }
 }
 
-export async function sendDevMail (subject: string, text: string) {
+export async function sendDevMail(subject: string, text: string) {
   await sendMail(
     env.EMAIL_FROM_ADDRESS,
     subject,
