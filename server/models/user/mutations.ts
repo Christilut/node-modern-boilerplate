@@ -1,4 +1,4 @@
-import { User, UserType } from './model'
+import { UserClass, User } from './model'
 import { strongPasswordRegex } from 'server/helpers/regex'
 import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
@@ -27,7 +27,7 @@ const updateUserValidation: IUpdateUserArgs = {
   password: Joi.string().regex(strongPasswordRegex).optional() as any
 }
 
-export async function updateUser(id: string, args: IUpdateUserArgs): Promise<UserType> {
+export async function updateUser(id: string, args: IUpdateUserArgs): Promise<UserClass> {
   validate(args, updateUserValidation)
 
   const user = await User.get(id)

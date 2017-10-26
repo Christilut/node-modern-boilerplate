@@ -2,45 +2,77 @@ import env from 'config/env'
 import * as bcrypt from 'bcrypt'
 import * as mongoose from 'mongoose'
 import { sendMail, EMAIL_TEMPLATES } from 'server/helpers/email'
-import { AbstractModel, IAbstractModel } from 'config/mongoose'
-import { Model, SchemaField, Instance, Static, model, schema } from '@decorators/mongoose'
 import * as JWT from 'jsonwebtoken'
 import * as authController from 'server/controllers/auth.controller'
+import { prop, arrayProp, Typegoose, ModelType, InstanceType, staticMethod, instanceMethod, pre } from 'typegoose'
 
 export enum Roles {
   User = 'user',
   Admin = 'admin'
 }
 
-@Model('User')
-export class UserClass extends AbstractModel {
+// @pre<UserClass>('save', async function (next) {
+//   console.log('pre save !!!') // TODO make presave work
+//   if (this.isNew) {
+//     this.created = new Date()
+//   }
 
+//   if (this.isModified('password')) {
+//     const SALT_FACTOR = 10
+
+//     const salt: string = await bcrypt.genSalt(SALT_FACTOR)
+
+//     const hash: string = await bcrypt.hash(this.password, salt)
+
+//     this.password = hash
+//   }
+
+//   next()
+// })
+
+export class UserClass extends Typegoose {
+  @prop()
   _id: string
 
-  @SchemaField(String) // TODO required
+  @prop({
+    required: true
+  })
   name: string
 
-  @SchemaField(String) // TODO required
+  @prop({
+    required: true
+  })
   email: string
 
-  @SchemaField(Array) // TODO enum, default: []
-  roles: string[]
+  @arrayProp({
+    items: String,
+    required: true,
+    default: [Roles.User],
+    enum: Roles
+  })
+  roles?: Roles[]
 
-  @SchemaField(Date)
-  created: Date // TODO readonly
+  @prop({
+    required: true
+  })
+  created: Date // Set in pre-save upon creation
 
-  @SchemaField(String) // TODO required
+  @prop({
+    required: true
+  })
   password: string
 
-  @SchemaField(Boolean) // TODO default: false
-  verified: boolean
+  @prop({
+    default: false
+  })
+  verified?: boolean
 
   /**
    * METHODS
    */
-  @Static()
-  async get(id: String): Promise<UserType> {
-    const user: UserType = await User.findById(id)
+  @staticMethod
+  async get(id: String): Promise<UserClass & mongoose.Document> {
+    const user = await User.findById(id)
 
     if (!user) throw new Error('user not found')
 
@@ -50,13 +82,11 @@ export class UserClass extends AbstractModel {
   /**
    * Compares given password with stored password hash
    */
-  @Instance()
+  @instanceMethod
   async comparePassword(candidatePassword: string): Promise<boolean> {
     if (!this.password) throw new Error('User does not have password')
 
-    // TODO temp
-    const isMatch = candidatePassword === this.password
-    // const isMatch = await bcrypt.compare(candidatePassword, this.password)
+    const isMatch = await bcrypt.compare(candidatePassword, this.password) // TODO test
 
     return isMatch
   }
@@ -64,7 +94,7 @@ export class UserClass extends AbstractModel {
   /**
    * Send email to user based on template and data object
    */
-  @Instance()
+  @instanceMethod
   async sendMail(subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object): Promise<void> {
     await sendMail(
       this.email,
@@ -75,47 +105,12 @@ export class UserClass extends AbstractModel {
     )
   }
 
-  @Instance()
+  @instanceMethod
   async sendVerificationMail() {
     return authController.sendVerificationMail(this._id)
   }
 
-  /**
-   * Performs model validation, pre-save events and saves the user to the database
-   */
-  // async save(): Promise<this> {
-  //   const validationErrors: ValidationError[] = await validate(this)
-
-  //   if (validationErrors.length > 0) {
-  //     throw new Error('User model validation failed: ' + Object.values(validationErrors[0].constraints).join(', '))
-  //   }
-
-  //   super.save()
-
-  //   return this
-  // }
+  // TODO model validation
 }
 
-export type UserType = UserClass & mongoose.Document
-export type UserModel = mongoose.Model<UserType>
-
-export const User = model<UserType>({ provide: UserClass })
-export const UserSchema = schema({ provide: UserClass })
-
-UserSchema.pre('save', async function (next) {
-  const SALT_FACTOR = 5
-  console.log('pre save !!!') // TODO make presave work
-  if (this.isNew) {
-    this.created = new Date()
-  }
-
-  if (this.isModified('password')) {
-    const salt: string = await bcrypt.genSalt(SALT_FACTOR)
-
-    const hash: string = await bcrypt.hash(this.password, salt)
-
-    this.password = hash
-  }
-
-  next()
-})
+export const User = new UserClass().getModelForClass(UserClass)

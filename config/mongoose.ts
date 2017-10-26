@@ -24,18 +24,4 @@ mongoose.connection.on('error', () => {
   throw new Error(`unable to connect to database`)
 })
 
-// AbstractModel to combine Typescript interface with Mongoose schema
-import { MongooseDocument, Model, Document } from 'mongoose'
-
-export interface IAbstractModel extends MongooseDocument {
-  __v?: number
-  update(data: any)
-  increment?(): this
-  model?(name: string): Model<Document>
-  remove?(fn?: (err: any, product: this) => void): Promise<this>
-  save?(fn?: (err: any, product: this, numAffected: number) => void): Promise<this>
-}
-
-export abstract class AbstractModel {}
-
 console.log('Loaded Mongoose')

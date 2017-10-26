@@ -1,7 +1,7 @@
 import env from 'config/env'
 import logger from 'config/logger'
 import * as httpStatus from 'http-status'
-import { User, UserType } from 'server/models/user/model'
+import { UserClass, User, Roles } from 'server/models/user/model'
 import * as JWT from 'jsonwebtoken'
 import { APIError } from 'server/helpers/APIError'
 import { addUserValidation } from 'server/models/user/mutations'
@@ -9,14 +9,14 @@ import { EMAIL_TEMPLATES } from 'server/helpers/email'
 
 export interface IJsonWebTokenContents {
   id: string,
-  roles: string[]
+  roles: Roles[]
 }
 
 interface IUserInfo {
   id: string
   name: string
   email: string
-  roles: string[]
+  roles: Roles[]
 }
 
 interface IVerificationMailTokenContents {
@@ -30,10 +30,10 @@ interface IForgotPasswordTokenContents {
 /*
 * Generates a Json Web Token
 */
-function _generateToken(user: UserType): string {
+function _generateToken(user: UserClass): string {
   // Only add essential information to the JWT
   const jwtUser: IJsonWebTokenContents = {
-    id: user.id,
+    id: user._id,
     roles: user.roles
   }
 
@@ -45,7 +45,7 @@ function _generateToken(user: UserType): string {
 /**
  * Returns sanitized user object that is safe for sending to the user
  */
-function _setUserInfo(user: UserType): IUserInfo {
+function _setUserInfo(user: UserClass): IUserInfo {
   return {
     id: user._id,
     name: user.name,
@@ -90,7 +90,7 @@ export async function register(req, res, next) {
   const email: string = req.body.email
   const password: string = req.body.password
 
-  const existingUser: UserType = await User.findOne({ email })
+  const existingUser: UserClass = await User.findOne({ email })
 
   // If user is not unique, return error
   if (existingUser) {
@@ -100,7 +100,7 @@ export async function register(req, res, next) {
   }
 
   // If email is unique and password was provided, create account
-  let user: UserType = new User({
+  let user = new User({
     name,
     email,
     password // this is a hash, see User.pre-save
@@ -110,7 +110,7 @@ export async function register(req, res, next) {
     user.verified = true
 
     if (email === 'admin@admin.admin') {
-      // user.roles.push(ROLES.ADMIN) // TODO
+      user.roles.push(Roles.Admin)
     }
   }
 
@@ -134,7 +134,7 @@ export async function register(req, res, next) {
 export async function login(req, res, next): Promise<void> {
   const { email, password } = req.body
 
-  const user: UserType = await User.findOne({
+  const user = await User.findOne({
     email
   })
 
@@ -178,7 +178,7 @@ export async function verifyAccount (req, res, next) {
   try {
     const decodedToken: IVerificationMailTokenContents = await JWT.verify(token, env.EMAIL_VERIFY_SECRET) as IVerificationMailTokenContents
 
-    const user: UserType = await User.findById(decodedToken.id)
+    const user = await User.findById(decodedToken.id)
 
     if (!user) {
       logger.warn('account verification triggered for non-existant user but token was valid', {
@@ -227,7 +227,7 @@ export async function resendVerification (req, res, next) {
     return next(new APIError('Missing email parameter', httpStatus.UNAUTHORIZED))
   }
 
-  const user: UserType = await User.findOne({ email })
+  const user = await User.findOne({ email })
 
   if (!user) {
     logger.warn('user resend verification mail triggered for non-existant user', {
@@ -258,7 +258,7 @@ export async function resendVerification (req, res, next) {
 export async function sendForgotPasswordMail (req, res, next) {
   const email: string = req.body.email
 
-  const user: UserType = await User.findOne({ email })
+  const user = await User.findOne({ email })
 
   if (!user) {
     logger.warn('user forgot password triggered for non-existant user', {
@@ -300,7 +300,7 @@ export async function resetPassword (req, res, next) {
   try {
     const decodedToken: IForgotPasswordTokenContents = await JWT.verify(token, env.EMAIL_FORGOT_SECRET) as IForgotPasswordTokenContents
 
-    const user: UserType = await User.findById(decodedToken.id)
+    const user = await User.findById(decodedToken.id)
 
     if (!user) {
       logger.warn('reset password triggered for non-existant user but token was valid', {

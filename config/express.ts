@@ -28,6 +28,9 @@ app.use(compress()) // Enable compression
 app.enable('trust proxy') // Needed if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
 app.use(helmet()) // Secure apps by setting various HTTP headers
 
+// Load Forest Admin
+require('config/forestadmin')(app)
+
 // Enable CORS - Cross Origin Resource Sharing
 if (env.NODE_ENV === 'production') {
   app.use(cors())
@@ -37,7 +40,6 @@ if (env.NODE_ENV === 'production') {
   // }))
 
   // Enable Forest Admin (must be done before express error handlers)
-  require('config/forestadmin')(app)
 } else {
   app.use(cors())
 }
@@ -146,6 +148,8 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   }
 })
 
-console.log('Loaded Express')
+app.listen(env.PORT, () => {
+  logger.info(`Server started on port ${env.PORT} (${env.NODE_ENV})`)
+})
 
-export default app
+console.log('Loaded Express')

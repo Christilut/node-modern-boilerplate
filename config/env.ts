@@ -26,7 +26,6 @@ require('dotenv').config()
 const allowedEnvKeys: Joi.SchemaMap = {
   NODE_ENV: Joi.string()
     .valid(['development', 'production', 'test'])
-    .default('development')
     .required(),
   PORT: Joi.number().default(5000).required(),
   MONGO_HOST: Joi.string().required(),

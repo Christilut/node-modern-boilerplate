@@ -1,4 +1,4 @@
-import { User, UserType } from '../model'
+import { UserClass, User } from 'server/models/user/model'
 import { strongPasswordRegex } from 'server/helpers/regex'
 import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
@@ -11,10 +11,10 @@ export interface IAdminUpdateUserArgs {
   password: string
 }
 
-export async function addUser(args: IAddUserArgs): Promise<UserType> {
+export async function addUser(args: IAddUserArgs): Promise<UserClass> {
   validate(args, addUserValidation)
 
-  const user: UserType = new User()
+  const user = new User()
 
   for (const key of Object.keys(args)) {
     if (args[key] !== undefined) user[key] = args[key]
@@ -25,12 +25,12 @@ export async function addUser(args: IAddUserArgs): Promise<UserType> {
   return user
 }
 
-export async function updateUser(id: string, args: IAdminUpdateUserArgs): Promise<UserType> {
+export async function updateUser(id: string, args: IAdminUpdateUserArgs): Promise<UserClass> {
   return defaultUpdateUser(id, args)
 }
 
-export async function removeUser(id: string): Promise<UserType> {
-  const user: UserType = await User.get(id)
+export async function removeUser(id: string): Promise<UserClass> {
+  const user = await User.get(id)
 
   await user.remove()
 

@@ -2,11 +2,15 @@ import env from 'config/env'
 import * as Raven from 'raven'
 
 if (env.SENTRY_URL) {
-  Raven.config(env.SENTRY_URL, {
-    environment: env.NODE_ENV
-  }).install()
+  if (env.NODE_ENV === 'production') {
+    Raven.config(env.SENTRY_URL, {
+      environment: env.NODE_ENV
+    }).install()
 
-  console.log('Loaded Sentry')
+    console.log('Sentry: Loaded')
+  } else {
+    console.log('Sentry: Not loading outside production environment')
+  }
 } else {
-  console.log('Missing Sentry credentials, not loading')
+  console.log('Sentry: Missing Sentry credentials, not loading')
 }

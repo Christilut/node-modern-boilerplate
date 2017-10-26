@@ -28,10 +28,12 @@ if (env.NODE_ENV === 'production') {
       awsRegion: env.CLOUDWATCH_REGION
     }))
 
-    console.log('Loaded Winston to AWS Cloudwatch')
+    console.log('Winston Cloudwatch: Loaded')
   } else {
-    console.log('Missing AWS credentials for Winston Cloudwatch, not loading')
+    console.log('Winston Cloudwatch: Missing AWS credentials, not loading')
   }
+} else {
+  console.log('Winston Cloudwatch: Not loading outside production environment')
 }
 
 transports.push(new winston.transports.Console({

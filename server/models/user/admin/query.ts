@@ -1,5 +1,5 @@
-import { User, UserType } from '../model'
+import { UserClass, User } from '../model'
 
-export async function getAll(): Promise<UserType[]> {
+export async function getAll(): Promise<UserClass[]> {
   return User.find()
 }
