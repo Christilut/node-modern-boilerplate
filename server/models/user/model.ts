@@ -11,7 +11,7 @@ export enum Roles {
   Admin = 'admin'
 }
 
-@pre<UserClass>('save', async function (next) {
+@pre<User>('save', async function (next) {
   console.log('pre save !!!') // TODO confirm presave works
   if (this.isNew) {
     this.created = new Date()
@@ -30,7 +30,7 @@ export enum Roles {
   next()
 })
 
-export class UserClass extends Typegoose {
+export class User extends Typegoose {
   _id: string
 
   @prop({
@@ -71,8 +71,8 @@ export class UserClass extends Typegoose {
    * STATIC METHODS
    */
   @staticMethod
-  static async get(id: String): Promise<UserClass & mongoose.Document> {
-    const user = await User.findById(id)
+  static async get(id: String): Promise<User & mongoose.Document> {
+    const user = await UserModel.findById(id)
 
     if (!user) throw new Error('user not found')
 
@@ -117,23 +117,4 @@ export class UserClass extends Typegoose {
   // TODO model validation
 }
 
-export const User = new UserClass().getModelForClass(UserClass)
-
-setTimeout(async () => {
-  console.log('saving new user for testing')
-
-  const u = new User({
-    name: 'JohnDoe',
-    email: 'test@test.test',
-    created: new Date(),
-    password: 'test123'
-  })
-  try {
-    await u.save()
-    // const user = await User.findOne({ name: 'JohnDoe' })
-  } catch (error) {
-    console.error(error)
-  }
-
-  console.log('!!!!!!!!!!!!!!!!!    if it prints this, then it works')
-}, 2000)
+export const UserModel = new User().getModelForClass(User)

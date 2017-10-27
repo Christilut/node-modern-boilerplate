@@ -24,6 +24,7 @@ Added:
 Not yet added:
 - AVA for parallel unit testing (and test cases for everything)
 - roll db secrets
+- CLI commands? create admin user
 
 Not yet tested:
 - forest admin with typegoose

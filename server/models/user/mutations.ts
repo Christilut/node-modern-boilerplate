@@ -1,4 +1,4 @@
-import { UserClass, User } from './model'
+import { User, UserModel } from './model'
 import { strongPasswordRegex } from 'server/helpers/regex'
 import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
@@ -27,10 +27,10 @@ const updateUserValidation: IUpdateUserArgs = {
   password: Joi.string().regex(strongPasswordRegex).optional() as any
 }
 
-export async function updateUser(id: string, args: IUpdateUserArgs): Promise<UserClass> {
+export async function updateUser(id: string, args: IUpdateUserArgs): Promise<User> {
   validate(args, updateUserValidation)
 
-  const user = await User.get(id)
+  const user = await UserModel.get(id)
 
   for (const key of Object.keys(args)) {
     if (args[key] !== undefined) user[key] = args[key]

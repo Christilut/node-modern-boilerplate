@@ -1,7 +1,7 @@
 import env from 'config/env'
 import logger from 'config/logger'
 import * as httpStatus from 'http-status'
-import { UserClass, User, Roles } from 'server/models/user/model'
+import { User, UserModel, Roles } from 'server/models/user/model'
 import * as JWT from 'jsonwebtoken'
 import { APIError } from 'server/helpers/APIError'
 import { addUserValidation } from 'server/models/user/mutations'
@@ -30,7 +30,7 @@ interface IForgotPasswordTokenContents {
 /*
 * Generates a Json Web Token
 */
-function _generateToken(user: UserClass): string {
+function _generateToken(user: User): string {
   // Only add essential information to the JWT
   const jwtUser: IJsonWebTokenContents = {
     id: user._id,
@@ -45,7 +45,7 @@ function _generateToken(user: UserClass): string {
 /**
  * Returns sanitized user object that is safe for sending to the user
  */
-function _setUserInfo(user: UserClass): IUserInfo {
+function _setUserInfo(user: User): IUserInfo {
   return {
     id: user._id,
     name: user.name,
@@ -90,7 +90,7 @@ export async function register(req, res, next) {
   const email: string = req.body.email
   const password: string = req.body.password
 
-  const existingUser: UserClass = await User.findOne({ email })
+  const existingUser: User = await UserModel.findOne({ email })
 
   // If user is not unique, return error
   if (existingUser) {
@@ -100,7 +100,7 @@ export async function register(req, res, next) {
   }
 
   // If email is unique and password was provided, create account
-  let user = new User({
+  let user = new UserModel({
     name,
     email,
     password // this is a hash, see User.pre-save
@@ -134,7 +134,7 @@ export async function register(req, res, next) {
 export async function login(req, res, next): Promise<void> {
   const { email, password } = req.body
 
-  const user = await User.findOne({
+  const user = await UserModel.findOne({
     email
   })
 
@@ -178,7 +178,7 @@ export async function verifyAccount (req, res, next) {
   try {
     const decodedToken: IVerificationMailTokenContents = await JWT.verify(token, env.EMAIL_VERIFY_SECRET) as IVerificationMailTokenContents
 
-    const user = await User.findById(decodedToken.id)
+    const user = await UserModel.findById(decodedToken.id)
 
     if (!user) {
       logger.warn('account verification triggered for non-existant user but token was valid', {
@@ -227,7 +227,7 @@ export async function resendVerification (req, res, next) {
     return next(new APIError('Missing email parameter', httpStatus.UNAUTHORIZED))
   }
 
-  const user = await User.findOne({ email })
+  const user = await UserModel.findOne({ email })
 
   if (!user) {
     logger.warn('user resend verification mail triggered for non-existant user', {
@@ -258,7 +258,7 @@ export async function resendVerification (req, res, next) {
 export async function sendForgotPasswordMail (req, res, next) {
   const email: string = req.body.email
 
-  const user = await User.findOne({ email })
+  const user = await UserModel.findOne({ email })
 
   if (!user) {
     logger.warn('user forgot password triggered for non-existant user', {
@@ -300,7 +300,7 @@ export async function resetPassword (req, res, next) {
   try {
     const decodedToken: IForgotPasswordTokenContents = await JWT.verify(token, env.EMAIL_FORGOT_SECRET) as IForgotPasswordTokenContents
 
-    const user = await User.findById(decodedToken.id)
+    const user = await UserModel.findById(decodedToken.id)
 
     if (!user) {
       logger.warn('reset password triggered for non-existant user but token was valid', {
