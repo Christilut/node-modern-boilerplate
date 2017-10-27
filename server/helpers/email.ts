@@ -5,24 +5,13 @@ import * as path from 'path'
 import * as Joi from 'joi'
 import env from 'config/env'
 import logger from 'config/logger'
+import mailgun from 'config/mailgun'
 
 export enum EMAIL_TEMPLATES {
   Action = 'action',
   Alert = 'alert',
   Info = 'info',
   Welcome = 'welcome'
-}
-
-let mailgun
-if (env.MAILGUN_API_KEY && env.MAILGUN_DOMAIN) {
-  mailgun = require('mailgun-js')({
-    apiKey: env.MAILGUN_API_KEY,
-    domain: env.MAILGUN_DOMAIN
-  })
-
-  console.log('Loaded Mailgun')
-} else {
-  console.log('Missing Mailgun crendetials, not loading')
 }
 
 async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
