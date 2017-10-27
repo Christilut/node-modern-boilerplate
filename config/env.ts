@@ -31,17 +31,17 @@ const allowedEnvKeys: Joi.SchemaMap = {
   MONGO_HOST: Joi.string().required(),
   DOMAIN: Joi.string().uri().optional(),
   JWT_SECRET: Joi.string().required(),
-  FOREST_ENV_SECRET: Joi.string().optional(),
-  FOREST_AUTH_SECRET: Joi.string().optional(),
-  MAILGUN_API_KEY: Joi.string().optional(),
-  MAILGUN_DOMAIN: Joi.string().optional(),
+  FOREST_ENV_SECRET: Joi.string().allow('').optional(),
+  FOREST_AUTH_SECRET: Joi.string().allow('').optional(),
+  MAILGUN_API_KEY: Joi.string().allow('').optional(),
+  MAILGUN_DOMAIN: Joi.string().allow('').optional(),
   EMAIL_FORGOT_SECRET: Joi.string().required(),
   EMAIL_VERIFY_SECRET: Joi.string().required(),
-  EMAIL_FROM_ADDRESS: Joi.string().email().optional(),
-  CLOUDWATCH_ACCESS_KEY: Joi.string().optional(),
-  CLOUDWATCH_SECRET: Joi.string().optional(),
-  CLOUDWATCH_REGION: Joi.string().optional(),
-  SENTRY_URL: Joi.string().uri().optional()
+  EMAIL_FROM_ADDRESS: Joi.string().email().allow('').optional(),
+  CLOUDWATCH_ACCESS_KEY: Joi.string().allow('').optional(),
+  CLOUDWATCH_SECRET: Joi.string().allow('').optional(),
+  CLOUDWATCH_REGION: Joi.string().allow('').optional(),
+  SENTRY_URL: Joi.string().uri().allow('').optional()
 }
 
 let envVarsSchema = Joi.object(allowedEnvKeys).unknown().required()

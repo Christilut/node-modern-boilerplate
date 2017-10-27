@@ -11,24 +11,24 @@ export enum Roles {
   Admin = 'admin'
 }
 
-// @pre<UserClass>('save', async function (next) {
-//   console.log('pre save !!!') // TODO make presave work
-//   if (this.isNew) {
-//     this.created = new Date()
-//   }
+@pre<UserClass>('save', async function (next) {
+  console.log('pre save !!!') // TODO make presave work
+  if (this.isNew) {
+    this.created = new Date()
+  }
 
-//   if (this.isModified('password')) {
-//     const SALT_FACTOR = 10
+  if (this.isModified('password')) {
+    const SALT_FACTOR = 10
 
-//     const salt: string = await bcrypt.genSalt(SALT_FACTOR)
+    const salt: string = await bcrypt.genSalt(SALT_FACTOR)
 
-//     const hash: string = await bcrypt.hash(this.password, salt)
+    const hash: string = await bcrypt.hash(this.password, salt)
 
-//     this.password = hash
-//   }
+    this.password = hash
+  }
 
-//   next()
-// })
+  next()
+})
 
 export class UserClass extends Typegoose {
   @prop()
