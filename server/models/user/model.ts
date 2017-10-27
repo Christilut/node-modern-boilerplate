@@ -11,27 +11,26 @@ export enum Roles {
   Admin = 'admin'
 }
 
-// @pre<UserClass>('save', async function (next) {
-//   console.log('pre save !!!') // TODO make presave work
-//   if (this.isNew) {
-//     this.created = new Date()
-//   }
+@pre<UserClass>('save', async function (next) {
+  console.log('pre save !!!') // TODO confirm presave works
+  if (this.isNew) {
+    this.created = new Date()
+  }
 
-//   if (this.isModified('password')) {
-//     const SALT_FACTOR = 10
+  if (this.isModified('password')) {
+    const SALT_FACTOR = 10
 
-//     const salt: string = await bcrypt.genSalt(SALT_FACTOR)
+    const salt: string = await bcrypt.genSalt(SALT_FACTOR)
 
-//     const hash: string = await bcrypt.hash(this.password, salt)
+    const hash: string = await bcrypt.hash(this.password, salt)
 
-//     this.password = hash
-//   }
+    this.password = hash
+  }
 
-//   next()
-// })
+  next()
+})
 
 export class UserClass extends Typegoose {
-  @prop()
   _id: string
 
   @prop({
@@ -40,7 +39,8 @@ export class UserClass extends Typegoose {
   name: string
 
   @prop({
-    required: true
+    required: true,
+    unique: true
   })
   email: string
 
@@ -68,16 +68,20 @@ export class UserClass extends Typegoose {
   verified?: boolean
 
   /**
-   * METHODS
+   * STATIC METHODS
    */
   @staticMethod
-  async get(id: String): Promise<UserClass & mongoose.Document> {
+  static async get(id: String): Promise<UserClass & mongoose.Document> {
     const user = await User.findById(id)
 
     if (!user) throw new Error('user not found')
 
     return user
   }
+
+  /**
+   * INSTANCE METHODS
+   */
 
   /**
    * Compares given password with stored password hash
@@ -114,3 +118,22 @@ export class UserClass extends Typegoose {
 }
 
 export const User = new UserClass().getModelForClass(UserClass)
+
+setTimeout(async () => {
+  console.log('saving new user for testing')
+
+  const u = new User({
+    name: 'JohnDoe',
+    email: 'test@test.test',
+    created: new Date(),
+    password: 'test123'
+  })
+  try {
+    await u.save()
+    // const user = await User.findOne({ name: 'JohnDoe' })
+  } catch (error) {
+    console.error(error)
+  }
+
+  console.log('!!!!!!!!!!!!!!!!!    if it prints this, then it works')
+}, 2000)

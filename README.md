@@ -10,9 +10,11 @@ Removed:
 
 Added:
 - TypeScript
+- Mongoose / Typegoose
 - GraphQL
 - Email templates
 - Mailgun helper
+- Forest Admin integration
 - User CRUD
 - User login, registration, email verification & password reset
 - Rate limiter
@@ -20,11 +22,11 @@ Added:
 - Sentry.io for exceptions
 
 Not yet added:
-- LumberJS
 - AVA for parallel unit testing (and test cases for everything)
 - roll db secrets
 
 Not yet tested:
+- forest admin with typegoose
 - commitizen
 - debugging in vscode
 - Code coverage

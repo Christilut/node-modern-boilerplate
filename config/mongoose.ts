@@ -24,4 +24,6 @@ mongoose.connection.on('error', () => {
   throw new Error(`unable to connect to database`)
 })
 
+export default mongoose
+
 console.log('Loaded Mongoose')
