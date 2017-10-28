@@ -20,16 +20,16 @@ Added:
 - Rate limiter
 - Cloudwatch for logging
 - Sentry.io for exceptions
+- CLI command to create an admin user
+- VSCode debugging settings
 
 Not yet added:
 - AVA for parallel unit testing (and test cases for everything)
 - roll db secrets
-- CLI commands? create admin user
 
 Not yet tested:
 - forest admin with typegoose
 - commitizen
-- debugging in vscode
 - Code coverage
 - mailgun
 - deploy to heroku

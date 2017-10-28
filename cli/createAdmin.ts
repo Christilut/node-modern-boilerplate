@@ -1,10 +1,8 @@
-require('app-module-path').addPath(__dirname + '/..')
-
 import * as Inquirer from 'inquirer'
 import * as Joi from 'joi'
 import validate from './_validation'
-import { strongPasswordRegex } from 'server/helpers/regex'
-import { UserModel, Roles } from 'server/models/user/model'
+import { strongPasswordRegex } from '../server/helpers/regex'
+import { UserModel, Roles } from '../server/models/user/model'
 
 const questions: Inquirer.Question[] = [
   {
@@ -63,5 +61,4 @@ const questions: Inquirer.Question[] = [
   }
 })()
 
-// TODO dont load mailgun, logging
 // TODO fix model pre-save
