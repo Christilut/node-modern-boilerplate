@@ -154,4 +154,6 @@ app.listen(env.PORT, () => {
   logger.info(`Server started on port ${env.PORT} (${env.NODE_ENV})`)
 })
 
+export default app
+
 console.log('Express: Loaded')

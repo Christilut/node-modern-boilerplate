@@ -172,7 +172,7 @@ export async function sendVerificationMail(userId: string) {
 /**
  * If token valid, will verify user account of the user ID that is inside the JWT. Token should come from a verification email sent to the user (see User.sendVerificationmail).
  */
-export async function verifyAccount (req, res, next) {
+export async function verifyAccount(req, res, next) {
   const token: string = req.body.token
 
   try {
@@ -220,7 +220,7 @@ export async function verifyAccount (req, res, next) {
 /**
  * Sends the email verification mail again
  */
-export async function resendVerification (req, res, next) {
+export async function resendVerification(req, res, next) {
   const email: string = req.body.email
 
   if (!email) {
@@ -255,7 +255,7 @@ export async function resendVerification (req, res, next) {
 /**
  * Requests a "forgot password" email that contains a link to reset the password
  */
-export async function sendForgotPasswordMail (req, res, next) {
+export async function sendForgotPasswordMail(req, res, next) {
   const email: string = req.body.email
 
   const user = await UserModel.findOne({ email })
@@ -293,7 +293,7 @@ export async function sendForgotPasswordMail (req, res, next) {
 /**
  * Resets a user password. If the token is valid, takes the user ID from inside the JWT and changes that user to the new password.
  */
-export async function resetPassword (req, res, next) {
+export async function resetPassword(req, res, next) {
   const token: string = req.body.token
   const password: string = req.body.password
 

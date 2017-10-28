@@ -22,6 +22,7 @@ Added:
 - Sentry.io for exceptions
 - CLI command to create an admin user
 - VSCode debugging settings
+- TypeScript linting (not yet enforced because TS language server with tslint is not yet ready)
 
 Not yet added:
 - AVA for parallel integration testing (and test cases for everything)
