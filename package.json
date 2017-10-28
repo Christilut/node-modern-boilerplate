@@ -83,7 +83,6 @@
     "mockgoose": "^7.3.3",
     "mongoose": "^4.11.1",
     "morgan": "1.9.0",
-    "nodemon": "1.12.1",
     "randomstring": "^1.1.5",
     "raven": "^2.2.1",
     "reflect-metadata": "^0.1.10",
@@ -93,7 +92,6 @@
     "tslint-config-standard": "^7.0.0",
     "typegoose": "^3.6.0",
     "typescript": "^2.5.3",
-    "url-parse": "1.1.9",
     "winston": "^2.4.0",
     "winston-cloudwatch": "1.12.0"
   },
