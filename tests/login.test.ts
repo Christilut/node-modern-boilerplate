@@ -7,5 +7,5 @@ import app from '../config/express'
  */
 
 test('test something', t => {
-  t.deepEqual([1, 2], [3, 2])
+  t.deepEqual([1, 2], [4, 2])
 })

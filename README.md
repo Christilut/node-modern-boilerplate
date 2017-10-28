@@ -26,6 +26,7 @@ Added:
 
 Not yet added:
 - AVA for parallel integration testing (and test cases for everything)
+  - watch
 - roll db secrets
 
 Not yet tested:
