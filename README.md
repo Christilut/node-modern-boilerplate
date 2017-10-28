@@ -40,6 +40,8 @@ Not yet tested:
 
 todo
 
+explain grapql, admin endpoint
+
 ## Getting Started
 
 Clone the repo:

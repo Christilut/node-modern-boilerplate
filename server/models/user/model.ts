@@ -90,7 +90,7 @@ export class User extends Typegoose {
   async comparePassword(candidatePassword: string): Promise<boolean> {
     if (!this.password) throw new Error('User does not have password')
 
-    const isMatch = await bcrypt.compare(candidatePassword, this.password) // TODO test
+    const isMatch = await bcrypt.compare(candidatePassword, this.password)
 
     return isMatch
   }

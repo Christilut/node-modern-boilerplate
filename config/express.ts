@@ -9,12 +9,14 @@ import * as cors from 'cors'
 import * as expressWinston from 'express-winston'
 import * as helmet from 'helmet'
 import * as Raven from 'raven'
+import * as expressPromiseRouter from 'express-promise-router'
 import { APIError } from 'server/helpers/APIError'
 import { graphiqlExpress } from 'apollo-server-express'
 import { checkAuthentication, checkAdminRole } from 'server/controllers/auth.controller'
-const router = require('express-promise-router')()
 
 const app = express()
+
+const router = expressPromiseRouter()
 
 if (env.NODE_ENV === 'development') {
   app.use(Morgan('dev')) // HTTP request logging
@@ -152,4 +154,4 @@ app.listen(env.PORT, () => {
   logger.info(`Server started on port ${env.PORT} (${env.NODE_ENV})`)
 })
 
-console.log('Loaded Express')
+console.log('Express: Loaded')

@@ -21,7 +21,8 @@
     "test:watch": "npm run test -- --watch",
     "test:coverage": "cross-env NODE_ENV=test ./node_modules/.bin/istanbul cover _mocha -- --timeout 12000 --ui bdd --reporter spec --colors --compilers js:babel-core/register server/tests --recursive",
     "test:check-coverage": "npm run test:coverage && istanbul check-coverage",
-    "report-coverage": "coveralls < ./coverage/lcov.info"
+    "report-coverage": "coveralls < ./coverage/lcov.info",
+    "cli:create-admin": "ts-node cli/createAdmin"
   },
   "repository": {
     "type": "git",
@@ -43,6 +44,7 @@
   "dependencies": {
     "@types/fs-extra": "^4.0.3",
     "@types/http-status": "^0.2.30",
+    "@types/inquirer": "0.0.35",
     "@types/joi": "^10.4.4",
     "@types/jsonwebtoken": "^7.2.3",
     "@types/mongoose": "^4.7.24",
@@ -86,7 +88,7 @@
     "reflect-metadata": "^0.1.10",
     "ts-node": "^3.3.0",
     "tslint": "^5.8.0",
-    "tslint-config-standard": "6.0.1",
+    "tslint-config-standard": "^7.0.0",
     "typegoose": "^3.6.0",
     "typescript": "^2.5.3",
     "url-parse": "1.1.9",

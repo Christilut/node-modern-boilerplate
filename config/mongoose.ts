@@ -26,4 +26,4 @@ mongoose.connection.on('error', () => {
 
 export default mongoose
 
-console.log('Loaded Mongoose')
+console.log('Mongoose: Loaded')

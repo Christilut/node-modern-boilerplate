@@ -1,9 +1,8 @@
 import env from 'config/env'
 import logger from 'config/logger'
 import { APIError, ValidationError, ExtendableError } from 'server/helpers/APIError'
-import { ExpressHandler } from 'apollo-server-express'
+import { ExpressHandler, graphqlExpress } from 'apollo-server-express'
 import { schema, adminSchema } from './merge'
-import { graphqlExpress } from 'apollo-server-express'
 import * as bodyParser from 'body-parser'
 import * as Raven from 'raven'
 
@@ -43,4 +42,4 @@ export const graphQlAdminRoute = graphqlExpress(req => ({
   formatError: (err) => formatError(err, true)
 }))
 
-console.log('Loaded GraphQL')
+console.log('GraphQL: Loaded')
