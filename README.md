@@ -24,12 +24,11 @@ Added:
 - VSCode debugging settings
 
 Not yet added:
-- AVA for parallel unit testing (and test cases for everything)
+- AVA for parallel integration testing (and test cases for everything)
 - roll db secrets
 
 Not yet tested:
 - forest admin with typegoose
-- commitizen
 - Code coverage
 - mailgun
 - deploy to heroku

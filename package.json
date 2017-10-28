@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Boilerplate project for Nodejs API's",
   "author": "Christiaan Maks <christilut@gmail.com>",
-  "main": "index.js",
+  "main": "index.ts",
   "private": false,
   "engines": {
     "node": ">=8",
