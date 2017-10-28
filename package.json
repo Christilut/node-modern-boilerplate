@@ -14,6 +14,7 @@
     "debug": "cross-env NODE_ENV=development tsc index.ts",
     "dev": "nodemon --exec 'ts-node' --ext ts,gql index.ts",
     "deploy": "git push heroku master",
+    "release": "standard-version --no-verify",
     "lint": "esw *.js server config --color",
     "lint:watch": "npm run lint -- --watch",
     "precommit": "npm run lint && npm run test",
