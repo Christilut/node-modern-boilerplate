@@ -6,7 +6,7 @@ import * as httpStatus from 'http-status'
 import app from 'config/express'
 import * as req from 'supertest'
 import * as Joi from 'joi'
-import UserHelper, { testPassword } from './helpers/user'
+import { testPassword, TestUser } from './helpers/user'
 import validate from './helpers/validation'
 
 /**
@@ -84,22 +84,6 @@ test('validation error when password is empty', async t => {
   t.pass()
 })
 
-test('forbidden error when password is wrong', async t => {
-  const user = await UserHelper.generateUser()
-
-  await req(app)
-    .post('/auth/login')
-    .send({
-      email: user.email,
-      password: 'wrongpassword'
-    })
-    .expect(httpStatus.FORBIDDEN)
-
-  await user.remove()
-
-  t.pass()
-})
-
 test('invalid route on GET endpoint', async t => {
   await req(app)
     .get('/auth/login')
@@ -123,26 +107,33 @@ test('invalid route on DEL endpoint', async t => {
 
   t.pass()
 })
+
+test('forbidden error when password is wrong', async t => {
+  const u = new TestUser(app)
+
+  await u.save()
+
+  await req(app)
+    .post('/auth/login')
+    .send({
+      email: u.user.email,
+      password: 'wrongpassword'
+    })
+    .expect(httpStatus.FORBIDDEN)
+
+  await u.cleanup()
+
+  t.pass()
+})
 //#endregion
 
 //#region Succesful login
 test('succesful login', async t => {
-  const user = await UserHelper.generateUser()
+  const u = await TestUser.getLoggedInUser(app)
 
-  const body = await req(app)
-    .post('/auth/login')
-    .send({
-      email: user.email,
-      password: testPassword
-    })
-    .expect(httpStatus.OK)
-    .then(r => r.body) // This is done so it only returns the body. If we put the entire response in t.truthy() then power-assert will spam too much if it fails.
+  t.truthy(u.token)
 
-  validate(body, {
-    token: Joi.string().required()
-  })
-
-  await user.remove()
+  await u.cleanup()
 
   t.pass()
 })
@@ -150,74 +141,54 @@ test('succesful login', async t => {
 
 //#region User read & update self
 test('get own user info and confirm all allowed properties exist', async t => {
-  const user = await UserHelper.generateUser()
+  const u = await TestUser.getLoggedInUser(app)
 
-  const token = await req(app)
-    .post('/auth/login')
-    .send({
-      email: user.email,
-      password: testPassword
-    })
-    .expect(httpStatus.OK)
-    .then(r => r.body.token)
+  const data = await u.query(`
+    query {
+      me {
+        id,
+        name,
+        email
+      }
+    }`
+  )
 
-  const me = await req(app)
-    .post('/graphql')
-    .set('Authorization', token)
-    .send({
-      'query': 'query { me { id, name, email } }'
-    })
-    .expect(httpStatus.OK)
-    .then(r => r.body.data.me)
-
-  validate(me, {
+  validate(data.me, {
     id: Joi.string().required(),
     name: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().forbidden()
   })
 
-  await user.remove()
+  await u.cleanup()
 
   t.pass()
 })
 
 test('update own user info', async t => {
-  const user = await UserHelper.generateUser()
+  const u = await TestUser.getLoggedInUser(app)
 
-  const token = await req(app)
-    .post('/auth/login')
-    .send({
-      email: user.email,
-      password: testPassword
-    })
-    .expect(httpStatus.OK)
-    .then(r => r.body.token)
+  await u.query(`
+    mutation {
+      updateUser(name: "test") {
+        id
+      }
+    }`
+  )
 
-  const res = await req(app)
-    .post('/graphql')
-    .set('Authorization', token)
-    .send({
-      'query': 'mutation { updateUser { name: "test" } }'
-    })
-    .expect(httpStatus.OK)
+  const data = await u.query(`
+    query {
+      me {
+        name
+      }
+    }`
+  )
 
-  const me = await req(app)
-    .post('/graphql')
-    .set('Authorization', token)
-    .send({
-      'query': 'query { me { name } }'
-    })
-    .expect(httpStatus.OK)
-    .then(r => r.body.data.me)
-
-  // TODO user login helper
-
-  validate(me, {
-    name: Joi.string().required().equal('test')
+  validate(data.me, {
+    name: Joi.any().equal('test')
   })
 
-  await user.remove()
+  await u.cleanup()
 
   t.pass()
 })
