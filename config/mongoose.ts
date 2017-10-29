@@ -11,7 +11,9 @@ if (env.NODE_ENV === 'test') {
   // mockgoose.helper.setDbVersion('3.4.3')
 
   mock.prepareStorage().then(function () {
-    mongoose.connect('mongodb://example.com/headless-test')
+    mongoose.connect('mongodb://example.com/headless-test', {
+      useMongoClient: true
+    } as any)
   })
 } else {
   mongoose.connect(env.MONGO_HOST, {

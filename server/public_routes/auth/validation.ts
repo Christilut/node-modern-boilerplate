@@ -1,10 +1,9 @@
 import * as Joi from 'joi'
-import { IAddUserArgs } from 'server/models/user/mutations'
-import { addUserValidation } from 'server/models/user/mutations'
+import { IAddUserArgs, addUserValidation } from 'server/models/user/mutations'
 
 export const login = {
   body: {
-    email: Joi.string().required(),
+    email: Joi.string().required(), // should have been validated during registration so dont do it again, incase results change
     password: Joi.string().required()
   }
 }

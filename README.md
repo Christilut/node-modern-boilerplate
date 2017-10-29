@@ -43,6 +43,8 @@ todo
 
 explain grapql, admin endpoint
 
+graphql edit needs test:watch restart to see change (or just use test)
+
 ## Getting Started
 
 Clone the repo:

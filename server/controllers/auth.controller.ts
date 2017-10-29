@@ -139,7 +139,7 @@ export async function login(req, res, next): Promise<void> {
   })
 
   if (!user || !await user.comparePassword(password)) { // TODO fix no-floating-promises linting, maybe TSLINT vnext?
-    throw new Error('Access denied')
+    throw new APIError('Access denied', httpStatus.FORBIDDEN, true)
   }
 
   const token = _generateToken(user)

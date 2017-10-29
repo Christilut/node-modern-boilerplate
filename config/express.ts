@@ -139,12 +139,12 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 
   // Determines what to return to user. Add error stack in development. Only add error message if it is set as public.
   if (env.NODE_ENV === 'development') {
-    res.status(httpStatus.BAD_REQUEST).json({
+    res.status(err.status).json({
       message: err.isPublic ? err.message : httpStatus[err.status],
       stack: err.stack
     })
   } else {
-    res.status(httpStatus.BAD_REQUEST).json({
+    res.status(err.status).json({
       message: err.isPublic ? err.message : httpStatus[err.status]
     })
   }

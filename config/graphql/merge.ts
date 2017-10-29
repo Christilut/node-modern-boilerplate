@@ -6,7 +6,9 @@ import * as GraphQl from 'graphql-tools'
 let schema: GraphQlSchema
 let adminSchema: GraphQlSchema
 
-const modelDir = 'server/models'
+const modelDir = path.join(__dirname, '../../server/models')
+
+// Note that in this file we use .js because the compiled code that is executed isnt Typescript but Javascript
 
 // Default schema, for graphql endpoint available to all authenticated users
 {
@@ -14,7 +16,7 @@ const modelDir = 'server/models'
   const resolvers: string[] = []
 
   fs.readdirSync(modelDir).forEach(dir => {
-    if (dir.lastIndexOf('.ts') === dir.length - '.ts'.length) return
+    if (dir.lastIndexOf('.js') === dir.length - '.js'.length) return
 
     const dirPath = path.join(modelDir, dir)
 
@@ -27,7 +29,7 @@ const modelDir = 'server/models'
 
     // load resolvers
     fs.readdirSync(dirPath).forEach(file => {
-      if (file.includes('resolver')) {
+      if (file === 'resolvers.js') {
         resolvers.push(require(path.join(dirPath, file)).default)
       }
     })
@@ -40,12 +42,12 @@ const modelDir = 'server/models'
 }
 
 // Admin schema, for graphql endpoint only available to admins
-{
+{ // TODO combine these 2
   const schemas: string[] = []
   const resolvers: string[] = []
 
   fs.readdirSync(modelDir).forEach(dir => {
-    if (dir.lastIndexOf('.ts') === dir.length - '.ts'.length) return
+    if (dir.lastIndexOf('.js') === dir.length - '.js'.length) return
 
     const dirPath = path.join(modelDir, dir)
     const dirAdminPath = path.join(dirPath, 'admin')
@@ -63,7 +65,7 @@ const modelDir = 'server/models'
 
     // load admin resolvers
     fs.readdirSync(dirAdminPath).forEach(file => {
-      if (file.includes('resolver')) {
+      if (file === 'resolvers.js') {
         resolvers.push(require(path.join(dirAdminPath, file)).default)
       }
     })
