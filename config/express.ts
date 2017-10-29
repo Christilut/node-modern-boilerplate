@@ -13,8 +13,9 @@ import * as expressPromiseRouter from 'express-promise-router'
 import { APIError } from 'server/helpers/APIError'
 import { graphiqlExpress } from 'apollo-server-express'
 import { checkAuthentication, checkAdminRole } from 'server/controllers/auth.controller'
+import { Express } from 'express-serve-static-core'
 
-const app = express()
+const app: Express = express()
 
 const router = expressPromiseRouter()
 
@@ -150,8 +151,10 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   }
 })
 
-app.listen(env.PORT, () => {
-  logger.info(`Server started on port ${env.PORT} (${env.NODE_ENV})`)
+const port = env.NODE_ENV === 'test' ? Math.floor((Math.random() * (65535 - 1000) + 1000)) : env.PORT // Start tests on a random port because each test file runs in parallel and will start its own express server
+
+app.listen(port, () => {
+  logger.info(`Server started on port ${port} (${env.NODE_ENV})`)
 })
 
 export default app

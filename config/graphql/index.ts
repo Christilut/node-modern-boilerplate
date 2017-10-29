@@ -33,7 +33,7 @@ function formatError(err, admin: boolean = false) {
 export const graphQlRoute = graphqlExpress(req => ({
   schema,
   context: {
-    user: req.user
+    user: (req as any).user
   },
   formatError
 }))
@@ -41,7 +41,7 @@ export const graphQlRoute = graphqlExpress(req => ({
 export const graphQlAdminRoute = graphqlExpress(req => ({
   schema: adminSchema,
   context: {
-    user: req.user
+    user: (req as any).user
   },
   formatError: (err) => formatError(err, true)
 }))

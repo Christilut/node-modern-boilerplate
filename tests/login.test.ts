@@ -8,6 +8,7 @@ import * as req from 'supertest'
 import * as Joi from 'joi'
 import { testPassword, TestUser } from './helpers/user'
 import validate from './helpers/validation'
+import * as faker from 'faker'
 
 /**
  * This file tests every aspect of logging in. From success to failures.
@@ -18,8 +19,8 @@ test('forbidden when user does not exist', async t => {
   await req(app)
     .post('/auth/login')
     .send({
-      email: 'test@test.com',
-      password: 'test'
+      email: faker.internet.email(),
+      password: faker.internet.password()
     })
     .expect(httpStatus.FORBIDDEN)
 
@@ -30,7 +31,7 @@ test('validation error when email is not given', async t => {
   await req(app)
     .post('/auth/login')
     .send({
-      password: 'test'
+      password: faker.internet.password()
     })
     .expect(httpStatus.BAD_REQUEST)
 
@@ -42,7 +43,7 @@ test('validation error when email is empty', async t => {
     .post('/auth/login')
     .send({
       email: '',
-      password: 'test'
+      password: faker.internet.password()
     })
     .expect(httpStatus.BAD_REQUEST)
 
@@ -54,7 +55,7 @@ test('forbidden when email is not a valid email', async t => { // because email 
     .post('/auth/login')
     .send({
       email: 'test',
-      password: 'test'
+      password: faker.internet.password()
     })
     .expect(httpStatus.FORBIDDEN)
 
@@ -65,7 +66,7 @@ test('validation error when password is not given', async t => {
   await req(app)
     .post('/auth/login')
     .send({
-      email: 'test@test.com'
+      email: faker.internet.email()
     })
     .expect(httpStatus.BAD_REQUEST)
 
@@ -76,7 +77,7 @@ test('validation error when password is empty', async t => {
   await req(app)
     .post('/auth/login')
     .send({
-      email: 'test@test.com',
+      email: faker.internet.email(),
       password: ''
     })
     .expect(httpStatus.BAD_REQUEST)
@@ -193,7 +194,3 @@ test('update own user info', async t => {
   t.pass()
 })
 //#endregion
-
-// TODO register.test.js: register/verify/forgot/reset
-
-// TODO user.admin.test.js
