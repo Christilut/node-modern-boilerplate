@@ -103,16 +103,8 @@ export async function register(req, res, next) {
   let user = new UserModel({
     name,
     email,
-    password // this is a hash, see User.pre-save
+    password // Gets converted to hash in pre-save
   })
-
-  if (env.NODE_ENV === 'test') {
-    user.verified = true
-
-    if (email === 'admin@admin.admin') {
-      user.roles.push(Roles.Admin)
-    }
-  }
 
   try {
     user = await user.save()
@@ -149,14 +141,14 @@ export async function login(req, res, next): Promise<void> {
   })
 }
 
-export async function sendVerificationMail(userId: string) {
-  const token = await JWT.sign({ id: userId } as IVerificationMailTokenContents, env.EMAIL_VERIFY_SECRET, {
+export async function sendVerificationMail(user: User) {
+  const token = await JWT.sign({ id: user._id } as IVerificationMailTokenContents, env.EMAIL_VERIFY_SECRET, {
     expiresIn: '1 day'
   })
 
   const verificationLink = env.DOMAIN + `/verify?token=${token}`
 
-  await this.sendMail(
+  await user.sendMail(
     'Account verification',
     `Please verify your account by clicking the following link: ${verificationLink}`,
     EMAIL_TEMPLATES.Action,

@@ -138,6 +138,13 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     }
   }
 
+  if (env.NODE_ENV === 'test') {
+    console.log(err.message) // TODO temp
+    if (err.status === httpStatus.INTERNAL_SERVER_ERROR) {
+      console.log('Internal Server Error:', err.message)
+    }
+  }
+
   // Determines what to return to user. Add error stack in development. Only add error message if it is set as public.
   if (env.NODE_ENV === 'development') {
     res.status(err.status).json({

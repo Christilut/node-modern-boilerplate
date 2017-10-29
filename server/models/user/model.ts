@@ -106,9 +106,12 @@ export class User extends Typegoose {
     )
   }
 
+  /**
+   * Sends email with link to verify user
+   */
   @instanceMethod
   async sendVerificationMail() {
-    return authController.sendVerificationMail(this._id)
+    return authController.sendVerificationMail(this)
   }
 
   // TODO model validation

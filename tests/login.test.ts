@@ -85,30 +85,6 @@ test('validation error when password is empty', async t => {
   t.pass()
 })
 
-test('invalid route on GET endpoint', async t => {
-  await req(app)
-    .get('/auth/login')
-    .expect(httpStatus.NOT_FOUND)
-
-  t.pass()
-})
-
-test('invalid route on PUT endpoint', async t => {
-  await req(app)
-    .put('/auth/login')
-    .expect(httpStatus.NOT_FOUND)
-
-  t.pass()
-})
-
-test('invalid route on DEL endpoint', async t => {
-  await req(app)
-    .delete('/auth/login')
-    .expect(httpStatus.NOT_FOUND)
-
-  t.pass()
-})
-
 test('forbidden error when password is wrong', async t => {
   const u = new TestUser(app)
 
