@@ -4,6 +4,7 @@ import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
 import { APIError } from 'server/helpers/APIError'
 import * as query from './query'
+import * as mongoose from 'mongoose'
 
 export interface IAddUserArgs {
   name: string
@@ -27,7 +28,7 @@ const updateUserValidation: IUpdateUserArgs = {
   password: Joi.string().regex(strongPasswordRegex).optional() as any
 }
 
-export async function updateUser(id: string, args: IUpdateUserArgs): Promise<User> {
+export async function updateUser(id: string, args: IUpdateUserArgs): Promise<User & mongoose.Document> {
   validate(args, updateUserValidation)
 
   const user = await UserModel.get(id)

@@ -12,7 +12,6 @@ export enum Roles {
 }
 
 @pre<User>('save', async function (next) {
-  console.log('pre save !!!') // TODO confirm presave works
   if (this.isNew) {
     this.created = new Date()
   }
@@ -52,10 +51,8 @@ export class User extends Typegoose {
   })
   roles?: Roles[]
 
-  @prop({
-    required: true
-  })
-  created: Date // Set in pre-save upon creation
+  @prop()
+  created: Date // Set in pre-save
 
   @prop({
     required: true

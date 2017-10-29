@@ -14,7 +14,7 @@ module.exports = function(expressApp) {
     }))
 
     console.log('Forest Admin: Loaded')
-  } else {
+  } else if (env.NODE_ENV !== 'test') {
     console.log('Forest Admin: Not loading outside production environment')
   }
 }

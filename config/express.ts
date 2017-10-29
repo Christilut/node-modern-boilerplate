@@ -156,4 +156,6 @@ app.listen(env.PORT, () => {
 
 export default app
 
-console.log('Express: Loaded')
+if (env.NODE_ENV !== 'test') {
+  console.log('Express: Loaded')
+}
