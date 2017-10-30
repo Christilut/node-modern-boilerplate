@@ -10,8 +10,8 @@
     "npm": ">=5"
   },
   "scripts": {
-    "start": "node dist/index",
-    "build": "tsc && copyfiles server/**/*.gql dist/",
+    "start": "npm run build && node dist/server/index",
+    "build": "npm run clean && tsc && copyfiles server/**/*.gql dist/",
     "build:watch": "copyfiles server/**/*.gql dist/ && tsc --watch",
     "dev": "nodemon --exec 'ts-node' --ext ts,gql server/index.ts",
     "deploy": "git push heroku master",

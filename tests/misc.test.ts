@@ -11,10 +11,6 @@ import app from 'config/express'
 import test from 'ava'
 import * as httpStatus from 'http-status'
 import * as req from 'supertest'
-import * as Joi from 'joi'
-import { testPassword, TestUser } from './helpers/user'
-import validate from './helpers/validation'
-import * as faker from 'faker'
 
 test('health-check endpoint should return OK', async t => {
   await req(app)

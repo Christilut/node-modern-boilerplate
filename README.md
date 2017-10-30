@@ -25,15 +25,16 @@ Added:
 - TypeScript linting (not yet enforced because TS language server with tslint is not yet ready)
 
 Not yet added:
-- AVA for parallel integration testing (and test cases for everything)
-  - watch
 - roll db secrets
+- ava: start after TS compile done (now it waits 5 secs)
+- admin user tests
 
 Not yet tested:
 - forest admin with typegoose
 - Code coverage
 - mailgun
 - deploy to heroku
+- updating boilerplate from git remote
 
 ## Overview
 
