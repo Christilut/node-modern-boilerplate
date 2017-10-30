@@ -45,6 +45,8 @@ explain grapql, admin endpoint
 
 graphql edit needs test:watch restart to see change (or just use test)
 
+updating boilerplate? keep boilerplate repo as `boilerplate` git remote and pull & merge to update
+
 ## Getting Started
 
 Clone the repo:
