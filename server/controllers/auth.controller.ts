@@ -103,16 +103,8 @@ export async function register(req, res, next) {
   let user = new UserModel({
     name,
     email,
-    password // this is a hash, see User.pre-save
+    password // Gets converted to hash in pre-save
   })
-
-  if (env.NODE_ENV === 'test') {
-    user.verified = true
-
-    if (email === 'admin@admin.admin') {
-      user.roles.push(Roles.Admin)
-    }
-  }
 
   try {
     user = await user.save()
@@ -139,7 +131,7 @@ export async function login(req, res, next): Promise<void> {
   })
 
   if (!user || !await user.comparePassword(password)) { // TODO fix no-floating-promises linting, maybe TSLINT vnext?
-    throw new Error('Access denied')
+    throw new APIError('Access denied', httpStatus.FORBIDDEN, true)
   }
 
   const token = _generateToken(user)
@@ -149,14 +141,14 @@ export async function login(req, res, next): Promise<void> {
   })
 }
 
-export async function sendVerificationMail(userId: string) {
-  const token = await JWT.sign({ id: userId } as IVerificationMailTokenContents, env.EMAIL_VERIFY_SECRET, {
+export async function sendVerificationMail(user: User) {
+  const token = await JWT.sign({ id: user._id } as IVerificationMailTokenContents, env.EMAIL_VERIFY_SECRET, {
     expiresIn: '1 day'
   })
 
   const verificationLink = env.DOMAIN + `/verify?token=${token}`
 
-  await this.sendMail(
+  await user.sendMail(
     'Account verification',
     `Please verify your account by clicking the following link: ${verificationLink}`,
     EMAIL_TEMPLATES.Action,
@@ -172,7 +164,7 @@ export async function sendVerificationMail(userId: string) {
 /**
  * If token valid, will verify user account of the user ID that is inside the JWT. Token should come from a verification email sent to the user (see User.sendVerificationmail).
  */
-export async function verifyAccount (req, res, next) {
+export async function verifyAccount(req, res, next) {
   const token: string = req.body.token
 
   try {
@@ -220,7 +212,7 @@ export async function verifyAccount (req, res, next) {
 /**
  * Sends the email verification mail again
  */
-export async function resendVerification (req, res, next) {
+export async function resendVerification(req, res, next) {
   const email: string = req.body.email
 
   if (!email) {
@@ -255,7 +247,7 @@ export async function resendVerification (req, res, next) {
 /**
  * Requests a "forgot password" email that contains a link to reset the password
  */
-export async function sendForgotPasswordMail (req, res, next) {
+export async function sendForgotPasswordMail(req, res, next) {
   const email: string = req.body.email
 
   const user = await UserModel.findOne({ email })
@@ -293,7 +285,7 @@ export async function sendForgotPasswordMail (req, res, next) {
 /**
  * Resets a user password. If the token is valid, takes the user ID from inside the JWT and changes that user to the new password.
  */
-export async function resetPassword (req, res, next) {
+export async function resetPassword(req, res, next) {
   const token: string = req.body.token
   const password: string = req.body.password
 

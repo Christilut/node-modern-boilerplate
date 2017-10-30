@@ -22,16 +22,19 @@ Added:
 - Sentry.io for exceptions
 - CLI command to create an admin user
 - VSCode debugging settings
+- TypeScript linting (not yet enforced because TS language server with tslint is not yet ready)
 
 Not yet added:
-- AVA for parallel integration testing (and test cases for everything)
 - roll db secrets
+- ava: start after TS compile done (now it waits 5 secs)
+- admin user tests
 
 Not yet tested:
 - forest admin with typegoose
 - Code coverage
 - mailgun
 - deploy to heroku
+- updating boilerplate from git remote
 
 ## Overview
 
@@ -40,6 +43,10 @@ Not yet tested:
 todo
 
 explain grapql, admin endpoint
+
+graphql edit needs test:watch restart to see change (or just use test)
+
+updating boilerplate? keep boilerplate repo as `boilerplate` git remote and pull & merge to update
 
 ## Getting Started
 

@@ -60,15 +60,15 @@ async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
 }
 
 export async function sendMail(to: string, subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object) {
-  if (!env.NODE_ENV) {
+  if (!env.EMAIL_FROM_ADDRESS) {
     throw new Error('No EMAIL_FROM_ADDRESS set, not sending mail')
   }
 
-  if (!mailgun) {
+  if (!mailgun && env.NODE_ENV !== 'test') {
     throw new Error('Mailgun not loaded, did you provide credentials?')
   }
 
-  if (env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development') { // Never send mails to real emails in development
     to = env.EMAIL_FROM_ADDRESS
   }
 
@@ -89,12 +89,12 @@ export async function sendMail(to: string, subject: string, text: string, templa
         message: builtMessage.toString('ascii')
       }
 
-      if (env.NODE_ENV === 'test') {
-        console.log('TEST: not actually sending mail')
-      } else {
+      if (env.NODE_ENV !== 'test') {
         const res = await mailgun.messages().sendMime(mail)
 
         logger.info('Mail sent', res)
+      } else {
+        console.log('TEST: not actually sending mail')
       }
     })
   } catch (error) {

@@ -4,6 +4,7 @@ import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
 import { APIError } from 'server/helpers/APIError'
 import { IAddUserArgs, updateUser as defaultUpdateUser, addUserValidation } from 'server/models/user/mutations'
+import * as mongoose from 'mongoose'
 
 export interface IAdminUpdateUserArgs {
   name: string
@@ -11,7 +12,7 @@ export interface IAdminUpdateUserArgs {
   password: string
 }
 
-export async function addUser(args: IAddUserArgs): Promise<User> {
+export async function addUser(args: IAddUserArgs): Promise<User & mongoose.Document> { // TODO remove logical and, use InstanceType
   validate(args, addUserValidation)
 
   const user = new UserModel()
@@ -25,7 +26,7 @@ export async function addUser(args: IAddUserArgs): Promise<User> {
   return user
 }
 
-export async function updateUser(id: string, args: IAdminUpdateUserArgs): Promise<User> {
+export async function updateUser(id: string, args: IAdminUpdateUserArgs): Promise<User & mongoose.Document> {
   return defaultUpdateUser(id, args)
 }
 

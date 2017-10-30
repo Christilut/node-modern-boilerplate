@@ -1,3 +1,5 @@
+require('app-module-path').addPath(__dirname + '/..')
+
 import * as Inquirer from 'inquirer'
 import * as Joi from 'joi'
 import validate from './_validation'
@@ -39,13 +41,9 @@ const questions: Inquirer.Question[] = [
 (async () => {
   console.log('You are now creating a new Admin user. Please answer a few questions.')
 
-  // const answers = await Inquirer.prompt(questions)
-  const answers = {
-    name: 'admin',
-    email: 'test@test.test',
-    roles: [Roles.Admin],
-    password: '$Welkom123'
-  }
+  const answers = await Inquirer.prompt(questions)
+
+  answers.roles = [Roles.Admin]
 
   require('config/mongoose')
 
@@ -54,11 +52,10 @@ const questions: Inquirer.Question[] = [
   try {
     await user.save()
 
-    console.log('Admin user created')
+    console.log('Admin user created: ' + answers.email)
   } catch (error) {
     console.log(`Something went wrong when trying to save the admin user: (${error.message})`)
-    process.exit(0)
   }
-})()
 
-// TODO fix model pre-save
+  process.exit(0)
+})()

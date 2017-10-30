@@ -36,10 +36,12 @@ if (!module.parent.parent) { // Only load if called from startup index file
   console.log('Winston Cloudwatch: Not loading outside production environment')
 }
 
-transports.push(new winston.transports.Console({
-  json: true,
-  colorize: true
-}))
+if (env.NODE_ENV !== 'test') {
+  transports.push(new winston.transports.Console({
+    json: true,
+    colorize: true
+  }))
+}
 
 export default new winston.Logger({
   transports

@@ -1,4 +1,4 @@
-require('app-module-path').addPath(__dirname)
+require('app-module-path').addPath(__dirname + '/..')
 
 import 'config/logger'
 import 'config/mailgun'

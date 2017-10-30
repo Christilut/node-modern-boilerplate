@@ -10,7 +10,7 @@ function formatError(err, admin: boolean = false) {
   logger.warn(admin ? 'Admin ' : '' + 'GraphQL query failed', err)
 
   if (err.originalError instanceof ExtendableError && (err.originalError as ExtendableError).reportToSentry === false) {
-      // dont send to sentry
+    // dont send to sentry
   } else {
     if (env.NODE_ENV === 'production') {
       Raven.captureException(err) // TODO add logged in user info here
@@ -23,13 +23,17 @@ function formatError(err, admin: boolean = false) {
     }
   }
 
+  if (env.NODE_ENV === 'test') { // TODO this might spam during tests when errors are expected, so might need to revise this
+    console.log(err.message)
+  }
+
   return err
 }
 
 export const graphQlRoute = graphqlExpress(req => ({
   schema,
   context: {
-    user: req.user
+    user: (req as any).user
   },
   formatError
 }))
@@ -37,9 +41,11 @@ export const graphQlRoute = graphqlExpress(req => ({
 export const graphQlAdminRoute = graphqlExpress(req => ({
   schema: adminSchema,
   context: {
-    user: req.user
+    user: (req as any).user
   },
   formatError: (err) => formatError(err, true)
 }))
 
-console.log('GraphQL: Loaded')
+if (env.NODE_ENV !== 'test') {
+  console.log('GraphQL: Loaded')
+}
