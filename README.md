@@ -2,11 +2,11 @@
 
 Based on [this boilerplate](https://github.com/KunalKapadia/express-mongoose-es6-rest-api).
 
-### Changes with above boilerplate:
+This boilerplate is meant to be a starting point for small to medium Node.js projects. It comes fully loaded with loads of goodies that many projects could use.
 
-Removed:
-- Babel
-- Yarn
+Of course there are many diffenent options to choose from out there, that's why this boilerplate is super opinionated about it and chooses the tech stack for you. Luckily the choices are faily modern and every third party integration has a free plan.
+
+### Feature list
 
 Added:
 - TypeScript
@@ -40,6 +40,8 @@ Not yet tested:
 
 ### Features
 
+make table with all features laid out. if needed explain more below
+
 todo
 
 explain grapql, admin endpoint
@@ -47,6 +49,26 @@ explain grapql, admin endpoint
 graphql edit needs test:watch restart to see change (or just use test)
 
 updating boilerplate? keep boilerplate repo as `boilerplate` git remote and pull & merge to update
+
+explain how models, graphql, folder structure works
+
+explain about parallel tests and in-mem db
+
+explain public routes and how graphql is auth only
+
+explain email templates
+
+explain forest admin
+
+explain env
+
+explain cli
+
+quickstart/setup guide (should work out of the box though)
+
+troubleshooting?
+
+add contributing
 
 ## Getting Started
 
