@@ -139,8 +139,7 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   }
 
   if (env.NODE_ENV === 'test') {
-    console.log(err.message) // TODO temp
-    if (err.status === httpStatus.INTERNAL_SERVER_ERROR) {
+    if (err.status === httpStatus.INTERNAL_SERVER_ERROR) { // TODO needed?
       console.log('Internal Server Error:', err.message)
     }
   }

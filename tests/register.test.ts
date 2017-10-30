@@ -1,6 +1,6 @@
 require('app-module-path').addPath(__dirname + '/..')
 
-import('tests/helpers/mockgoose')
+import('tests/helpers/mongo')
 import test from 'ava'
 import * as httpStatus from 'http-status'
 import app from 'config/express'
@@ -19,7 +19,7 @@ test('validation error when email is not given', async t => {
   await req(app)
     .post('/auth/register')
     .send({
-      password: faker.internet.password()
+      password: testPassword
     })
     .expect(httpStatus.BAD_REQUEST)
 
@@ -32,7 +32,7 @@ test('validation error when email is not a valid email address', async t => {
     .send({
       email: 'test',
       name: faker.name.findName(),
-      password: faker.internet.password()
+      password: testPassword
     })
     .expect(httpStatus.BAD_REQUEST)
 
@@ -45,7 +45,7 @@ test('validation error when email is empty', async t => {
     .send({
       email: '',
       name: faker.name.findName(),
-      password: faker.internet.password()
+      password: testPassword
     })
     .expect(httpStatus.BAD_REQUEST)
 
@@ -95,7 +95,7 @@ test('validation error when name is not given', async t => {
     .post('/auth/register')
     .send({
       email: faker.internet.email(),
-      password: faker.internet.password()
+      password: testPassword
     })
     .expect(httpStatus.BAD_REQUEST)
 
@@ -108,7 +108,7 @@ test('validation error when name is empty', async t => {
     .send({
       name: '',
       email: faker.internet.email(),
-      password: faker.internet.password()
+      password: testPassword
     })
     .expect(httpStatus.BAD_REQUEST)
 
@@ -118,29 +118,47 @@ test('validation error when name is empty', async t => {
 
 //#region Register success & errors
 test('registration succesful', async t => {
-  // const res = await req(app)
-  //   .post('/auth/register')
-  //   .send({
-  //     name: faker.name.findName(),
-  //     email: faker.internet.email(),
-  //     password: faker.internet.password()
-  //   })
-  //   .expect(httpStatus.OK)
+  const res = await req(app)
+    .post('/auth/register')
+    .send({
+      name: faker.name.findName(),
+      email: faker.internet.email(),
+      password: testPassword
+    })
+    .expect(httpStatus.OK)
 
-  // validate(res.body, {
-  //   token: Joi.string().required(),
-  //   user: Joi.object().required().keys({
-  //     id: Joi.string().required(),
-  //     name: Joi.string().required(),
-  //     email: Joi.string().required()
-  //   })
-  // })
+  validate(res.body, {
+    token: Joi.string().required(),
+    user: Joi.object().required().keys({
+      id: Joi.string().required(),
+      name: Joi.string().required(),
+      email: Joi.string().required(),
+      roles: Joi.array().required()
+    })
+  })
 
   t.pass()
 })
 
-// TODO email in use
+test('fails with CONFLICT if email taken', async t => {
+  const body = {
+    name: faker.name.findName(),
+    email: faker.internet.email(),
+    password: testPassword
+  }
 
+  await req(app)
+    .post('/auth/register')
+    .send(body)
+    .expect(httpStatus.OK)
+
+  await req(app)
+    .post('/auth/register')
+    .send(body)
+    .expect(httpStatus.CONFLICT)
+
+  t.pass()
+})
  //#endregion
 
  //#region Account verification

@@ -1,6 +1,5 @@
 import env from 'config/env'
 import * as mongoose from 'mongoose'
-import * as mockgoose from 'mockgoose'
 
 (mongoose as any).Promise = Promise
 

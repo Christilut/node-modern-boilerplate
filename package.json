@@ -88,7 +88,7 @@
     "mailcomposer": "4.0.2",
     "mailgun-js": "0.13.1",
     "merge-graphql-schemas": "^1.2.0",
-    "mockgoose": "^7.3.3",
+    "mongodb-memory-server": "^1.6.1",
     "mongoose": "^4.11.1",
     "morgan": "1.9.0",
     "nodemon": "^1.12.1",

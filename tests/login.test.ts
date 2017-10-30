@@ -1,6 +1,6 @@
 require('app-module-path').addPath(__dirname + '/..')
 
-import('tests/helpers/mockgoose')
+import('tests/helpers/mongo')
 import test from 'ava'
 import * as httpStatus from 'http-status'
 import app from 'config/express'
@@ -20,7 +20,7 @@ test('forbidden when user does not exist', async t => {
     .post('/auth/login')
     .send({
       email: faker.internet.email(),
-      password: faker.internet.password()
+      password: testPassword
     })
     .expect(httpStatus.FORBIDDEN)
 
@@ -31,7 +31,7 @@ test('validation error when email is not given', async t => {
   await req(app)
     .post('/auth/login')
     .send({
-      password: faker.internet.password()
+      password: testPassword
     })
     .expect(httpStatus.BAD_REQUEST)
 
@@ -43,7 +43,7 @@ test('validation error when email is empty', async t => {
     .post('/auth/login')
     .send({
       email: '',
-      password: faker.internet.password()
+      password: testPassword
     })
     .expect(httpStatus.BAD_REQUEST)
 
@@ -55,7 +55,7 @@ test('forbidden when email is not a valid email', async t => { // because email 
     .post('/auth/login')
     .send({
       email: 'test',
-      password: faker.internet.password()
+      password: testPassword
     })
     .expect(httpStatus.FORBIDDEN)
 
