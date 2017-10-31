@@ -1,5 +1,5 @@
 import { addUser } from 'server/models/user/admin/mutations'
-import { User, UserModel } from 'server/models/user/model'
+import { User, UserModel, Roles } from 'server/models/user/model'
 import * as mongoose from 'mongoose'
 import * as faker from 'faker'
 import * as req from 'supertest'
@@ -32,6 +32,12 @@ export class TestUser { // TODO extend User & mongoose.Document
     return user
   }
 
+  async addAdminRole() {
+    this.user.roles.push(Roles.Admin)
+
+    await this.save()
+  }
+
   async save() {
     await this.user.save()
   }
@@ -43,6 +49,16 @@ export class TestUser { // TODO extend User & mongoose.Document
   async query(query) {
     const result = await req(this.app)
       .post('/graphql')
+      .set('Authorization', this.token)
+      .send({ query })
+      .expect(httpStatus.OK)
+
+    return result.body.data
+  }
+
+  async adminQuery(query) {
+    const result = await req(this.app)
+      .post('/admin-graphql')
       .set('Authorization', this.token)
       .send({ query })
       .expect(httpStatus.OK)

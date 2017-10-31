@@ -2,7 +2,6 @@ import env from 'config/env'
 import { User, UserModel } from './model'
 import * as mutations from './mutations'
 import * as query from './query'
-import { login } from 'server/controllers/auth.controller'
 
 export default {
   Query: {

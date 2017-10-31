@@ -33,6 +33,8 @@ export async function updateUser(id: string, args: IUpdateUserArgs): Promise<Use
 
   const user = await UserModel.get(id)
 
+  if (!user) throw new APIError('user not found', httpStatus.NOT_FOUND)
+
   for (const key of Object.keys(args)) {
     if (args[key] !== undefined) user[key] = args[key]
   }

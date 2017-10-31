@@ -148,7 +148,7 @@ test('get own user info and confirm all allowed properties exist', async t => {
   t.pass()
 })
 
-test('update own user info', async t => {
+test('update own user info and confirm', async t => {
   const u = await TestUser.getLoggedInUser(app)
 
   await u.query(`

@@ -16,4 +16,28 @@ import { testPassword, TestUser } from './helpers/user'
 import validate from './helpers/validation'
 import * as faker from 'faker'
 
-test.skip('', async t => { })
+test('create a new user, get details, remove it and confirm it does not exist', async t => {
+  const admin = await TestUser.getLoggedInUser(app)
+  await admin.addAdminRole()
+
+  const data = await admin.query(`
+    mutation {
+      addUser(name: "${faker.name.findName()}", email: "${faker.internet.email()}", password: "${testPassword}") {
+        id,
+        name,
+        email
+      }
+    }`
+  )
+  console.log(data)
+  validate(data.user, {
+    id: Joi.string().required(),
+    name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().forbidden()
+  })
+
+  await admin.cleanup()
+
+  t.pass()
+})
