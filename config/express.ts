@@ -19,7 +19,7 @@ const app: Express = express()
 
 const router = expressPromiseRouter()
 
-if (env.NODE_ENV === 'development') {
+if (env.NODE_ENV === env.Environments.Development) {
   app.use(Morgan('dev')) // HTTP request logging
 }
 
@@ -35,7 +35,7 @@ app.use(helmet()) // Secure apps by setting various HTTP headers
 require('config/forestadmin')(app)
 
 // Enable CORS - Cross Origin Resource Sharing
-if (env.NODE_ENV === 'production') {
+if (env.NODE_ENV === env.Environments.Production) {
   app.use(cors())
   // app.use(cors({
   //   origin: [], // TODO add origins for production
@@ -54,7 +54,7 @@ app.use('/', publicRoutes)
 // Private GraphQL routes, require authentication
 import { graphQlRoute, graphQlAdminRoute } from 'config/graphql'
 
-if (env.NODE_ENV === 'development') {
+if (env.NODE_ENV === env.Environments.Development) {
   app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
   app.use('/admin-graphiql', graphiqlExpress({ endpointURL: '/admin-graphql' }))
 }
@@ -64,7 +64,7 @@ router.use('/admin-graphql', bodyParser.json(), checkAuthentication, checkAdminR
 app.use('/', router)
 
 // Enable detailed API logging
-if (env.NODE_ENV !== 'test') {
+if (env.NODE_ENV !== env.Environments.Test) {
   expressWinston.requestWhitelist.push('body')
   expressWinston.responseWhitelist.push('body')
   app.use(expressWinston.logger({
@@ -99,7 +99,7 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 
   // Filter errors that are not really errors
-  if (env.NODE_ENV !== 'test') {
+  if (env.NODE_ENV !== env.Environments.Test) {
     if (err instanceof APIError) {
       logger.warn('Handled API error', {
         err,
@@ -130,7 +130,7 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
         request
       })
 
-      if (env.NODE_ENV === 'production') {
+      if (env.NODE_ENV === env.Environments.Production) {
         Raven.captureException(err, {
           request
         } as Raven.CaptureOptions)
@@ -138,14 +138,14 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     }
   }
 
-  if (env.NODE_ENV === 'test') {
+  if (env.NODE_ENV === env.Environments.Test) {
     if (err.status === httpStatus.INTERNAL_SERVER_ERROR) { // TODO needed?
       console.log('Internal Server Error:', err.message)
     }
   }
 
   // Determines what to return to user. Add error stack in development. Only add error message if it is set as public.
-  if (env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === env.Environments.Development) {
     res.status(err.status).json({
       message: err.isPublic ? err.message : httpStatus[err.status],
       stack: err.stack
@@ -157,7 +157,7 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   }
 })
 
-const port = env.NODE_ENV === 'test' ? Math.floor((Math.random() * (65535 - 1000) + 1000)) : env.PORT // Start tests on a random port because each test file runs in parallel and will start its own express server
+const port = env.NODE_ENV === env.Environments.Test ? Math.floor((Math.random() * (65535 - 1000) + 1000)) : env.PORT // Start tests on a random port because each test file runs in parallel and will start its own express server
 
 app.listen(port, () => {
   logger.info(`Server started on port ${port} (${env.NODE_ENV})`)
@@ -165,6 +165,6 @@ app.listen(port, () => {
 
 export default app
 
-if (env.NODE_ENV !== 'test') {
+if (env.NODE_ENV !== env.Environments.Test) {
   console.log('Express: Loaded')
 }

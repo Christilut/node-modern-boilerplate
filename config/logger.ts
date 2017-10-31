@@ -32,11 +32,11 @@ if (!module.parent.parent) { // Only load if called from startup index file
   } else {
     console.log('Winston Cloudwatch: Missing AWS credentials, not loading')
   }
-} else if (env.NODE_ENV === 'production') {
+} else if (env.NODE_ENV === env.Environments.Production) {
   console.log('Winston Cloudwatch: Not loading outside production environment')
 }
 
-if (env.NODE_ENV !== 'test') {
+if (env.NODE_ENV !== env.Environments.Test) {
   transports.push(new winston.transports.Console({
     json: true,
     colorize: true

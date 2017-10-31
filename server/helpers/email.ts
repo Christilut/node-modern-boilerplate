@@ -64,11 +64,11 @@ export async function sendMail(to: string, subject: string, text: string, templa
     throw new Error('No EMAIL_FROM_ADDRESS set, not sending mail')
   }
 
-  if (!mailgun && env.NODE_ENV !== 'test') {
+  if (!mailgun && env.NODE_ENV !== env.Environments.Test) {
     throw new Error('Mailgun not loaded, did you provide credentials?')
   }
 
-  if (env.NODE_ENV === 'development') { // Never send mails to real emails in development
+  if (env.NODE_ENV === env.Environments.Development) { // Never send mails to real emails in development
     to = env.EMAIL_FROM_ADDRESS
   }
 
@@ -89,7 +89,7 @@ export async function sendMail(to: string, subject: string, text: string, templa
         message: builtMessage.toString('ascii')
       }
 
-      if (env.NODE_ENV !== 'test') {
+      if (env.NODE_ENV !== env.Environments.Test) {
         const res = await mailgun.messages().sendMime(mail)
 
         logger.info('Mail sent', res)

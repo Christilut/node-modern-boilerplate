@@ -11,7 +11,7 @@ export class ExtendableError extends Error {
   reportToSentry: boolean
 
   constructor (message: string, status: number, isPublic: boolean, reportToSentry: boolean = true) {
-    // if (env.NODE_ENV === 'test') console.log('\t', status, message)
+    // if (env.NODE_ENV === env.Environments.Test) console.log('\t', status, message)
     super(message)
     this.name = this.constructor.name
     this.message = message

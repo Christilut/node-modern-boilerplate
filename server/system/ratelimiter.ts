@@ -5,6 +5,6 @@ import * as MemoryStore from 'express-rate-limiter/lib/memoryStore'
 export default new Limiter({
   db: new MemoryStore(),
   outerTimeLimit: 1 * 10 * 1000,
-  outerLimit: env.NODE_ENV === 'test' ? 100000 : 40,
-  innerLimit: env.NODE_ENV === 'test' ? 100000 : 20
+  outerLimit: env.NODE_ENV === env.Environments.Test ? 100000 : 40,
+  innerLimit: env.NODE_ENV === env.Environments.Test ? 100000 : 20
 })

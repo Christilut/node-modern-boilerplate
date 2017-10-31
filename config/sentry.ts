@@ -2,7 +2,7 @@ import env from 'config/env'
 import * as Raven from 'raven'
 
 if (env.SENTRY_URL) {
-  if (env.NODE_ENV === 'production') {
+  if (env.NODE_ENV === env.Environments.Production) {
     Raven.config(env.SENTRY_URL, {
       environment: env.NODE_ENV
     }).install()

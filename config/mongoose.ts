@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose'
 
 (mongoose as any).Promise = Promise
 
-if (env.NODE_ENV !== 'test') {
+if (env.NODE_ENV !== env.Environments.Test) {
   mongoose.connect(env.MONGO_HOST, {
     useMongoClient: true,
     keepAlive: true

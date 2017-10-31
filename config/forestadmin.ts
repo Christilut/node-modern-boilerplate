@@ -6,7 +6,7 @@ module.exports = function(expressApp) {
     return
   }
 
-  if (env.NODE_ENV === 'production') {
+  if (env.NODE_ENV === env.Environments.Production) {
     expressApp.use(require('forest-express-mongoose').init({
       envSecret: env.FOREST_ENV_SECRET,
       authSecret: env.FOREST_AUTH_SECRET,
@@ -14,7 +14,7 @@ module.exports = function(expressApp) {
     }))
 
     console.log('Forest Admin: Loaded')
-  } else if (env.NODE_ENV !== 'test') {
+  } else if (env.NODE_ENV !== env.Environments.Test) {
     console.log('Forest Admin: Not loading outside production environment')
   }
 }

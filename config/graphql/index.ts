@@ -12,18 +12,18 @@ function formatError(err, admin: boolean = false) {
   if (err.originalError instanceof ExtendableError && (err.originalError as ExtendableError).reportToSentry === false) {
     // dont send to sentry
   } else {
-    if (env.NODE_ENV === 'production') {
+    if (env.NODE_ENV === env.Environments.Production) {
       Raven.captureException(err) // TODO add logged in user info here
     }
   }
 
   if (err.originalError instanceof APIError) {
-    if (env.NODE_ENV === 'production' && !err.originalError.isPublic) {
+    if (env.NODE_ENV === env.Environments.Production && !err.originalError.isPublic) {
       err.message = 'Internal server error'
     }
   }
 
-  if (env.NODE_ENV === 'test') { // TODO this might spam during tests when errors are expected, so might need to revise this
+  if (env.NODE_ENV === env.Environments.Test) { // TODO this might spam during tests when errors are expected, so might need to revise this
     console.log(err.message)
   }
 
@@ -46,6 +46,6 @@ export const graphQlAdminRoute = graphqlExpress(req => ({
   formatError: (err) => formatError(err, true)
 }))
 
-if (env.NODE_ENV !== 'test') {
+if (env.NODE_ENV !== env.Environments.Test) {
   console.log('GraphQL: Loaded')
 }

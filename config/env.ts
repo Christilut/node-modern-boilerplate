@@ -1,6 +1,12 @@
 import * as Joi from 'joi'
 
-export interface IConfig {
+export enum Environments {
+  Test = 'test',
+  Development = 'development',
+  Production = 'production'
+}
+
+export interface IEnvironmentVariables {
   NODE_ENV?: string
   PORT?: number
   MONGO_HOST?: string
@@ -17,6 +23,8 @@ export interface IConfig {
   CLOUDWATCH_SECRET?: string
   CLOUDWATCH_REGION?: string
   SENTRY_URL?: string
+
+  Environments: typeof Environments
 }
 
 // require and configure dotenv, will load vars in .env in PROCESS.ENV
@@ -25,7 +33,7 @@ require('dotenv').config()
 // define validation for all the env vars
 const allowedEnvKeys: Joi.SchemaMap = {
   NODE_ENV: Joi.string()
-    .valid(['development', 'production', 'test'])
+    .valid([Environments.Test, Environments.Development, Environments.Production])
     .required(),
   PORT: Joi.number().default(5000).required(),
   MONGO_HOST: Joi.string().required(),
@@ -46,7 +54,7 @@ const allowedEnvKeys: Joi.SchemaMap = {
 
 let envVarsSchema = Joi.object(allowedEnvKeys).unknown().required()
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === Environments.Production) {
   const envVarsProduction = Joi.object({
 
   })
@@ -62,7 +70,9 @@ if (error) {
 
 const envKeys = Object.keys(allowedEnvKeys)
 
-const config: IConfig = {}
+const config: IEnvironmentVariables = {
+  Environments: Environments
+}
 
 for (const key of envKeys) {
   config[key] = envVars[key]
