@@ -1,5 +1,5 @@
 import * as Joi from 'joi'
-import { ValidationError } from 'server/helpers/APIError'
+import { ValidationError } from 'server/helpers/error'
 
 export default function validate(args, schema) {
   if (!args) throw new ValidationError('args object is undefined')
@@ -9,4 +9,6 @@ export default function validate(args, schema) {
   if (validationErrors.error) {
     throw new ValidationError(validationErrors.error.message)
   }
+
+  return validationErrors
 }

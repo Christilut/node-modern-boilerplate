@@ -1,6 +1,6 @@
 import env from 'config/env'
 import logger from 'config/logger'
-import { APIError, ValidationError, ExtendableError } from 'server/helpers/APIError'
+import { APIError, ValidationError, ExtendableError } from 'server/helpers/error'
 import { ExpressHandler, graphqlExpress } from 'apollo-server-express'
 import { schema, adminSchema } from './merge'
 import * as bodyParser from 'body-parser'
