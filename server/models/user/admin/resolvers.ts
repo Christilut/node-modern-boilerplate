@@ -1,13 +1,18 @@
 import env from 'config/env'
 import { User, UserModel } from '../model'
 import * as mutations from './mutations'
-import * as query from './query'
+import * as adminQuery from './query'
+import * as userQuery from '../query'
 import { login } from 'server/controllers/auth.controller'
 
 export default {
   Query: {
+    async user(_, args): Promise<User> {
+      return userQuery.get(args)
+    },
+
     async users(): Promise<User[]> {
-      return query.getAll()
+      return adminQuery.getAll()
     }
   },
 

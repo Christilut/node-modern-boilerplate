@@ -9,7 +9,9 @@ export default {
     async me(_, args, context): Promise<User> {
       const id: string = context.user.id
 
-      return query.get(id)
+      return query.get({
+        id
+      })
     }
   },
 

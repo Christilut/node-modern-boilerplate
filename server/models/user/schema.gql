@@ -3,5 +3,5 @@ type Query {
 }
 
 type Mutation {
-    updateUser(name: String, password: String): User
+  updateUser(name: String, password: String): User
 }

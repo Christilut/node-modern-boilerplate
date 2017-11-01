@@ -20,7 +20,7 @@ test('create a new user, get details, remove it and confirm it does not exist', 
   const admin = await TestUser.getLoggedInUser(app)
   await admin.addAdminRole()
 
-  const data = await admin.query(`
+  let data = await admin.adminQuery(`
     mutation {
       addUser(name: "${faker.name.findName()}", email: "${faker.internet.email()}", password: "${testPassword}") {
         id,
@@ -29,13 +29,37 @@ test('create a new user, get details, remove it and confirm it does not exist', 
       }
     }`
   )
-  console.log(data)
-  validate(data.user, {
+
+  validate(data.addUser, {
     id: Joi.string().required(),
     name: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().forbidden()
   })
+
+  const createdUserId = data.addUser.id
+
+  data = await admin.adminQuery(`
+    mutation {
+      removeUser(id: "${createdUserId}") {
+        id
+      }
+    }`
+  )
+
+  validate(data.removeUser, {
+    id: Joi.string().required().equal(createdUserId)
+  })
+
+  data = await admin.adminQuery(`
+    query {
+      user(id: "${createdUserId}") {
+        id
+      }
+    }
+  `)
+
+  t.true(data.user === null)
 
   await admin.cleanup()
 

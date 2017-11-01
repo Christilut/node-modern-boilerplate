@@ -36,6 +36,8 @@ export class TestUser { // TODO extend User & mongoose.Document
     this.user.roles.push(Roles.Admin)
 
     await this.save()
+
+    await this.login()
   }
 
   async save() {
