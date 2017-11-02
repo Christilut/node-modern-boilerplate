@@ -26,7 +26,6 @@ Added:
 
 Not yet added:
 - roll db secrets
-- ava: start after TS compile done (now it waits 5 secs)
 - admin user tests
 
 Not yet tested:
@@ -37,7 +36,7 @@ Not yet tested:
 - updating boilerplate from git remote
 
 Todo:
-- watch files doesnt work on .gqlsssssssssss
+- watch files doesnt work on .gql
 
 ## Overview
 

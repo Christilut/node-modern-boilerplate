@@ -24,7 +24,7 @@ function formatError(err, admin: boolean = false) {
   }
 
   if (env.NODE_ENV === env.Environments.Test) { // TODO this might spam during tests when errors are expected, so might need to revise this
-    console.log('Test error: ' + err.message)
+    console.log('(test) ' + err.message)
   }
 
   return err
