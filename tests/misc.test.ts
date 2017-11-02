@@ -19,11 +19,3 @@ test('health-check endpoint should return OK', async t => {
 
   t.pass()
 })
-
-// TODO throw assertion doesnt work on endpoint properly yet
-test.skip('will-throw-error endpoint should throw error', async t => {
-  await t.throws(async () => {
-    await req(app)
-      .get('/misc/will-throw-error')
-  })
-})
