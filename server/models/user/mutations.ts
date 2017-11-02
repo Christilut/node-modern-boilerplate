@@ -2,7 +2,7 @@ import { User, UserModel } from './model'
 import { strongPasswordRegex } from 'server/helpers/regex'
 import validate from 'server/helpers/validation'
 import * as Joi from 'joi'
-import { APIError } from 'server/helpers/APIError'
+import { APIError } from 'server/helpers/error'
 import * as query from './query'
 import * as mongoose from 'mongoose'
 

@@ -36,6 +36,9 @@ Not yet tested:
 - deploy to heroku
 - updating boilerplate from git remote
 
+Todo:
+- watch files doesnt work on .gqlsssssssssss
+
 ## Overview
 
 ### Features
