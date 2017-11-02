@@ -33,8 +33,6 @@ Not yet tested:
 - Code coverage
 - deploy to heroku
 
-// TODO model validation
-
 ## Overview
 
 ### Features
@@ -62,6 +60,8 @@ explain forest admin
 explain env
 
 explain cli
+
+coverage: folder, html
 
 quickstart/setup guide (should work out of the box though)
 
