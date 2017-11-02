@@ -2,8 +2,9 @@
 {
   "files.exclude": {
     "dist/": true,
-    "node_modules": true,
-    ".nyc_output": true
+    "node_modules/": true,
+    ".nyc_output/": true,
+    "coverage/": true
   },
   "git.ignoreLimitWarning": true,
   "eslint.enable": false

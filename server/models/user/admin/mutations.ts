@@ -7,9 +7,9 @@ import { IAddUserArgs, updateUser as defaultUpdateUser, addUserValidation } from
 import * as mongoose from 'mongoose'
 
 export interface IAdminUpdateUserArgs {
-  name: string
-  email: string
-  password: string
+  name?: string
+  email?: string
+  password?: string
 }
 
 export async function addUser(args: IAddUserArgs): Promise<User> {

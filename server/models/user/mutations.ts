@@ -13,8 +13,8 @@ export interface IAddUserArgs {
 }
 
 export interface IUpdateUserArgs {
-  name: string
-  password: string
+  name?: string
+  password?: string
 }
 
 export const addUserValidation: IAddUserArgs = {

@@ -150,14 +150,14 @@ let app: Express
     }
 
     // Determines what to return to user. Add error stack in development. Only add error message if it is set as public.
-    if (env.NODE_ENV === env.Environments.Development) {
+    if (env.NODE_ENV === env.Environments.Production) {
       res.status(err.status).json({
-        message: err.isPublic ? err.message : httpStatus[err.status],
-        stack: err.stack
+        message: err.isPublic ? err.message : httpStatus[err.status]
       })
     } else {
       res.status(err.status).json({
-        message: err.isPublic ? err.message : httpStatus[err.status]
+        message: err.message,
+        stack: err.stack
       })
     }
   })

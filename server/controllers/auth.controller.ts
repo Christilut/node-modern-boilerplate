@@ -106,18 +106,14 @@ export async function register(req, res, next) {
     password // Gets converted to hash in pre-save
   })
 
-  try {
-    user = await user.save()
+  user = await user.save()
 
-    await user.sendVerificationMail()
+  await user.sendVerificationMail()
 
-    return res.json({
-      token: _generateToken(user),
-      user: _setUserInfo(user)
-    })
-  } catch (error) {
-    return next(error)
-  }
+  return res.json({
+    token: _generateToken(user),
+    user: _setUserInfo(user)
+  })
 }
 
 /**
@@ -263,9 +259,10 @@ export async function sendForgotPasswordMail(req, res, next) {
 
   const token: string = await JWT.sign({
     id: user._id
-  } as IForgotPasswordTokenContents, env.EMAIL_FORGOT_SECRET, {
-    expiresIn: '1 day' // 1 day
-  })
+  } as IForgotPasswordTokenContents, env.EMAIL_FORGOT_SECRET,
+    {
+      expiresIn: '1 day' // 1 day
+    })
 
   await user.sendMail(
     'Password reset instructions',

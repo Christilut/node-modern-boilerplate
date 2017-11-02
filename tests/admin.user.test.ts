@@ -15,6 +15,7 @@ import * as Joi from 'joi'
 import { testPassword, TestUser } from './helpers/user'
 import validate from './helpers/validation'
 import * as faker from 'faker'
+import { updateUser } from 'server/models/user/admin/mutations'
 
 test('create a new user, get details, remove it and confirm it does not exist', async t => {
   const admin = await TestUser.getLoggedInUser(app)
@@ -39,16 +40,24 @@ test('create a new user, get details, remove it and confirm it does not exist', 
 
   const createdUserId = data.addUser.id
 
+  // Update user directly
+  await updateUser(createdUserId, {
+    name: 'test',
+    email: undefined // to confirm this gets ignored
+  })
+
   data = await admin.adminQuery(`
     mutation {
       removeUser(id: "${createdUserId}") {
-        id
+        id,
+        name
       }
     }`
   )
 
   validate(data.removeUser, {
-    id: Joi.string().required().equal(createdUserId)
+    id: Joi.string().required().equal(createdUserId),
+    name: Joi.string().required().equal('test')
   })
 
   data = await admin.adminQuery(`

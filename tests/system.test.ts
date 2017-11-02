@@ -4,15 +4,16 @@ require('app-module-path').addPath(__dirname + '/..')
 // Import libraries needed for testing
 import test from 'ava'
 import * as Joi from 'joi'
-import validate from './helpers/validation'
+import testValidator from './helpers/validation'
 import { ValidationError, ExtendableError } from 'server/helpers/error'
+import { validate as validatorHelper } from 'server/helpers/validation'
 
 test('should not throw validation errors', async (t) => {
   const obj = {
     foo: 'bar'
   }
 
-  const validationErrors = validate(obj, {
+  const validationErrors = testValidator(obj, {
     foo: Joi.string().required()
   })
 
@@ -26,36 +27,44 @@ test('should throw validation error because of missing property', async (t) => {
     foo: 'bar'
   }
 
-  t.throws(() => {
-    validate(obj, {
+  try {
+    testValidator(obj, {
       foo: Joi.string().required(),
       test: Joi.string().required()
     })
-  }, ExtendableError)
-
-  t.pass()
+    t.fail()
+  } catch {
+    t.pass()
+  }
 })
 
 test('should throw validation error because of null args', async (t) => {
-  t.throws(() => {
-    validate(null, {
+  try {
+    testValidator(null, {
       foo: Joi.string().required()
     })
-  }, ExtendableError)
+    t.fail()
+  } catch {
+    t.pass()
+  }
 
-  t.throws(() => {
-    validate(undefined, {
+  try {
+    testValidator(undefined, {
       foo: Joi.string().required()
     })
-  }, ExtendableError)
+    t.fail()
+  } catch {
+    t.pass()
+  }
 
-  t.throws(() => {
-    validate('', {
+  try {
+    testValidator('', {
       foo: Joi.string().required()
     })
-  }, ExtendableError)
-
-  t.pass()
+    t.fail()
+  } catch {
+    t.pass()
+  }
 })
 
 test('should throw validation error because of extra unexpected property', async (t) => {
@@ -64,11 +73,31 @@ test('should throw validation error because of extra unexpected property', async
     test: 123
   }
 
-  t.throws(() => {
-    validate(obj, {
+  try {
+    testValidator(obj, {
       foo: Joi.string().required()
     })
-  }, ExtendableError)
 
-  t.pass()
+    t.fail()
+  } catch {
+    t.pass()
+  }
+
+})
+
+test('should throw validation error because of wrong property type', async (t) => {
+  const obj = {
+    foo: 'bar'
+  }
+
+  try {
+    validatorHelper(obj, {
+      foo: Joi.string().required(),
+      test: Joi.string().required()
+    })
+
+    t.fail()
+  } catch (error) {
+    t.pass()
+  }
 })

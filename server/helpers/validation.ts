@@ -3,7 +3,7 @@ import * as httpStatus from 'http-status'
 import { ValidationError } from 'server/helpers/error'
 
 export function validate(args, schema) {
-  const validationResult = Joi.validate(args, Joi.object(schema).unknown(false))
+  const validationResult = Joi.validate(args, Joi.object(schema).unknown(true))
 
   if (validationResult.error) {
     throw new ValidationError(validationResult.error.message)
