@@ -4,12 +4,11 @@ import * as fs from 'fs'
 import { fileLoader, mergeTypes, mergeResolvers, GraphQlSchema } from 'merge-graphql-schemas'
 import * as GraphQl from 'graphql-tools'
 
-
 const modelDir = path.join(__dirname, '../../server/models')
 
 // Note that in this file we use .js because the compiled code that is executed isnt Typescript but Javascript. However, in Development we use ts-node which executes .ts files directly, so we load those.
 let extension = '.js'
-if (env.NODE_ENV === env.Environments.Development) {
+if (env.DEBUG) {
   extension = '.ts'
 }
 

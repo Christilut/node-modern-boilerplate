@@ -15,7 +15,7 @@
     "build:watch": "npm run build:copy-gql && tsc --watch",
     "build:copy-gql": "copyfiles server/**/*.gql dist/",
     "build:watch-gql": "watch -p \"server/**/*.gql\" -c \"npm run build:copy-gql\"",
-    "dev": "nodemon --exec 'ts-node' --ext ts,gql server/index.ts",
+    "dev": "cross-env DEBUG=true nodemon --exec 'ts-node' --ext ts,gql server/index.ts",
     "deploy": "git push heroku master",
     "release": "standard-version --no-verify",
     "lint-BROKEN": "tslint --project .",

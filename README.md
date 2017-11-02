@@ -31,12 +31,8 @@ Not yet added:
 Not yet tested:
 - forest admin with typegoose
 - Code coverage
-- mailgun
 - deploy to heroku
 - updating boilerplate from git remote
-
-Todo:
-- watch files doesnt work on .gql
 
 ## Overview
 

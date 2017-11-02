@@ -8,6 +8,7 @@ export enum Environments {
 
 export interface IEnvironmentVariables {
   NODE_ENV?: string
+  DEBUG?: boolean
   PORT?: number
   MONGO_HOST?: string
   DOMAIN?: string
@@ -35,6 +36,7 @@ const allowedEnvKeys: Joi.SchemaMap = {
   NODE_ENV: Joi.string()
     .valid([Environments.Test, Environments.Development, Environments.Production])
     .required(),
+  DEBUG: Joi.boolean().optional(),
   PORT: Joi.number().default(5000).required(),
   MONGO_HOST: Joi.string().required(),
   DOMAIN: Joi.string().uri().optional(),
