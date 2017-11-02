@@ -68,7 +68,7 @@ export class User extends Typegoose {
    * STATIC METHODS
    */
   @staticMethod
-  static async get(id: String): Promise<User & mongoose.Document> {
+  static async get(id: String): Promise<InstanceType<User>> {
     const user = await UserModel.findById(id)
 
     if (!user) throw new Error('user not found')
@@ -113,8 +113,6 @@ export class User extends Typegoose {
   async sendVerificationMail() {
     return authController.sendVerificationMail(this)
   }
-
-  // TODO model validation
 }
 
 export const UserModel = new User().getModelForClass(User)

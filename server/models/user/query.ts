@@ -1,6 +1,6 @@
 import { User, UserModel } from './model'
 import * as Joi from 'joi'
-import validate from 'server/helpers/validation'
+import { validate } from 'server/helpers/validation'
 
 export interface IGetUserArgs {
   id: string

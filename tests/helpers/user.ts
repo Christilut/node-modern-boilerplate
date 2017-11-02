@@ -5,12 +5,12 @@ import * as faker from 'faker'
 import * as req from 'supertest'
 import * as httpStatus from 'http-status'
 
-export const testPassword = 'Test123!' // TODO replace with faker
+export const testPassword = faker.internet.password() + '1!'
 
-export class TestUser { // TODO extend User & mongoose.Document
-  app = null
-  user: User & mongoose.Document = null
-  token: string = null
+export class TestUser {
+  app
+  user: User & mongoose.Document
+  token: string
 
   constructor(app) {
     this.app = app

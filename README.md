@@ -32,7 +32,8 @@ Not yet tested:
 - forest admin with typegoose
 - Code coverage
 - deploy to heroku
-- updating boilerplate from git remote
+
+// TODO model validation
 
 ## Overview
 

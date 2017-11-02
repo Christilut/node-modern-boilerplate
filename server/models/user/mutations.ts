@@ -1,6 +1,6 @@
 import { User, UserModel } from './model'
 import { strongPasswordRegex } from 'server/helpers/regex'
-import validate from 'server/helpers/validation'
+import { validate } from 'server/helpers/validation'
 import * as Joi from 'joi'
 import { APIError } from 'server/helpers/error'
 import * as query from './query'
@@ -28,7 +28,7 @@ const updateUserValidation: IUpdateUserArgs = {
   password: Joi.string().regex(strongPasswordRegex).optional() as any
 }
 
-export async function updateUser(id: string, args: IUpdateUserArgs): Promise<User & mongoose.Document> {
+export async function updateUser(id: string, args: IUpdateUserArgs): Promise<User> {
   validate(args, updateUserValidation)
 
   const user = await UserModel.get(id)

@@ -1,6 +1,6 @@
 import { User, UserModel } from 'server/models/user/model'
 import { strongPasswordRegex } from 'server/helpers/regex'
-import validate from 'server/helpers/validation'
+import { validate } from 'server/helpers/validation'
 import * as Joi from 'joi'
 import { APIError } from 'server/helpers/error'
 import { IAddUserArgs, updateUser as defaultUpdateUser, addUserValidation } from 'server/models/user/mutations'
@@ -12,7 +12,7 @@ export interface IAdminUpdateUserArgs {
   password: string
 }
 
-export async function addUser(args: IAddUserArgs): Promise<User & mongoose.Document> { // TODO remove logical and, use InstanceType
+export async function addUser(args: IAddUserArgs): Promise<User> {
   validate(args, addUserValidation)
 
   const user = new UserModel()
@@ -26,7 +26,7 @@ export async function addUser(args: IAddUserArgs): Promise<User & mongoose.Docum
   return user
 }
 
-export async function updateUser(id: string, args: IAdminUpdateUserArgs): Promise<User & mongoose.Document> {
+export async function updateUser(id: string, args: IAdminUpdateUserArgs): Promise<User> {
   return defaultUpdateUser(id, args)
 }
 
