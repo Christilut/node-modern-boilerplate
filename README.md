@@ -2,7 +2,7 @@
 
 Based on [this boilerplate](https://github.com/KunalKapadia/express-mongoose-es6-rest-api).
 
-This boilerplate is meant to be a starting point for small to medium Node.js projects. It comes fully loaded with loads of goodies that many projects could use.
+This boilerplate is meant to be a starting point for small to medium Node.js projects. It comes fully loaded with goodies that many projects could use.
 
 Of course there are many diffenent options to choose from out there, that's why this boilerplate is super opinionated about it and chooses the tech stack for you. Luckily the choices are faily modern and every third party integration has a free plan.
 
