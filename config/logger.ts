@@ -4,9 +4,11 @@ const crypto = require('crypto')
 const WinstonCloudwatch = require('winston-cloudwatch')
 
 const transports = []
-// console.log(module.parent.parent)
+
 if (!module.parent.parent) { // Only load if called from startup index file
-  if (env.CLOUDWATCH_ACCESS_KEY && env.CLOUDWATCH_REGION && env.CLOUDWATCH_SECRET) {
+  if (env.NODE_ENV !== env.Environments.Production) {
+    console.log('Winston Cloudwatch: Not loading outside production environment')
+  } else if (env.CLOUDWATCH_ACCESS_KEY && env.CLOUDWATCH_REGION && env.CLOUDWATCH_SECRET) {
     const startTime = new Date().toISOString()
 
     transports.push(new WinstonCloudwatch({
@@ -32,8 +34,6 @@ if (!module.parent.parent) { // Only load if called from startup index file
   } else {
     console.log('Winston Cloudwatch: Missing AWS credentials, not loading')
   }
-} else if (env.NODE_ENV === env.Environments.Production) {
-  console.log('Winston Cloudwatch: Not loading outside production environment')
 }
 
 if (env.NODE_ENV !== env.Environments.Test) {
