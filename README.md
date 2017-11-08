@@ -23,6 +23,8 @@ Added:
 - CLI command to create an admin user
 - VSCode debugging settings
 - TypeScript linting (not yet enforced because TS language server with tslint is not yet ready)
+- Parallel testing with mock database
+- Code coverage reporting
 
 Not yet added:
 - roll db secrets
@@ -30,7 +32,6 @@ Not yet added:
 
 Not yet tested:
 - forest admin with typegoose
-- Code coverage
 - deploy to heroku
 
 ## Overview
