@@ -61,14 +61,18 @@ function _setUserInfo(user: User): IUserInfo {
 export async function checkAuthentication(req, res, next) {
   const token: string = req.headers.authorization
 
-  const decodedToken = await JWT.verify(token, env.JWT_SECRET) as IJsonWebTokenContents
+  try {
+    const decodedToken = await JWT.verify(token, env.JWT_SECRET) as IJsonWebTokenContents
 
-  req.user = {
-    id: decodedToken.id,
-    roles: decodedToken.roles
+    req.user = {
+      id: decodedToken.id,
+      roles: decodedToken.roles
+    }
+
+    next()
+  } catch (error) {
+    return next(new APIError('invalid token', httpStatus.UNAUTHORIZED, true))
   }
-
-  next()
 }
 
 /**

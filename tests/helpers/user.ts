@@ -1,4 +1,3 @@
-import { addUser } from 'server/models/user/admin/mutations'
 import { User, UserModel, Roles } from 'server/models/user/model'
 import * as mongoose from 'mongoose'
 import * as faker from 'faker'

@@ -2,12 +2,12 @@ import env from 'config/env'
 import logger from 'config/logger'
 import { APIError, ValidationError, ExtendableError } from 'server/helpers/error'
 import { ExpressHandler, graphqlExpress } from 'apollo-server-express'
-import { schema, adminSchema } from './merge'
+import { schema } from './merge'
 import * as bodyParser from 'body-parser'
 import * as Raven from 'raven'
 
-function formatError(err, admin: boolean = false) {
-  logger.warn(admin ? 'Admin ' : '' + 'GraphQL query failed', err)
+function formatError(err) {
+  logger.warn('GraphQL query failed', err)
 
   if (err.originalError instanceof ExtendableError && (err.originalError as ExtendableError).reportToSentry === false) {
     // dont send to sentry
@@ -36,14 +36,6 @@ export const graphQlRoute = graphqlExpress(req => ({
     user: (req as any).user
   },
   formatError
-}))
-
-export const graphQlAdminRoute = graphqlExpress(req => ({
-  schema: adminSchema,
-  context: {
-    user: (req as any).user
-  },
-  formatError: (err) => formatError(err, true)
 }))
 
 if (env.NODE_ENV !== env.Environments.Test) {

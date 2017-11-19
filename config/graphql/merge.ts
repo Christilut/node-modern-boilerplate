@@ -13,7 +13,7 @@ if (env.DEBUG) {
 }
 
 // Default schema, for graphql endpoint available to all authenticated users
-function merge(isAdmin: boolean): GraphQlSchema {
+function merge(): GraphQlSchema {
   const schemas: string[] = []
   const resolvers: string[] = []
 
@@ -21,14 +21,6 @@ function merge(isAdmin: boolean): GraphQlSchema {
     if (dir.lastIndexOf(extension) === dir.length - extension.length) return
 
     let dirPath = path.join(modelDir, dir)
-
-    if (isAdmin) {
-      // Load shared schema
-      schemas.push(fs.readFileSync(path.join(dirPath, 'shared.gql'), 'utf8'))
-
-      // Then change to admin subfolder path
-      dirPath = path.join(dirPath, 'admin')
-    }
 
     // load schemas
     fs.readdirSync(dirPath).forEach(file => {
@@ -55,10 +47,8 @@ function merge(isAdmin: boolean): GraphQlSchema {
   }
 }
 
-const schema: GraphQlSchema = merge(false)
-const adminSchema: GraphQlSchema = merge(true)
+const schema: GraphQlSchema = merge()
 
 export {
-  schema,
-  adminSchema
+  schema
 }

@@ -17,7 +17,7 @@ import { Express } from 'express-serve-static-core'
 import * as getPort from 'get-port'
 
 import publicRoutes from 'server/public_routes'
-import { graphQlRoute, graphQlAdminRoute } from 'config/graphql'
+import { graphQlRoute } from 'config/graphql'
 
 let app: Express
 
@@ -61,11 +61,9 @@ let app: Express
 
   if (env.NODE_ENV === env.Environments.Development) {
     app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
-    app.use('/admin-graphiql', graphiqlExpress({ endpointURL: '/admin-graphql' }))
   }
 
   router.use('/graphql', bodyParser.json(), checkAuthentication, graphQlRoute)
-  router.use('/admin-graphql', bodyParser.json(), checkAuthentication, checkAdminRole, graphQlAdminRoute)
   app.use('/', router)
 
   // Enable detailed API logging

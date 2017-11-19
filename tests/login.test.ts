@@ -108,27 +108,6 @@ test('forbidden error when password is wrong', async t => {
 
   t.pass()
 })
-
-test('forbidden error when trying to use admin graphql endpoint without admin role', async t => {
-  const admin = await TestUser.getLoggedInUser(app)
-
-  await req(admin.app)
-    .post('/admin-graphql')
-    .set('Authorization', admin.token)
-    .send({
-      query: `
-        query {
-          user(id: "${123}") {
-            id
-          }
-        }
-      `})
-    .expect(httpStatus.FORBIDDEN)
-
-  await admin.cleanup()
-
-  t.pass()
-})
 //#endregion
 
 //#region Succesful login
