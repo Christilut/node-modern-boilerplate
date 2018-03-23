@@ -20,25 +20,11 @@ Of course there are many diffenent options to choose from out there, that's why 
 | Rate limiter | Rate limiter setup on public routes |
 | Cloudwatch logging | Logging to AWS Cloudwatch |
 | Sentry.io | Sentry integration for exception handling |
+| Precommit hook | Runs tests before every commit |
 | CLI commands | CLI example command to create admin users |
 | VSCode debugging | Visual Studio Code debugging settings |
 | Parallel testing | Parallel atomic testing with mock in-memory mongo database |
 | Code coverage | Generate code coverage reports |
-
-
-explain forest admin
-
-explain env
-
-explain cli
-
-coverage: folder, html
-
-quickstart/setup guide (should work out of the box though)
-
-troubleshooting?
-
-add contributing
 
 ### Graphql
 
@@ -134,4 +120,4 @@ MIT License. Feel free to do whatever you want with this.
 
 ## Contact
 
-Questions, bugs, suggestions? Feel free to open an issue or message me on [Keybase](https://keybase.io/christilut)
+Questions, bugs, suggestions? Feel free to open an issue and I'll get back to you!
