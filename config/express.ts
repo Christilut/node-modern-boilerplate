@@ -9,7 +9,6 @@ import * as cors from 'cors'
 import * as expressWinston from 'express-winston'
 import * as helmet from 'helmet'
 import * as Raven from 'raven'
-import * as expressPromiseRouter from 'express-promise-router'
 import { APIError } from 'server/helpers/error'
 import { graphiqlExpress } from 'apollo-server-express'
 import { checkAuthentication, checkAdminRole } from 'server/controllers/auth.controller'
@@ -24,7 +23,7 @@ let app: Express
 (async () => {
   app = express()
 
-  const router = expressPromiseRouter()
+  const router = require('express-promise-router')()
 
   if (env.NODE_ENV === env.Environments.Development) {
     app.use(Morgan('dev')) // HTTP request logging

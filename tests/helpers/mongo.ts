@@ -10,7 +10,5 @@ const mongod = new MongodbMemoryServer()
 test.before(async () => {
   const uri = await mongod.getConnectionString()
 
-  await mongoose.connect(uri, {
-    useMongoClient: true
-  } as any)
+  await mongoose.connect(uri)
 })

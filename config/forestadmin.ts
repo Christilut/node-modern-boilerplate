@@ -1,7 +1,7 @@
 import env from 'config/env'
 
 module.exports = function(expressApp) {
-  if (!env.FOREST_AUTH_SECRET || !env.FOREST_ENV_SECRET) {
+  if ((!env.FOREST_AUTH_SECRET || !env.FOREST_ENV_SECRET) && env.NODE_ENV !== env.Environments.Test) {
     console.log('Forest Admin: Missing credentials, not loading')
     return
   }

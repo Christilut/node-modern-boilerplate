@@ -5,9 +5,8 @@ import * as mongoose from 'mongoose'
 
 if (env.NODE_ENV !== env.Environments.Test) {
   mongoose.connect(env.MONGO_HOST, {
-    useMongoClient: true,
-    keepAlive: true
-  } as any) // mongoose typings dont appear to be up to date
+    // keepAlive: 0 // TODO is this value needed? default is 0
+  })
 
   mongoose.connection.on('error', () => {
     throw new Error(`unable to connect to database`)
