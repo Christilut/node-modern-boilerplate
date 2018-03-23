@@ -11,7 +11,7 @@ import * as helmet from 'helmet'
 import * as Raven from 'raven'
 import { APIError } from 'server/helpers/error'
 import { graphiqlExpress } from 'apollo-server-express'
-import { checkAuthentication, checkAdminRole } from 'server/controllers/auth.controller'
+import { checkAuthentication } from 'server/controllers/auth.controller'
 import { Express } from 'express-serve-static-core'
 import * as getPort from 'get-port'
 

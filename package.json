@@ -18,7 +18,7 @@
     "dev": "cross-env DEBUG=true nodemon --exec 'ts-node' --ext ts,gql server/index.ts",
     "deploy": "git push heroku master",
     "release": "standard-version --no-verify",
-    "lint-BROKEN": "tslint --project .",
+    "lint": "tslint --project .",
     "precommit": "npm run test",
     "clean": "rm -rf dist/",
     "test": "cross-env NODE_ENV=test npm run clean && npm run build && ava --verbose dist/tests/*.test.js",

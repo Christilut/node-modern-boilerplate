@@ -8,7 +8,8 @@
     ],
     "array-type": [true, "array"],
     "no-angle-bracket-type-assertion": true,
-    "no-floating-promises": true,
-    "promise-function-async": true
+    "no-floating-promises": false,
+    "promise-function-async": true,
+    "no-unused-variable": false
   }
 }

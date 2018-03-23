@@ -2,9 +2,8 @@ import env from 'config/env'
 import * as bcrypt from 'bcrypt'
 import * as mongoose from 'mongoose'
 import { sendMail, EMAIL_TEMPLATES } from 'server/helpers/email'
-import * as JWT from 'jsonwebtoken'
 import * as authController from 'server/controllers/auth.controller'
-import { prop, arrayProp, Typegoose, ModelType, InstanceType, staticMethod, instanceMethod, pre } from 'typegoose'
+import { prop, arrayProp, Typegoose, InstanceType, staticMethod, instanceMethod, pre } from 'typegoose'
 
 export enum Roles {
   User = 'user',
@@ -69,7 +68,7 @@ export class User extends Typegoose {
    */
   @staticMethod
   static async get(id: String): Promise<InstanceType<User>> {
-    const user = await UserModel.findById(id)
+    const user: InstanceType<User> = await UserModel.findById(id)
 
     if (!user) throw new Error('user not found')
 

@@ -1,5 +1,4 @@
-import env from 'config/env'
-import { User, UserModel } from './model'
+import { User } from './model'
 import * as mutations from './mutations'
 import * as query from './query'
 

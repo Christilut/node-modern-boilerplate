@@ -1,9 +1,8 @@
 import env from 'config/env'
 import logger from 'config/logger'
-import { APIError, ValidationError, ExtendableError } from 'server/helpers/error'
+import { APIError, ExtendableError } from 'server/helpers/error'
 import { ExpressHandler, graphqlExpress } from 'apollo-server-express'
 import { schema } from './merge'
-import * as bodyParser from 'body-parser'
 import * as Raven from 'raven'
 
 function formatError(err) {

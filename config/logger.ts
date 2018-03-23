@@ -1,6 +1,5 @@
 const winston = require('winston')
 import env from 'config/env'
-const crypto = require('crypto')
 const WinstonCloudwatch = require('winston-cloudwatch')
 
 const transports = []
@@ -9,7 +8,7 @@ if (!module.parent.parent) { // Only load if called from startup index file
   if (env.NODE_ENV !== env.Environments.Production) {
     console.log('Winston Cloudwatch: Not loading outside production environment')
   } else if (env.CLOUDWATCH_ACCESS_KEY && env.CLOUDWATCH_REGION && env.CLOUDWATCH_SECRET) {
-    const startTime = new Date().toISOString()
+    // const startTime = new Date().toISOString()
 
     transports.push(new WinstonCloudwatch({
       logGroupName: 'boilerplate-api',

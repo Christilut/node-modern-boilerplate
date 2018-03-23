@@ -1,4 +1,3 @@
-import env from 'config/env'
 import * as httpStatus from 'http-status'
 
 /**

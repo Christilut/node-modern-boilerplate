@@ -1,5 +1,4 @@
 const router = require('express-promise-router')()
-import * as validate from 'express-validation'
 import * as authController from 'server/controllers/auth.controller'
 import * as validations from './validation'
 import { validationMiddleware } from 'server/helpers/validation'

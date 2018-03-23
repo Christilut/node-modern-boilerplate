@@ -26,15 +26,28 @@ Added:
 - Parallel testing with mock database
 - Code coverage reporting
 
-Not yet added:
-- roll db secrets
-- admin user tests
-
-Not yet tested:
-- forest admin with typegoose
-- deploy to heroku
-
 ## Overview
+
+
+| Feature |  |
+|---|---|
+| TypeScript | Typings for JavaScript |
+| Mongoose | MongoDB models |
+| Typegoose | Combines Mongoose and TypeScript |
+| GraphlQL | GraphQL integration and User example |
+| Email templates | Example email templates |
+| Mailgun helper | Helper to compile email templates and send through Mailgun |
+| Forest Admin | Basic Forest Admin integration setup |
+| User CRUD | GraphlQL example setup to CRUD users |
+| User auth | User login, registration, email verification and password reset |
+| Rate limiter | Rate limiter setup on public routes |
+| Cloudwatch logging | Logging to AWS Cloudwatch |
+| Sentry.io | Sentry integration for exception handling |
+| CLI commands | CLI example command to create admin users |
+| VSCode debugging | Visual Studio Code debugging settings |
+| TypeScript linting |  |
+| Parallel testing | Parallel atomic testing with mock in-memory mongo database |
+| Code coverage | Generate code coverage reports |
 
 ### Features
 

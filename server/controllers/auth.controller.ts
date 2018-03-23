@@ -123,7 +123,7 @@ export async function register(req, res, next) {
 /**
  * Returns passport login response (jwt) when valid username and password is provided
  */
-export async function login(req, res, next): Promise<void> {
+export async function login(req, res): Promise<void> {
   const { email, password } = req.body
 
   const user = await UserModel.findOne({

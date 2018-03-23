@@ -1,7 +1,7 @@
 import env from 'config/env'
 import * as path from 'path'
 import * as fs from 'fs'
-import { fileLoader, mergeTypes, mergeResolvers, GraphQlSchema } from 'merge-graphql-schemas'
+import { mergeTypes, mergeResolvers, GraphQlSchema } from 'merge-graphql-schemas'
 import * as GraphQl from 'graphql-tools'
 
 const modelDir = path.join(__dirname, '../../server/models')
