@@ -57,16 +57,6 @@ export class TestUser {
     return result.body.data
   }
 
-  async adminQuery(query) {
-    const result = await req(this.app)
-      .post('/admin-graphql')
-      .set('Authorization', this.token)
-      .send({ query })
-      .expect(httpStatus.OK)
-
-    return result.body.data
-  }
-
   private async login() {
     this.token = await req(this.app)
       .post('/auth/login')
