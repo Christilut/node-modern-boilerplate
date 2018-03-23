@@ -1,33 +1,10 @@
-# Opinionated Node.js server API boilerplate
-
-Based on [this boilerplate](https://github.com/KunalKapadia/express-mongoose-es6-rest-api).
+# Modern Node.js boilerplate with integrations
 
 This boilerplate is meant to be a starting point for small to medium Node.js projects. It comes fully loaded with goodies that many projects could use.
 
 Of course there are many diffenent options to choose from out there, that's why this boilerplate is super opinionated about it and chooses the tech stack for you. Luckily the choices are faily modern and every third party integration has a free plan.
 
-### Feature list
-
-Added:
-- TypeScript
-- Mongoose / Typegoose
-- GraphQL
-- Email templates
-- Mailgun helper
-- Forest Admin integration
-- User CRUD
-- User login, registration, email verification & password reset
-- Rate limiter
-- Cloudwatch for logging
-- Sentry.io for exceptions
-- CLI command to create an admin user
-- VSCode debugging settings
-- TypeScript linting (not yet enforced because TS language server with tslint is not yet ready)
-- Parallel testing with mock database
-- Code coverage reporting
-
 ## Overview
-
 
 | Feature |  |
 |---|---|
@@ -45,29 +22,9 @@ Added:
 | Sentry.io | Sentry integration for exception handling |
 | CLI commands | CLI example command to create admin users |
 | VSCode debugging | Visual Studio Code debugging settings |
-| TypeScript linting |  |
 | Parallel testing | Parallel atomic testing with mock in-memory mongo database |
 | Code coverage | Generate code coverage reports |
 
-### Features
-
-make table with all features laid out. if needed explain more below
-
-todo
-
-explain grapql, admin endpoint
-
-graphql edit needs test:watch restart to see change (or just use test)
-
-updating boilerplate? keep boilerplate repo as `boilerplate` git remote and pull & merge to update
-
-explain how models, graphql, folder structure works
-
-explain about parallel tests and in-mem db
-
-explain public routes and how graphql is auth only
-
-explain email templates
 
 explain forest admin
 
@@ -87,6 +44,8 @@ add contributing
 
 Explanation of the model, mutations, schema:
 
+Take the User model as an example and work from there.
+
 Schema.gql User: these are the exposed properties, clients connecting to the graphql endpoint get these back
 Schema.gql Mutation: these are the properties allowed to be set by graphql
 IUpdateUserArgs: these are properties that are updatable from within the codebase (typescript will complain on unknown props)
@@ -94,6 +53,26 @@ Model: has all properties that are saved to database and returned when fetching 
 
 So a property like User.Roles cannot be updated from graphql because graphql will error since it is not in the Mutation schema.
 It can also not be updated from the codebase because Roles is not in IUpdateUserArgs
+
+Minor note: when changing GraphQL schema, you need to restart the `test:watch` job in order to see the schema changes.
+
+### Testing
+
+Tests are run by AVA which runs all tests in parallel. This is great because not only is it much faster than running them in series but also forces you write atomic tests, so no test should depend on any other test.
+
+An in-memory Mongo database is setup and the tests uses actual express endpoints so the tests are about as close to the real deal as possible.
+
+### Public routes
+
+There are some public routes for authentication such as login, account verification and registration.
+
+The GraphQL routes are setup for logged in users only.
+
+### Email templates
+
+There are some email templates provided. They are taken from Mailgun and should work properly on any email client. You can send mails with the email helper by providing the right parameters.
+
+See `server/models/user/model.ts` for an example.
 
 ## Getting Started
 
@@ -108,7 +87,7 @@ Install dependencies:
 npm install
 ```
 
-Set environment (vars):
+Set environment variables. Remember: Don't save secrets to git!:
 ```sh
 cp .env.example .env
 ```
@@ -131,15 +110,6 @@ npm run test:watch
 
 # Run tests enforcing code coverage (configured via .istanbul.yml)
 npm run test:check-coverage
-```
-
-Lint:
-```sh
-# Lint code with ESLint
-npm run lint
-
-# Run lint on any file change
-npm run lint:watch
 ```
 
 ##### Deployment

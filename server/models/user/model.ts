@@ -96,13 +96,14 @@ export class User extends Typegoose {
    */
   @instanceMethod
   async sendMail(subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object): Promise<void> {
-    await sendMail(
-      this.email,
+    await sendMail({
+      to: this.email,
+      from: env.EMAIL_FROM_ADDRESS,
       subject,
       text,
       templateName,
       templateData
-    )
+    })
   }
 
   /**

@@ -14,6 +14,16 @@ export enum EMAIL_TEMPLATES {
   Welcome = 'welcome'
 }
 
+export interface ISendMail {
+  to: string,
+  bcc?: string[],
+  from: string,
+  subject: string,
+  text: string,
+  templateName: EMAIL_TEMPLATES,
+  templateData: Object
+}
+
 async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
   let schema
 
@@ -59,7 +69,7 @@ async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
   return rawTemplate(data)
 }
 
-export async function sendMail(to: string, subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object) {
+export async function sendMail(args: ISendMail) {
   if (!env.EMAIL_FROM_ADDRESS) {
     throw new Error('No EMAIL_FROM_ADDRESS set, not sending mail')
   }
@@ -69,23 +79,23 @@ export async function sendMail(to: string, subject: string, text: string, templa
   }
 
   if (env.NODE_ENV === env.Environments.Development) { // Never send mails to real emails in development
-    to = env.EMAIL_FROM_ADDRESS
+    args.to = env.EMAIL_FROM_ADDRESS
   }
 
   try {
     const rawMessage = mailcomposer({
       from: env.EMAIL_FROM_ADDRESS,
-      to,
-      subject,
-      text, // text that is shown incase client doesnt support HTML
-      html: await _generateMail(templateName, templateData)
+      to: args.to,
+      subject: args.subject,
+      text: args.text, // text that is shown incase client doesnt support HTML
+      html: await _generateMail(args.templateName, args.templateData)
     })
 
     rawMessage.build(async function (err, builtMessage) {
       if (err) throw new Error(err)
 
       const mail = {
-        to,
+        to: args.to,
         message: builtMessage.toString('ascii')
       }
 
@@ -103,15 +113,16 @@ export async function sendMail(to: string, subject: string, text: string, templa
 }
 
 export async function sendDevMail(subject: string, text: string) {
-  await sendMail(
-    env.EMAIL_FROM_ADDRESS,
+  await sendMail({
+    to: env.EMAIL_FROM_ADDRESS,
+    from: env.EMAIL_FROM_ADDRESS,
     subject,
     text,
-    EMAIL_TEMPLATES.Info,
-    {
+    templateName: EMAIL_TEMPLATES.Info,
+    templateData: {
       title: subject,
       lead: 'Automated message from API server',
       message: text
     }
-  )
+  })
 }
