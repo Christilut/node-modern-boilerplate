@@ -26,42 +26,6 @@ Of course there are many diffenent options to choose from out there, that's why 
 | Parallel testing | Parallel atomic testing with mock in-memory mongo database |
 | Code coverage | Generate code coverage reports |
 
-### Graphql
-
-Explanation of the model, mutations, schema:
-
-Take the User model as an example and work from there.
-
-Schema.gql User: these are the exposed properties, clients connecting to the graphql endpoint get these back
-Schema.gql Mutation: these are the properties allowed to be set by graphql
-IUpdateUserArgs: these are properties that are updatable from within the codebase (typescript will complain on unknown props)
-Model: has all properties that are saved to database and returned when fetching from database
-
-So a property like User.Roles cannot be updated from graphql because graphql will error since it is not in the Mutation schema.
-It can also not be updated from the codebase because Roles is not in IUpdateUserArgs
-
-Minor note: when changing GraphQL schema, you need to restart the `test:watch` job in order to see the schema changes.
-
-### Testing
-
-Tests are run by AVA which runs all tests in parallel. This is great because not only is it much faster than running them in series but also forces you write atomic tests, so no test should depend on any other test.
-
-An in-memory Mongo database is setup and the tests uses actual express endpoints so the tests are about as close to the real deal as possible.
-
-### Public routes
-
-There are some public routes for authentication such as login, account verification and registration.
-
-The GraphQL routes are setup for logged in users only.
-
-### Email templates
-
-There are some email templates provided. They are taken from Mailgun and should work properly on any email client. You can send mails with the email helper by providing the right parameters.
-
-See `server/models/user/model.ts` for an example.
-
-Make sure to customize the templates as they contain things like `example.com`.
-
 ## Getting Started
 
 Clone the repo:
@@ -100,7 +64,43 @@ npm run test:watch
 npm run test:check-coverage
 ```
 
-##### Deployment
+## Graphql
+
+Explanation of the model, mutations, schema:
+
+Take the User model as an example and work from there.
+
+Schema.gql User: these are the exposed properties, clients connecting to the graphql endpoint get these back
+Schema.gql Mutation: these are the properties allowed to be set by graphql
+IUpdateUserArgs: these are properties that are updatable from within the codebase (typescript will complain on unknown props)
+Model: has all properties that are saved to database and returned when fetching from database
+
+So a property like User.Roles cannot be updated from graphql because graphql will error since it is not in the Mutation schema.
+It can also not be updated from the codebase because Roles is not in IUpdateUserArgs
+
+Minor note: when changing GraphQL schema, you need to restart the `test:watch` job in order to see the schema changes.
+
+## Testing
+
+Tests are run by AVA which runs all tests in parallel. This is great because not only is it much faster than running them in series but also forces you write atomic tests, so no test should depend on any other test.
+
+An in-memory Mongo database is setup and the tests uses actual express endpoints so the tests are about as close to the real deal as possible.
+
+## Public routes
+
+There are some public routes for authentication such as login, account verification and registration.
+
+The GraphQL routes are setup for logged in users only.
+
+## Email templates
+
+There are some email templates provided. They are taken from Mailgun and should work properly on any email client. You can send mails with the email helper by providing the right parameters.
+
+See `server/models/user/model.ts` for an example.
+
+Make sure to customize the templates as they contain things like `example.com`.
+
+## Deployment
 
 Deploy to Heroku.
 
