@@ -37,7 +37,7 @@ async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
   } else if (templateName === EMAIL_TEMPLATES.Alert) {
     schema = Joi.object().keys({
       title: Joi.string().required(),
-      lead: Joi.string().required(),
+      lead: Joi.string().optional(),
       warningText: Joi.string().required(),
       message: Joi.string().required(),
       buttonText: Joi.string().optional(),
@@ -46,7 +46,7 @@ async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
   } else if (templateName === EMAIL_TEMPLATES.Info) {
     schema = Joi.object().keys({
       title: Joi.string().required(),
-      lead: Joi.string().required(),
+      lead: Joi.string().optional(),
       message: Joi.string().required(),
       buttonText: Joi.string().optional(),
       buttonUrl: Joi.string().uri().optional()

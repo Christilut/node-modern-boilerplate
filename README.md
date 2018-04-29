@@ -60,6 +60,8 @@ There are some email templates provided. They are taken from Mailgun and should 
 
 See `server/models/user/model.ts` for an example.
 
+Make sure to customize the templates as they contain things like `example.com`.
+
 ## Getting Started
 
 Clone the repo:
