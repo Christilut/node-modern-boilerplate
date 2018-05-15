@@ -99,6 +99,8 @@
     "mongodb-memory-server": "^1.7.3",
     "mongoose": "^5.0.16",
     "morgan": "1.9.0",
+    "nodemailer": "^4.6.4",
+    "nodemailer-mailgun-transport": "^1.4.0",
     "nodemon": "^1.17.3",
     "nyc": "^11.7.1",
     "raven": "^2.6.0",

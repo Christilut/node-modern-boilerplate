@@ -20,6 +20,7 @@ export interface IEnvironmentVariables {
   EMAIL_FORGOT_SECRET?: string
   EMAIL_VERIFY_SECRET?: string
   EMAIL_FROM_ADDRESS?: string
+  EMAIL_DEV_ADDRESS?: string
   CLOUDWATCH_ACCESS_KEY?: string
   CLOUDWATCH_SECRET?: string
   CLOUDWATCH_REGION?: string
@@ -48,6 +49,7 @@ const allowedEnvKeys: Joi.SchemaMap = {
   EMAIL_FORGOT_SECRET: Joi.string().required(),
   EMAIL_VERIFY_SECRET: Joi.string().required(),
   EMAIL_FROM_ADDRESS: Joi.string().email().allow('').optional(),
+  EMAIL_DEV_ADDRESS: Joi.string().email().allow('').optional(),
   CLOUDWATCH_ACCESS_KEY: Joi.string().allow('').optional(),
   CLOUDWATCH_SECRET: Joi.string().allow('').optional(),
   CLOUDWATCH_REGION: Joi.string().allow('').optional(),

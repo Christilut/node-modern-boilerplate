@@ -1,17 +1,18 @@
 import Handlebars from 'handlebars'
-import * as mailcomposer from 'mailcomposer'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as Joi from 'joi'
 import env from 'config/env'
 import logger from 'config/logger'
-import mailgun from 'config/mailgun'
+import * as nodemailer from 'nodemailer'
+import * as mailgunTransport from 'nodemailer-mailgun-transport'
 
 export enum EMAIL_TEMPLATES {
   Action = 'action',
   Alert = 'alert',
   Info = 'info',
-  Welcome = 'welcome'
+  Welcome = 'welcome',
+  Aanvraag = 'aanvraag'
 }
 
 export interface ISendMail {
@@ -21,7 +22,26 @@ export interface ISendMail {
   subject: string,
   text: string,
   templateName: EMAIL_TEMPLATES,
-  templateData: Object
+  templateData: Object,
+  attachments?: IMailAttachment[]
+}
+
+interface IMailParameters {
+  to: string,
+  cc?: string[],
+  bcc?: string[],
+  from: string,
+  subject: string,
+  text: string,
+  html: string,
+  attachments?: IMailAttachment[]
+}
+
+export interface IMailAttachment {
+  filename?: string,
+  content?: Buffer,
+  path?: string,
+  cid?: string
 }
 
 async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
@@ -70,45 +90,53 @@ async function _generateMail(templateName: EMAIL_TEMPLATES, data: Object) {
 }
 
 export async function sendMail(args: ISendMail) {
+  if (env.NODE_ENV === env.Environments.Test) return
+
   if (!env.EMAIL_FROM_ADDRESS) {
     throw new Error('No EMAIL_FROM_ADDRESS set, not sending mail')
   }
 
-  if (!mailgun && env.NODE_ENV !== env.Environments.Test) {
-    throw new Error('Mailgun not loaded, did you provide credentials?')
-  }
-
   if (env.NODE_ENV === env.Environments.Development) { // Never send mails to real emails in development
-    args.to = env.EMAIL_FROM_ADDRESS
+    if (!env.EMAIL_DEV_ADDRESS) throw new Error('no dev email address set')
+
+    args.to = env.EMAIL_DEV_ADDRESS
   }
 
-  try {
-    const rawMessage = mailcomposer({
-      from: env.EMAIL_FROM_ADDRESS,
-      to: args.to,
-      subject: args.subject,
-      text: args.text, // text that is shown incase client doesnt support HTML
-      html: await _generateMail(args.templateName, args.templateData)
-    })
+  const mailParameters: IMailParameters = {
+    from: args.from,
+    to: args.to,
+    subject: args.subject,
+    text: args.text,
+    html: await _generateMail(args.templateName, args.templateData)
+  }
 
-    rawMessage.build(async function (err, builtMessage) {
-      if (err) throw new Error(err)
+  if (args.attachments) {
+    mailParameters.attachments = args.attachments
+  }
 
-      const mail = {
-        to: args.to,
-        message: builtMessage.toString('ascii')
-      }
+  const mailgunAuth = {
+    auth: {
+      api_key: env.MAILGUN_API_KEY,
+      domain: env.MAILGUN_DOMAIN
+    }
+  }
 
-      if (env.NODE_ENV !== env.Environments.Test) {
-        const res = await mailgun.messages().sendMime(mail)
+  if (env.NODE_ENV !== env.Environments.Test) {
+    const mailer = nodemailer.createTransport(mailgunTransport(mailgunAuth))
 
-        logger.info('Mail sent', res)
-      } else {
-        console.log('TEST: not actually sending mail')
-      }
-    })
-  } catch (error) {
-    logger.error('Failed building or sending mail', error)
+    try {
+      const response = await mailer.sendMail(mailParameters)
+
+      logger.info('Mail sent', response)
+
+      return response
+    } catch (error) {
+      logger.error('Transport failed', error.message)
+
+      throw new Error('Mailer responded with: ' + error.message)
+    }
+  } else {
+    // console.log('TEST: not actually sending mail')
   }
 }
 
