@@ -4,6 +4,7 @@ import * as mongoose from 'mongoose'
 import { sendMail, EMAIL_TEMPLATES } from 'server/helpers/email'
 import * as authController from 'server/controllers/auth.controller'
 import { prop, arrayProp, Typegoose, InstanceType, staticMethod, instanceMethod, pre } from 'typegoose'
+import { sendVerificationMail } from 'server/helpers/auth'
 
 export enum Roles {
   User = 'user',
@@ -13,6 +14,8 @@ export enum Roles {
 @pre<User>('save', async function (next) {
   if (this.isNew) {
     this.created = new Date()
+
+    await sendVerificationMail(this)
   }
 
   if (this.isModified('password')) {
@@ -104,14 +107,6 @@ export class User extends Typegoose {
       templateName,
       templateData
     })
-  }
-
-  /**
-   * Sends email with link to verify user
-   */
-  @instanceMethod
-  async sendVerificationMail() {
-    return authController.sendVerificationMail(this)
   }
 }
 

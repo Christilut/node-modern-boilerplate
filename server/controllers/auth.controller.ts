@@ -6,6 +6,7 @@ import * as JWT from 'jsonwebtoken'
 import { APIError } from 'server/helpers/error'
 import { addUserValidation } from 'server/models/user/mutations'
 import { EMAIL_TEMPLATES } from 'server/helpers/email'
+import { sendVerificationMail, IVerificationMailTokenContents, createUser } from 'server/helpers/auth'
 
 export interface IJsonWebTokenContents {
   id: string,
@@ -17,10 +18,6 @@ interface IUserInfo {
   name: string
   email: string
   roles: Roles[]
-}
-
-interface IVerificationMailTokenContents {
-  id: string
 }
 
 interface IForgotPasswordTokenContents {
@@ -90,34 +87,22 @@ export async function checkAdminRole(req, res, next) {
  * Registers a new user and returns JWT & User when succesfully registered
  */
 export async function register(req, res, next) {
-  const name: string = req.body.name
-  const email: string = req.body.email
-  const password: string = req.body.password
+  const { name, email, password } = req.body
 
-  const existingUser: User = await UserModel.findOne({ email })
+  try {
+    const user = await createUser({
+      name,
+      email,
+      password
+    })
 
-  // If user is not unique, return error
-  if (existingUser) {
-    const error = new APIError('Email address is already in use', httpStatus.CONFLICT, true)
-
-    return next(error)
+    return res.json({
+      token: _generateToken(user),
+      user: _setUserInfo(user)
+    })
+  } catch (error) {
+    res.sendStatus(error.status)
   }
-
-  // If email is unique and password was provided, create account
-  let user = new UserModel({
-    name,
-    email,
-    password // Gets converted to hash in pre-save
-  })
-
-  user = await user.save()
-
-  await user.sendVerificationMail()
-
-  return res.json({
-    token: _generateToken(user),
-    user: _setUserInfo(user)
-  })
 }
 
 /**
@@ -139,26 +124,6 @@ export async function login(req, res): Promise<void> {
   res.json({
     token
   })
-}
-
-export async function sendVerificationMail(user: User) {
-  const token = await JWT.sign({ id: user._id } as IVerificationMailTokenContents, env.EMAIL_VERIFY_SECRET, {
-    expiresIn: '1 day'
-  })
-
-  const verificationLink = env.DOMAIN + `/verify?token=${token}`
-
-  await user.sendMail(
-    'Account verification',
-    `Please verify your account by clicking the following link: ${verificationLink}`,
-    EMAIL_TEMPLATES.Action,
-    {
-      title: 'Account verification',
-      message: 'Please verify your account by clicking the button below.',
-      buttonText: 'Verify now',
-      buttonUrl: verificationLink
-    }
-  )
 }
 
 /**
@@ -239,7 +204,7 @@ export async function resendVerification(req, res, next) {
     return next(new APIError('User already verified', httpStatus.UNAUTHORIZED))
   }
 
-  await user.sendVerificationMail()
+  await sendVerificationMail(this)
 
   res.sendStatus(httpStatus.OK)
 }
