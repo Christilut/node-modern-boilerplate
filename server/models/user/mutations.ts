@@ -3,6 +3,7 @@ import { strongPasswordRegex } from 'server/helpers/regex'
 import { validate } from 'server/helpers/validation'
 import * as Joi from 'joi'
 import { APIError } from 'server/helpers/error'
+import * as httpStatus from 'http-status'
 
 export interface IAddUserArgs {
   name: string
