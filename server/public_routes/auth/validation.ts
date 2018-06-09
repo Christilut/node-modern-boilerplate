@@ -36,3 +36,9 @@ export const resetPassword = {
     password: addUserValidation.password
   }
 }
+
+export const masquerade = {
+  body: {
+    token: Joi.string().required()
+  }
+}

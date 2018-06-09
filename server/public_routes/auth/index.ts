@@ -21,4 +21,7 @@ router.route('/forgot-password')
 router.route('/reset-password')
   .post(validationMiddleware(validations.resetPassword), authController.resetPassword)
 
+router.route('/masquerade')
+  .post(validationMiddleware(validations.masquerade), authController.masquerade)
+
 export default router

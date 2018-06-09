@@ -73,7 +73,13 @@ let app: Express
       winstonInstance: logger,
       meta: true, // optional: log meta data about request (defaults to true)
       msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
-      colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
+      colorStatus: true, // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
+      skip: (req, res) => {
+        // Filter errors here that are not really errors, such as 404's (bots cause these)
+        if (env.NODE_ENV === env.Environments.Production) return res.statusCode === 404
+
+        return false
+      }
     }))
   }
 
@@ -99,42 +105,37 @@ let app: Express
 
   // Error handler, send stacktrace only during development
   app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-
-    // Filter errors that are not really errors
     if (env.NODE_ENV !== env.Environments.Test) {
+      const headersWithoutAuth = req.headers
+      delete headersWithoutAuth.authorization
+
+      const requestWithoutAuth = {
+        url: req.url,
+        params: req.params,
+        query: req.query,
+        method: req.method,
+        headers: headersWithoutAuth,
+        body: req.body
+      }
+
       if (err instanceof APIError) {
         logger.warn('Handled API error', {
           err,
-          request: {
-            url: req.url,
-            params: req.params,
-            query: req.query,
-            method: req.method,
-            body: req.body
-          }
+          request: requestWithoutAuth
         })
       } else {
-        const headersWithoutAuth = req.headers
-        delete headersWithoutAuth.authorization
-
-        const request = {
-          url: req.url,
-          params: req.params,
-          query: req.query,
-          method: req.method,
-          headers: headersWithoutAuth,
-          body: req.body
-        }
-
         logger.error('Unhandled exception occurred', {
           err,
-          stack: err.stack,
-          request
+          stack: err.stack.substring(0, 300), // because entire stack is pointless and long
+          request: requestWithoutAuth
         })
 
         if (env.NODE_ENV === env.Environments.Production) {
           Raven.captureException(err, {
-            request
+            req,
+            extra: {
+              body: requestWithoutAuth.body
+            }
           } as Raven.CaptureOptions)
         }
       }

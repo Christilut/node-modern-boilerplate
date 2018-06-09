@@ -3,6 +3,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { mergeTypes, mergeResolvers, GraphQlSchema } from 'merge-graphql-schemas'
 import * as GraphQl from 'graphql-tools'
+import { GraphQLDateTime } from 'graphql-iso-date'
 
 const modelDir = path.join(__dirname, '../../server/models')
 
@@ -15,7 +16,9 @@ if (env.DEBUG) {
 // Default schema, for graphql endpoint available to all authenticated users
 function merge(): GraphQlSchema {
   const schemas: string[] = []
-  const resolvers: string[] = []
+  const resolvers: any[] = [{
+    DateTime: GraphQLDateTime
+  }]
 
   fs.readdirSync(modelDir).forEach(dir => {
     if (dir.lastIndexOf(extension) === dir.length - extension.length) return

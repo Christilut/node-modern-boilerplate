@@ -1,3 +1,5 @@
+scalar DateTime
+
 type User {
   id: String
   name: String

@@ -15,15 +15,19 @@ export interface IEnvironmentVariables {
   JWT_SECRET?: string
   FOREST_ENV_SECRET?: string
   FOREST_AUTH_SECRET?: string
+  MASQUERADE_SECRET?: string
   MAILGUN_API_KEY?: string
   MAILGUN_DOMAIN?: string
   EMAIL_FORGOT_SECRET?: string
   EMAIL_VERIFY_SECRET?: string
   EMAIL_FROM_ADDRESS?: string
   EMAIL_DEV_ADDRESS?: string
-  CLOUDWATCH_ACCESS_KEY?: string
-  CLOUDWATCH_SECRET?: string
-  CLOUDWATCH_REGION?: string
+
+  AWS_ACCESS_KEY_ID?: string
+  AWS_SECRET_ACCESS_KEY?: string
+  AWS_REGION?: string
+
+  AWS_LOG_GROUP?: string
   SENTRY_URL?: string
 
   Environments: typeof Environments
@@ -48,12 +52,14 @@ const allowedEnvKeys: Joi.SchemaMap = {
   MAILGUN_DOMAIN: Joi.string().allow('').optional(),
   EMAIL_FORGOT_SECRET: Joi.string().required(),
   EMAIL_VERIFY_SECRET: Joi.string().required(),
+  MASQUERADE_SECRET: Joi.string().required(),
   EMAIL_FROM_ADDRESS: Joi.string().email().allow('').optional(),
   EMAIL_DEV_ADDRESS: Joi.string().email().allow('').optional(),
-  CLOUDWATCH_ACCESS_KEY: Joi.string().allow('').optional(),
-  CLOUDWATCH_SECRET: Joi.string().allow('').optional(),
-  CLOUDWATCH_REGION: Joi.string().allow('').optional(),
-  SENTRY_URL: Joi.string().uri().allow('').optional()
+  AWS_ACCESS_KEY_ID: Joi.string().required(),
+  AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+  AWS_REGION: Joi.string().required(),
+  SENTRY_URL: Joi.string().uri().allow('').optional(),
+  AWS_LOG_GROUP: Joi.string().allow('').optional()
 }
 
 let envVarsSchema = Joi.object(allowedEnvKeys).unknown().required()

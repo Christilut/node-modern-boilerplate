@@ -6,7 +6,7 @@ import * as JWT from 'jsonwebtoken'
 import { APIError } from 'server/helpers/error'
 import { addUserValidation } from 'server/models/user/mutations'
 import { EMAIL_TEMPLATES } from 'server/helpers/email'
-import { sendVerificationMail, IVerificationMailTokenContents, createUser } from 'server/helpers/auth'
+import { sendVerificationMail, IVerificationMailTokenContents, createUser, IMasqueradeTokenContents } from 'server/helpers/auth'
 
 export interface IJsonWebTokenContents {
   id: string,
@@ -296,4 +296,18 @@ export async function resetPassword(req, res, next) {
 
     return next(new APIError(error, httpStatus.BAD_REQUEST, false))
   }
+}
+
+export async function masquerade(req, res, next) {
+  const { token } = req.body
+
+  const verifiedToken = await JWT.verify(token, env.MASQUERADE_SECRET)
+
+  const user = await UserModel.findById((verifiedToken as IMasqueradeTokenContents).userId)
+
+  const masqueradeToken = _generateToken(user)
+
+  res.json({
+    token: masqueradeToken
+  })
 }

@@ -20,6 +20,10 @@ export interface IVerificationMailTokenContents {
   id: string
 }
 
+export interface IMasqueradeTokenContents {
+  userId: string
+}
+
 export async function createUser(args: ICreateUserArgs): Promise<InstanceType<User>> {
   validate(args, addUserValidation)
 
@@ -62,4 +66,15 @@ export async function sendVerificationMail(user: User) {
       buttonUrl: verificationLink
     }
   )
+}
+
+export async function masquerade(userId: string): Promise<string> {
+  const token = await JWT.sign({
+    userId
+  } as IMasqueradeTokenContents, env.MASQUERADE_SECRET,
+    {
+      expiresIn: '15m'
+    })
+
+  return token
 }

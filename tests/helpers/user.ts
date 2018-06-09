@@ -11,7 +11,7 @@ export class TestUser {
   user: User & mongoose.Document
   token: string
 
-  constructor(app) {
+  constructor(app, props?) {
     this.app = app
 
     this.user = new UserModel()
@@ -19,10 +19,16 @@ export class TestUser {
     this.user.name = faker.name.findName()
     this.user.email = faker.internet.email()
     this.user.password = testPassword
+
+    if (props) {
+      for (const p in props) {
+        this.user[p] = props[p]
+      }
+    }
   }
 
-  static async getLoggedInUser(app) {
-    const user = new TestUser(app)
+  static async getLoggedInUser(app, props?) {
+    let user = new TestUser(app, props)
 
     await user.save()
 
@@ -47,14 +53,24 @@ export class TestUser {
     await this.user.remove()
   }
 
-  async query(query) {
+  async rawQuery(query, expectedStatus = httpStatus.OK) {
     const result = await req(this.app)
       .post('/graphql')
+      .set('content-type', 'application/json')
       .set('Authorization', this.token)
-      .send({ query })
-      .expect(httpStatus.OK)
+      .send(query)
+
+    if (result.status !== expectedStatus) {
+      console.log('Graphql Query failed: ' + JSON.stringify(result.body, null, '  '))
+    }
+
+    if (result.body.errors !== undefined) throw new Error(result.body.errors.map(x => x.message))
 
     return result.body.data
+  }
+
+  async query(query, expectedStatus = httpStatus.OK) {
+    return this.rawQuery({ query }, expectedStatus)
   }
 
   private async login() {

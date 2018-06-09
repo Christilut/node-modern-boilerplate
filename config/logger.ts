@@ -1,17 +1,17 @@
-const winston = require('winston')
 import env from 'config/env'
+const winston = require('winston')
 const WinstonCloudwatch = require('winston-cloudwatch')
 
 const transports = []
 
 if (!module.parent.parent) { // Only load if called from startup index file
-  if (env.NODE_ENV !== env.Environments.Production) {
+  if (!env.AWS_LOG_GROUP) {
     console.log('Winston Cloudwatch: Not loading outside production environment')
-  } else if (env.CLOUDWATCH_ACCESS_KEY && env.CLOUDWATCH_REGION && env.CLOUDWATCH_SECRET) {
+  } else {
     // const startTime = new Date().toISOString()
 
     transports.push(new WinstonCloudwatch({
-      logGroupName: 'boilerplate-api',
+      logGroupName: env.AWS_LOG_GROUP,
       logStreamName: function () {
         let date = new Date().toISOString().split('T')[0]
 
@@ -23,15 +23,10 @@ if (!module.parent.parent) { // Only load if called from startup index file
         //     .update(startTime)
         //     .digest('hex')
       },
-      jsonMessage: true,
-      awsAccessKeyId: env.CLOUDWATCH_ACCESS_KEY,
-      awsSecretKey: env.CLOUDWATCH_SECRET,
-      awsRegion: env.CLOUDWATCH_REGION
+      jsonMessage: true
     }))
 
     console.log('Winston Cloudwatch: Loaded')
-  } else {
-    console.log('Winston Cloudwatch: Missing AWS credentials, not loading')
   }
 }
 

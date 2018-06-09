@@ -78,6 +78,13 @@ export class User extends Typegoose {
     return user
   }
 
+  @staticMethod
+  static async findByIdAndRemove(id: String): Promise<InstanceType<User>> { // mongoose.findByIdAndRemove() does not trigger hooks, so overload it because .remove() does trigger hooks
+    const user: InstanceType<User> = await UserModel.findById(id)
+
+    return user.remove()
+  }
+
   /**
    * INSTANCE METHODS
    */
