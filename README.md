@@ -41,7 +41,7 @@ npm install
 
 Set environment variables. Remember: Don't save secrets to git!:
 ```sh
-cp .env.example .env
+cp .env-example .env
 ```
 
 Start server:
