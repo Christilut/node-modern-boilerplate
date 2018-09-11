@@ -13,8 +13,6 @@ export enum Roles {
 
 @pre<User>('save', async function (next) {
   if (this.isNew) {
-    this.created = new Date()
-
     await sendVerificationMail(this)
   }
 
@@ -54,7 +52,10 @@ export class User extends Typegoose {
   roles?: Roles[]
 
   @prop()
-  created: Date // Set in pre-save
+  createdAt: Date
+
+  @prop()
+  updatedAt: Date
 
   @prop({
     required: true
@@ -118,3 +119,5 @@ export class User extends Typegoose {
 }
 
 export const UserModel = new User().getModelForClass(User)
+
+UserModel.schema.set('timestamps', true)
