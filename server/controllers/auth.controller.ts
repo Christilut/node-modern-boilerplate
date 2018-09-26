@@ -140,7 +140,7 @@ export async function verifyAccount(req, res, next) {
     if (!user) {
       logger.warn('account verification triggered for non-existant user but token was valid', {
         userId: decodedToken.id,
-        req
+        headers: req.headers
       })
 
       return next(new APIError('User does not exist', httpStatus.UNAUTHORIZED))
@@ -149,7 +149,7 @@ export async function verifyAccount(req, res, next) {
     if (user.verified) {
       logger.warn('user account verification triggered for already verified user', {
         userId: decodedToken.id,
-        req
+        headers: req.headers
       })
 
       return next(new APIError('User already verified', httpStatus.UNAUTHORIZED))
@@ -163,7 +163,7 @@ export async function verifyAccount(req, res, next) {
   } catch (error) {
     logger.warn('invalid JWT was used for account verification', {
       token,
-      req
+      headers: req.headers
     })
 
     if (error.name === 'TokenExpiredError') {
@@ -189,7 +189,7 @@ export async function resendVerification(req, res, next) {
   if (!user) {
     logger.warn('user resend verification mail triggered for non-existant user', {
       email,
-      req
+      headers: req.headers
     })
 
     return next(new APIError('User does not exist', httpStatus.UNAUTHORIZED))
@@ -198,7 +198,7 @@ export async function resendVerification(req, res, next) {
   if (user.verified) {
     logger.warn('user resend verification mail triggered for already verified user', {
       email,
-      req
+      headers: req.headers
     })
 
     return next(new APIError('User already verified', httpStatus.UNAUTHORIZED))
@@ -220,7 +220,7 @@ export async function sendForgotPasswordMail(req, res, next) {
   if (!user) {
     logger.warn('user forgot password triggered for non-existant user', {
       email,
-      req
+      headers: req.headers
     })
 
     return res.sendStatus(httpStatus.OK) // Dont error on invalid email as it exposes which emails have accounts here
@@ -263,7 +263,7 @@ export async function resetPassword(req, res, next) {
     if (!user) {
       logger.warn('reset password triggered for non-existant user but token was valid', {
         decodedJwt: decodedToken,
-        req
+        headers: req.headers
       })
 
       return next(new APIError('User does not exist', httpStatus.UNAUTHORIZED))
@@ -287,7 +287,7 @@ export async function resetPassword(req, res, next) {
     return res.sendStatus(httpStatus.OK)
   } catch (error) {
     logger.warn('invalid JWT was used for password reset', {
-      req
+      headers: req.headers
     })
 
     if (error.name === 'TokenExpiredError') {
