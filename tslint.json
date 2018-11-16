@@ -1,15 +1,20 @@
 {
   "extends": "tslint-config-standard",
   "rules": {
-    "space-before-function-paren": false, // TODO fix auto-format to do this
+    "space-before-function-paren": false,
     "interface-name": [
       true,
       "always-prefix"
     ],
-    "array-type": [true, "array"],
+    "array-type": [
+      true,
+      "array"
+    ],
     "no-angle-bracket-type-assertion": true,
-    "no-floating-promises": false,
+    "no-floating-promises": true,
     "promise-function-async": true,
-    "no-unused-variable": false
+    "no-unused-variable": false,
+    "await-promise": true,
+    "strict-boolean-expressions": true
   }
 }

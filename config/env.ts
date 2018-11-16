@@ -15,7 +15,6 @@ export interface IEnvironmentVariables {
   JWT_SECRET?: string
   FOREST_ENV_SECRET?: string
   FOREST_AUTH_SECRET?: string
-  MASQUERADE_SECRET?: string
   MAILGUN_API_KEY?: string
   MAILGUN_DOMAIN?: string
   EMAIL_FORGOT_SECRET?: string
@@ -52,7 +51,6 @@ const allowedEnvKeys: Joi.SchemaMap = {
   MAILGUN_DOMAIN: Joi.string().allow('').optional(),
   EMAIL_FORGOT_SECRET: Joi.string().required(),
   EMAIL_VERIFY_SECRET: Joi.string().required(),
-  MASQUERADE_SECRET: Joi.string().required(),
   EMAIL_FROM_ADDRESS: Joi.string().email().allow('').optional(),
   EMAIL_DEV_ADDRESS: Joi.string().email().allow('').optional(),
   AWS_ACCESS_KEY_ID: Joi.string().required(),

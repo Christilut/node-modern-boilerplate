@@ -6,11 +6,7 @@ export default {
   Query: {
     // Returns sanitized User object of the currently logged in user (based on the request JWT)
     async me(_, args, context): Promise<User> {
-      const id: string = context.user.id
-
-      return query.get({
-        id
-      })
+      return query.getUser(context.user)
     }
   },
 

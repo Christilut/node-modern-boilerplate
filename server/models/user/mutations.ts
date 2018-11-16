@@ -5,25 +5,11 @@ import * as Joi from 'joi'
 import { APIError } from 'server/helpers/error'
 import * as httpStatus from 'http-status'
 
-export interface IAddUserArgs {
-  name: string
-  email: string
-  password: string
-}
-
 export interface IUpdateUserArgs {
-  name?: string
   password?: string
 }
 
-export const addUserValidation: IAddUserArgs = {
-  name: Joi.string().max(64).min(2).required() as any,
-  email: Joi.string().email().required() as any,
-  password: Joi.string().regex(strongPasswordRegex).required() as any
-}
-
 const updateUserValidation: IUpdateUserArgs = {
-  name: Joi.string().max(64).min(2).optional() as any,
   password: Joi.string().regex(strongPasswordRegex).optional() as any
 }
 

@@ -2,6 +2,9 @@ import * as Joi from 'joi'
 import * as httpStatus from 'http-status'
 import { ValidationError } from 'server/helpers/error'
 
+export const joiOptionalString = Joi.string().optional().allow(['', null]) as any
+export const joiIsoDate = Joi.date().iso().allow(['', null]) as any
+
 export function validate(args, schema) {
   const validationResult = Joi.validate(args, Joi.object(schema).unknown(true))
 

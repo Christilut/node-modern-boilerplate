@@ -2,7 +2,6 @@ import env from 'config/env'
 import * as bcrypt from 'bcrypt'
 import * as mongoose from 'mongoose'
 import { sendMail, EMAIL_TEMPLATES } from 'server/helpers/email'
-import * as authController from 'server/controllers/auth.controller'
 import { prop, arrayProp, Typegoose, InstanceType, staticMethod, instanceMethod, pre } from 'typegoose'
 import { sendVerificationMail } from 'server/helpers/auth'
 
@@ -11,9 +10,11 @@ export enum Roles {
   Admin = 'admin'
 }
 
-@pre<User>('save', async function (next) {
+@pre<User>('save', async function () {
   if (this.isNew) {
-    await sendVerificationMail(this)
+    if (!this.verified) { // because admin interface can create a user and set verified to true
+      await sendVerificationMail(this)
+    }
   }
 
   if (this.isModified('password')) {
@@ -25,17 +26,22 @@ export enum Roles {
 
     this.password = hash
   }
-
-  next()
 })
 
 export class User extends Typegoose {
   _id: string
 
+  @prop()
+  createdAt: Date
+
+  @prop()
+  updatedAt: Date
+
   @prop({
-    required: true
+    required: true,
+    default: true
   })
-  name: string
+  _active: Boolean
 
   @prop({
     required: true,
@@ -51,14 +57,8 @@ export class User extends Typegoose {
   })
   roles?: Roles[]
 
-  @prop()
-  createdAt: Date
-
-  @prop()
-  updatedAt: Date
-
   @prop({
-    required: true
+    required: false
   })
   password: string
 
@@ -71,12 +71,19 @@ export class User extends Typegoose {
    * STATIC METHODS
    */
   @staticMethod
-  static async get(id: String): Promise<InstanceType<User>> {
-    const user: InstanceType<User> = await UserModel.findById(id)
+  static async get(userId: String): Promise<InstanceType<User>> {
+    const user: InstanceType<User> = await UserModel.findById(userId)
 
-    if (!user) throw new Error('user not found')
+    if (!user) throw new Error(`user with id ${userId} not found`)
 
     return user
+  }
+
+  @staticMethod
+  static async findByEmail(email: String): Promise<InstanceType<User>> {
+    return UserModel.findOne({
+      email: email.toLowerCase()
+    })
   }
 
   @staticMethod
@@ -109,7 +116,7 @@ export class User extends Typegoose {
   async sendMail(subject: string, text: string, templateName: EMAIL_TEMPLATES, templateData: Object): Promise<void> {
     await sendMail({
       to: this.email,
-      from: env.EMAIL_FROM_ADDRESS,
+      from: `Node Boilerplate <${env.EMAIL_FROM_ADDRESS}>`,
       subject,
       text,
       templateName,
@@ -118,6 +125,4 @@ export class User extends Typegoose {
   }
 }
 
-export const UserModel = new User().getModelForClass(User)
-
-UserModel.schema.set('timestamps', true)
+export const UserModel = new User().getModelForClass(User, { schemaOptions: { timestamps: true } })

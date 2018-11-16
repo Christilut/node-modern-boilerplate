@@ -6,44 +6,39 @@ import { validate } from 'server/helpers/validation'
 import { InstanceType } from 'typegoose'
 import * as JWT from 'jsonwebtoken'
 import { EMAIL_TEMPLATES } from 'server/helpers/email'
-import { addUserValidation } from 'server/models/user/mutations'
 import { APIError } from 'server/helpers/error'
 import * as httpStatus from 'http-status'
 
 export interface ICreateUserArgs {
-  name: string
   email: string
-  password: string
 }
 
 export interface IVerificationMailTokenContents {
   id: string
 }
 
-export interface IMasqueradeTokenContents {
-  userId: string
+export const createUserValidation: ICreateUserArgs = {
+  email: Joi.string().email().required() as any
 }
 
 export async function createUser(args: ICreateUserArgs): Promise<InstanceType<User>> {
-  validate(args, addUserValidation)
+  validate(args, createUserValidation)
 
-  const existingCustomer: User = await UserModel.findOne({ email: args.email })
+  const existingUser: User = await UserModel.findByEmail(args.email)
 
   // If user is not unique, return error
-  if (existingCustomer) {
+  if (existingUser) {
     throw new APIError('Email address is already in use', httpStatus.CONFLICT)
   }
 
   // If email is unique, create account
   let user = new UserModel({
-    name: args.name,
-    email: args.email,
-    password: args.password
+    email: args.email.toLowerCase()
   })
 
   user = await user.save()
 
-  // Verification link is sent in pre-save
+  // User has no password yet and must set one in the verification link, sent in the pre-save
 
   return user
 }
@@ -53,28 +48,19 @@ export async function sendVerificationMail(user: User) {
     expiresIn: '1 day'
   })
 
-  const verificationLink = env.DOMAIN + `/verify?token=${token}`
-
   await user.sendMail(
-    'Account verification',
-    `Please verify your account by clicking the following link: ${verificationLink}`,
+    'Account activation',
+    ``,
     EMAIL_TEMPLATES.Action,
     {
-      title: 'Account verification',
-      message: 'Please verify your account by clicking the button below.',
-      buttonText: 'Verify now',
-      buttonUrl: verificationLink
+      title: 'Account activation',
+      firstMessage: '',
+      lastMessage: '',
+      buttonText: ''
     }
   )
-}
 
-export async function masquerade(userId: string): Promise<string> {
-  const token = await JWT.sign({
-    userId
-  } as IMasqueradeTokenContents, env.MASQUERADE_SECRET,
-    {
-      expiresIn: '15m'
-    })
-
-  return token
+  logger.info('sent verification mail', {
+    email: user.email
+  })
 }

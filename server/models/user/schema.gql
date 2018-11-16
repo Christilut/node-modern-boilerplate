@@ -2,7 +2,6 @@ scalar DateTime
 
 type User {
   id: String
-  name: String
   email: String
   roles: [String!]
 }
@@ -12,5 +11,5 @@ type Query {
 }
 
 type Mutation {
-  updateUser(name: String, password: String): User
+  updateUser(password: String): User
 }

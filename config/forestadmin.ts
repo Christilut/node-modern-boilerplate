@@ -2,7 +2,7 @@ import env from 'config/env'
 
 module.exports = function (expressApp) {
   if ((!env.FOREST_AUTH_SECRET || !env.FOREST_ENV_SECRET) && env.NODE_ENV !== env.Environments.Test) {
-    console.log('Forest Admin: Missing credentials, not loading')
+    console.log('Forest Admin:\t\tMissing credentials, not loading')
     return
   }
 
@@ -15,8 +15,8 @@ module.exports = function (expressApp) {
       mongoose: require('mongoose')
     }))
 
-    require('./forest/UserMasquerade')
+    // require('./forest/actions/user')
 
-    console.log('Forest Admin: Loaded')
+    console.log('Forest Admin:\t\tLoaded')
   }
 }

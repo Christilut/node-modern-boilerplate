@@ -7,4 +7,4 @@ AWS.config.update({
   secretAccessKey: env.AWS_SECRET_ACCESS_KEY
 })
 
-console.log('Loaded AWS')
+console.log('AWS:\t\t\tLoaded')

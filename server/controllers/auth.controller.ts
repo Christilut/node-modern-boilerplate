@@ -4,9 +4,8 @@ import * as httpStatus from 'http-status'
 import { User, UserModel, Roles } from 'server/models/user/model'
 import * as JWT from 'jsonwebtoken'
 import { APIError } from 'server/helpers/error'
-import { addUserValidation } from 'server/models/user/mutations'
 import { EMAIL_TEMPLATES } from 'server/helpers/email'
-import { sendVerificationMail, IVerificationMailTokenContents, createUser, IMasqueradeTokenContents } from 'server/helpers/auth'
+import { sendVerificationMail, IVerificationMailTokenContents, createUser } from 'server/helpers/auth'
 
 export interface IJsonWebTokenContents {
   id: string,
@@ -15,7 +14,6 @@ export interface IJsonWebTokenContents {
 
 interface IUserInfo {
   id: string
-  name: string
   email: string
   roles: Roles[]
 }
@@ -45,7 +43,6 @@ function _generateToken(user: User): string {
 function _setUserInfo(user: User): IUserInfo {
   return {
     id: user._id,
-    name: user.name,
     email: user.email,
     roles: user.roles
     // dont expose password hash or other sensitive/unnecesary data
@@ -59,41 +56,29 @@ export async function checkAuthentication(req, res, next) {
   const token: string = req.headers.authorization
 
   try {
-    const decodedToken = await JWT.verify(token, env.JWT_SECRET) as IJsonWebTokenContents
+    const verifiedToken = await JWT.verify(token.replace('Bearer ', ''), env.JWT_SECRET) as IJsonWebTokenContents
 
-    req.user = {
-      id: decodedToken.id,
-      roles: decodedToken.roles
-    }
+    const user = await UserModel.findById(verifiedToken.id) as User
+
+    if (!user._active) return next(new APIError('user inactive', httpStatus.FORBIDDEN))
+
+    req.user = user
 
     next()
   } catch (error) {
-    return next(new APIError('invalid token', httpStatus.UNAUTHORIZED, true))
+    return next(new APIError('invalid token', httpStatus.UNAUTHORIZED))
   }
-}
-
-/**
- * Checks if user has the admin role will throw an error if not
- */
-export async function checkAdminRole(req, res, next) {
-  if (req.user && req.user.roles && req.user.roles.includes('admin')) {
-    return next()
-  }
-
-  next(new APIError('admin role not found', httpStatus.FORBIDDEN, false))
 }
 
 /**
  * Registers a new user and returns JWT & User when succesfully registered
  */
 export async function register(req, res, next) {
-  const { name, email, password } = req.body
+  const { email } = req.body
 
   try {
     const user = await createUser({
-      name,
-      email,
-      password
+      email
     })
 
     return res.json({
@@ -111,12 +96,33 @@ export async function register(req, res, next) {
 export async function login(req, res): Promise<void> {
   const { email, password } = req.body
 
-  const user = await UserModel.findOne({
-    email
-  })
+  const user = await UserModel.findByEmail(email)
 
-  if (!user || !await user.comparePassword(password)) { // TODO fix no-floating-promises linting, maybe TSLINT vnext?
-    throw new APIError('Access denied', httpStatus.FORBIDDEN, true)
+  if (!user || !user.password || !await user.comparePassword(password)) {
+    logger.info('user access denied: invalid user or password', {
+      email,
+      headers: req.headers
+    })
+
+    throw new APIError('Access denied', httpStatus.FORBIDDEN)
+  }
+
+  if (!user._active) {
+    logger.info('user access denied: inactive', {
+      email,
+      headers: req.headers
+    })
+
+    throw new APIError('Account not active', httpStatus.UNAUTHORIZED)
+  }
+
+  if (!user.verified && env.NODE_ENV !== env.Environments.Test) { // Skip for tests since verifying requires opening an email
+    logger.info('user access denied: not verified', {
+      email,
+      headers: req.headers
+    })
+
+    throw new APIError('Access denied', httpStatus.PRECONDITION_FAILED)
   }
 
   const token = _generateToken(user)
@@ -124,22 +130,27 @@ export async function login(req, res): Promise<void> {
   res.json({
     token
   })
+
+  logger.info('user logged in', {
+    email,
+    headers: req.headers
+  })
 }
 
 /**
  * If token valid, will verify user account of the user ID that is inside the JWT. Token should come from a verification email sent to the user (see User.sendVerificationmail).
  */
 export async function verifyAccount(req, res, next) {
-  const token: string = req.body.token
+  const { token, password } = req.body
 
   try {
-    const decodedToken: IVerificationMailTokenContents = await JWT.verify(token, env.EMAIL_VERIFY_SECRET) as IVerificationMailTokenContents
+    const verifiedToken: IVerificationMailTokenContents = await JWT.verify(token, env.EMAIL_VERIFY_SECRET) as IVerificationMailTokenContents
 
-    const user = await UserModel.findById(decodedToken.id)
+    const user = await UserModel.findById(verifiedToken.id)
 
     if (!user) {
       logger.warn('account verification triggered for non-existant user but token was valid', {
-        userId: decodedToken.id,
+        userId: verifiedToken.id,
         headers: req.headers
       })
 
@@ -148,7 +159,7 @@ export async function verifyAccount(req, res, next) {
 
     if (user.verified) {
       logger.warn('user account verification triggered for already verified user', {
-        userId: decodedToken.id,
+        userId: verifiedToken.id,
         headers: req.headers
       })
 
@@ -156,6 +167,7 @@ export async function verifyAccount(req, res, next) {
     }
 
     user.verified = true
+    user.password = password
 
     await user.save()
 
@@ -184,7 +196,7 @@ export async function resendVerification(req, res, next) {
     return next(new APIError('Missing email parameter', httpStatus.UNAUTHORIZED))
   }
 
-  const user = await UserModel.findOne({ email })
+  const user = await UserModel.findByEmail(email)
 
   if (!user) {
     logger.warn('user resend verification mail triggered for non-existant user', {
@@ -204,7 +216,12 @@ export async function resendVerification(req, res, next) {
     return next(new APIError('User already verified', httpStatus.UNAUTHORIZED))
   }
 
-  await sendVerificationMail(this)
+  logger.info('re-sent account verification mail', {
+    email,
+    headers: req.headers
+  })
+
+  await sendVerificationMail(user)
 
   res.sendStatus(httpStatus.OK)
 }
@@ -215,7 +232,7 @@ export async function resendVerification(req, res, next) {
 export async function sendForgotPasswordMail(req, res, next) {
   const email: string = req.body.email
 
-  const user = await UserModel.findOne({ email })
+  const user = await UserModel.findByEmail(email)
 
   if (!user) {
     logger.warn('user forgot password triggered for non-existant user', {
@@ -234,16 +251,21 @@ export async function sendForgotPasswordMail(req, res, next) {
     })
 
   await user.sendMail(
-    'Password reset instructions',
-    `Someone has triggered password reset on your email. You can reset your password at ${env.DOMAIN + '/forgot'}. If you did not expect this email, you can safely ignore it.`,
+    'Change password',
+    ``,
     EMAIL_TEMPLATES.Action,
     {
-      title: 'Forgot password',
-      message: 'Someone has triggered password reset on your email. You can reset your password with the button below. If you did not expect this email, you can safely ignore it.',
-      buttonText: 'Reset password',
-      buttonUrl: env.DOMAIN + `/forgot?token=${token}`
+      title: 'Change password',
+      firstMessage: ``,
+      buttonText: '',
+      buttonUrl: ``
     }
   )
+
+  logger.info('sent forgot password email', {
+    email,
+    headers: req.headers
+  })
 
   res.sendStatus(httpStatus.OK)
 }
@@ -256,13 +278,13 @@ export async function resetPassword(req, res, next) {
   const password: string = req.body.password
 
   try {
-    const decodedToken: IForgotPasswordTokenContents = await JWT.verify(token, env.EMAIL_FORGOT_SECRET) as IForgotPasswordTokenContents
+    const verifiedToken: IForgotPasswordTokenContents = await JWT.verify(token, env.EMAIL_FORGOT_SECRET) as IForgotPasswordTokenContents
 
-    const user = await UserModel.findById(decodedToken.id)
+    const user = await UserModel.findById(verifiedToken.id)
 
     if (!user) {
       logger.warn('reset password triggered for non-existant user but token was valid', {
-        decodedJwt: decodedToken,
+        verifiedJwt: verifiedToken,
         headers: req.headers
       })
 
@@ -273,16 +295,22 @@ export async function resetPassword(req, res, next) {
 
     await user.save()
 
+    const title = 'Password changed'
+    const message = ``
+
     await user.sendMail(
-      'Password changed',
-      `Your password has been changed. If this was not you, please reset your password immediately on the login screen and check who can access your email.`,
+      title,
+      message,
       EMAIL_TEMPLATES.Info,
       {
-        title: 'Password changed',
-        lead: 'Your password has been updated successfully.',
-        message: 'If you did not do this, please reset your password immediately on the login screen and check who can access your email.'
+        message
       }
     )
+
+    logger.info('sent forgot password email', {
+      token,
+      headers: req.headers
+    })
 
     return res.sendStatus(httpStatus.OK)
   } catch (error) {
@@ -296,18 +324,4 @@ export async function resetPassword(req, res, next) {
 
     return next(new APIError(error, httpStatus.BAD_REQUEST, false))
   }
-}
-
-export async function masquerade(req, res, next) {
-  const { token } = req.body
-
-  const verifiedToken = await JWT.verify(token, env.MASQUERADE_SECRET)
-
-  const user = await UserModel.findById((verifiedToken as IMasqueradeTokenContents).userId)
-
-  const masqueradeToken = _generateToken(user)
-
-  res.json({
-    token: masqueradeToken
-  })
 }

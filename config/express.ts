@@ -26,7 +26,23 @@ let app: Express
   const router = require('express-promise-router')()
 
   if (env.NODE_ENV === env.Environments.Development) {
-    app.use(Morgan('dev')) // HTTP request logging
+    // HTTP request logging
+    app.use(Morgan(function (tokens, req, res) {
+      if (env.NODE_ENV === env.Environments.Production) {
+        return (
+          (res.statusCode === httpStatus.OK && req.url.includes('/misc/health-check'))
+        )
+      }
+
+      return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        req.body.operationName,
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res), 'ms'
+      ].join(' ')
+    }))
   }
 
   // Parse body params and set them to req.body
@@ -36,9 +52,6 @@ let app: Express
   app.use(compress()) // Enable compression
   app.enable('trust proxy') // Needed if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
   app.use(helmet()) // Secure apps by setting various HTTP headers
-
-  // Load Forest Admin
-  require('config/forestadmin')(app)
 
   // Enable CORS - Cross Origin Resource Sharing
   if (env.NODE_ENV === env.Environments.Production) {
@@ -53,14 +66,16 @@ let app: Express
     app.use(cors())
   }
 
+  // Load Forest Admin (must be after CORS)
+  require('config/forestadmin')(app)
+
   // Public routes for login and registration
   app.use('/', publicRoutes)
 
   // Private GraphQL routes, require authentication
-
-  if (env.NODE_ENV === env.Environments.Development) {
-    app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
-  }
+  // if (env.NODE_ENV === env.Environments.Development) {
+  //   app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
+  // }
 
   router.use('/graphql', bodyParser.json(), checkAuthentication, graphQlRoute)
   app.use('/', router)
@@ -75,8 +90,16 @@ let app: Express
       msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
       colorStatus: true, // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
       skip: (req, res) => {
-        // Filter errors here that are not really errors, such as 404's (bots cause these)
-        if (env.NODE_ENV === env.Environments.Production) return res.statusCode === 404
+        // Filter logging errors here that are not really errors. This also prevents them from showing up in Sentry.
+
+        // Filter 404: bots cause these
+        if (env.NODE_ENV === env.Environments.Production) {
+          return (
+            res.statusCode === httpStatus.NOT_FOUND
+            ||
+            (res.statusCode === httpStatus.OK && req.url.includes('/misc/health-check'))
+          )
+        }
 
         return false
       }
@@ -84,24 +107,14 @@ let app: Express
   }
 
   // If error is not an instanceOf APIError, convert it.
-  app.use((err, req, res, next) => {
-    if (!(err instanceof APIError)) {
-      const apiError = new APIError(err.message, err.status, err.isPublic)
+  // app.use((err, req, res, next) => {
+  //   if (!(err instanceof APIError)) {
+  //     const apiError = new APIError(err.message, err.status, err.isPublic)
 
-      return next(apiError)
-    }
-    return next(err)
-  })
-
-  // Catch 404 and forward to error handler
-  app.use((req, res, next) => {
-    if (req.url === '/favicon.ico') {
-      return res.sendStatus(httpStatus.NOT_FOUND)
-    }
-
-    const err = new APIError('API not found', httpStatus.NOT_FOUND)
-    return next(err)
-  })
+  //     return next(apiError)
+  //   }
+  //   return next(err)
+  // })
 
   // Error handler, send stacktrace only during development
   app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
@@ -118,7 +131,7 @@ let app: Express
         body: req.body
       }
 
-      if (err instanceof APIError) {
+      if (err instanceof APIError || err.name === 'APIError') {
         logger.warn('Handled API error', {
           err,
           request: requestWithoutAuth
@@ -130,9 +143,10 @@ let app: Express
           request: requestWithoutAuth
         })
 
-        if (env.NODE_ENV === env.Environments.Production) {
+        if (err.skipReportToSentry) {
           Raven.captureException(err, {
             req,
+            res,
             extra: {
               body: requestWithoutAuth.body
             }
@@ -153,7 +167,7 @@ let app: Express
         message: err.isPublic ? err.message : httpStatus[err.status]
       })
     } else {
-      res.status(err.status).json({
+      res.status(err.status || httpStatus.INTERNAL_SERVER_ERROR).json({
         message: err.message,
         stack: err.stack
       })
@@ -167,7 +181,7 @@ let app: Express
   })
 
   if (env.NODE_ENV !== env.Environments.Test) {
-    console.log('Express: Loaded')
+    console.log('Express:\t\tLoaded')
   }
 })()
 

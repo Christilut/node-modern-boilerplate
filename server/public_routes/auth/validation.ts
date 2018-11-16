@@ -1,5 +1,6 @@
 import * as Joi from 'joi'
-import { IAddUserArgs, addUserValidation } from 'server/models/user/mutations'
+import { createUserValidation } from '../../helpers/auth'
+import { strongPasswordRegex } from '../../helpers/regex'
 
 export const login = {
   body: {
@@ -9,7 +10,7 @@ export const login = {
 }
 
 export const register = {
-  body: addUserValidation
+  body: createUserValidation
 }
 
 export const verify = {
@@ -33,12 +34,6 @@ export const sendForgotPasswordMail = {
 export const resetPassword = {
   body: {
     token: Joi.string().required(),
-    password: addUserValidation.password
-  }
-}
-
-export const masquerade = {
-  body: {
-    token: Joi.string().required()
+    password: Joi.string().regex(strongPasswordRegex).required()
   }
 }

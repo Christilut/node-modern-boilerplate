@@ -10,7 +10,7 @@ import { IJsonWebTokenContents } from 'server/controllers/auth.controller'
 function formatError(err, req) {
   logger.warn('GraphQL query failed', err)
 
-  if (err.originalError instanceof ExtendableError && (err.originalError as ExtendableError).reportToSentry === false) {
+  if (err.originalError instanceof ExtendableError && (err.originalError as ExtendableError).skipReportToSentry) {
     // dont send to sentry
   } else {
     if (env.NODE_ENV === env.Environments.Production) {
@@ -56,5 +56,5 @@ export const graphQlRoute = graphqlExpress(req => ({
 }))
 
 if (env.NODE_ENV !== env.Environments.Test) {
-  console.log('GraphQL: Loaded')
+  console.log('GraphQL:\t\tLoaded')
 }

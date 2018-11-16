@@ -1,8 +1,10 @@
-import { User, UserModel, Roles } from 'server/models/user/model'
-import * as mongoose from 'mongoose'
+import app from 'config/express'
 import * as faker from 'faker'
-import * as req from 'supertest'
 import * as httpStatus from 'http-status'
+import * as mongoose from 'mongoose'
+import * as Randomize from 'randomatic'
+import { User, UserModel } from 'server/models'
+import * as req from 'supertest'
 
 export const testPassword = faker.internet.password() + '1!'
 
@@ -11,49 +13,40 @@ export class TestUser {
   user: User & mongoose.Document
   token: string
 
-  constructor(app, props?) {
+  constructor() {
     this.app = app
-
-    this.user = new UserModel()
-
-    this.user.name = faker.name.findName()
-    this.user.email = faker.internet.email()
-    this.user.password = testPassword
-
-    if (props) {
-      for (const p in props) {
-        this.user[p] = props[p]
-      }
-    }
   }
 
-  static async getLoggedInUser(app, props?) {
-    let user = new TestUser(app, props)
+  static async getLoggedInUser(props?) {
+    let user = new TestUser()
 
-    await user.save()
+    await user.init(props)
 
     await user.login()
 
     return user
   }
 
-  async addAdminRole() {
-    this.user.roles.push(Roles.Admin)
+  async init(props?) {
+    this.user = new UserModel()
 
-    await this.save()
+    this.user.email = faker.internet.email().toLowerCase()
+    this.user.password = testPassword
 
-    await this.login()
-  }
+    if (props) {
+      Object.assign(this.user, props)
+    }
 
-  async save() {
     await this.user.save()
   }
 
   async cleanup() {
+    this.user = await UserModel.findById(this.user.id)
+
     await this.user.remove()
   }
 
-  async rawQuery(query, expectedStatus = httpStatus.OK) {
+  async rawQuery(query, expectedStatus: number = httpStatus.OK) {
     const result = await req(this.app)
       .post('/graphql')
       .set('content-type', 'application/json')
@@ -61,15 +54,18 @@ export class TestUser {
       .send(query)
 
     if (result.status !== expectedStatus) {
-      console.log('Graphql Query failed: ' + JSON.stringify(result.body, null, '  '))
+      console.log('Graphql Query/Mutation failed: ' + JSON.stringify(result.body, null, '  '))
     }
 
-    if (result.body.errors !== undefined) throw new Error(result.body.errors.map(x => x.message))
+    if (result.body.errors !== undefined) {
+      // console.log(JSON.stringify(result.body), null, '  ')
+      throw new Error(result.body.errors.map(x => x.message))
+    }
 
     return result.body.data
   }
 
-  async query(query, expectedStatus = httpStatus.OK) {
+  async query(query, expectedStatus: number = httpStatus.OK) {
     return this.rawQuery({ query }, expectedStatus)
   }
 
