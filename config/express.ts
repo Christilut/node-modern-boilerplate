@@ -143,7 +143,7 @@ let app: Express
           request: requestWithoutAuth
         })
 
-        if (err.skipReportToSentry) {
+        if (!err.skipReportToSentry) {
           Raven.captureException(err, {
             req,
             res,
