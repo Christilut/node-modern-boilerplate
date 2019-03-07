@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+  dfs-api:
+    image: 'node:8-slim'
+    build: .
+    working_dir: /node-modern-boilerplate
+    volumes:
+      - ./:/node-modern-boilerplate
+    ports:
+      - '5000'
+    command: npm run dev:watch
+    network_mode: host
