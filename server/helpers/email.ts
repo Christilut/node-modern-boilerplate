@@ -1,4 +1,4 @@
-import Handlebars from 'handlebars'
+import * as Handlebars from 'handlebars'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as Joi from 'joi'

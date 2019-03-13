@@ -60,6 +60,9 @@ npm run test:coverage
 # Run tests on file change
 npm run test:watch
 
+# Run only matching tests
+npm run test:watch -- --verbose --match="website - *"
+
 # Run tests enforcing code coverage (configured via .istanbul.yml)
 npm run test:check-coverage
 ```
@@ -111,6 +114,20 @@ Initialize Heroku by adding the heroku remote (follow Heroku's instructions) and
 Universal logging library [winston](https://www.npmjs.com/package/winston) is used for logging. It has support for multiple transports.  A transport is essentially a storage device for your logs. Each instance of a winston logger can have multiple transports configured at different levels. For example, one may want error logs to be stored in a persistent remote location (like a database), but all logs output to the console or a local file. We just log to the console for simplicity, you can configure more transports as per your requirement.
 
 In prodution, winston logs to AWS Cloudwatch. You can easily change this in `config/winston.js`.
+
+## Troubleshooting
+
+Fun TypeScript errors you will encounter:
+`Type 'Website' does not satisfy the constraint 'new (...args: any[]) => any'.`: Make sure you import `InstanceType` from Typegoose.
+
+`Type is not a constructor`: Can have multiple causes:
+- Import order is wrong. Though not technically wrong, Typegoose just uses values before they are defined, causing this error. Rearrange imports.
+- You used `arrayProp` but forget the `items` property.
+
+`Type "AnyLeaseResult" is missing a "resolveType" resolver.`: Usually this means the GraphQL schemas are not properly loaded or merged.
+
+Other weird stuff you can encounter:
+Including a piece of code that uses a model eg `NotificationModel` but you didn't import it from `server/models` but directly from `server/models/notification/model`. This can cause unexpected behavior. Import all Classes and Models from `server/models`.
 
 ## Contributing
 
