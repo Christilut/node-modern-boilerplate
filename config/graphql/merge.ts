@@ -30,7 +30,11 @@ function merge(): GraphQlSchema {
       // load schemas
       fs.readdirSync(dirPath).forEach(file => {
         if (file.includes('.gql')) {
-          schemas.push(fs.readFileSync(path.join(dirPath, file), 'utf8'))
+          const content = fs.readFileSync(path.join(dirPath, file), 'utf8')
+
+          if (content.length > 0) {
+            schemas.push(content)
+          }
         }
       })
 
