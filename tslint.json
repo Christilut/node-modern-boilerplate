@@ -14,7 +14,8 @@
     "no-floating-promises": true,
     "promise-function-async": true,
     "no-unused-variable": false,
-    "await-promise": true,
-    "strict-boolean-expressions": true
+    "await-promise": false,
+    "strict-boolean-expressions": false,
+    "no-unnecessary-type-assertion": false
   }
 }

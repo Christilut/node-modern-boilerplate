@@ -8,5 +8,9 @@ export default {
   ],
   "files": [
     "tests/*.test.ts"
+  ],
+  "sources": [
+    "server/**/*.ts",
+    "config/**/*.ts"
   ]
 }

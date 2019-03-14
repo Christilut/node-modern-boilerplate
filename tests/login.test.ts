@@ -139,11 +139,10 @@ test('login - get own user and confirm all allowed properties exist', async t =>
     }`
   )
 
-  validate(data.me, {
-    id: Joi.string().required(),
-    email: Joi.string().email().required(),
-    password: Joi.string().forbidden()
-  })
+  t.truthy(data.me)
+  t.true(data.me.id === u.user.id)
+  t.true(data.me.email === u.user.email)
+  t.true(data.me.password === undefined)
 
   await u.cleanup()
 

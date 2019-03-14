@@ -13,14 +13,14 @@ import { APIError } from 'server/helpers/error'
 import { graphiqlExpress } from 'apollo-server-express'
 import { checkAuthentication } from 'server/controllers/auth.controller'
 import { Express } from 'express-serve-static-core'
-import * as getPort from 'get-port'
+import getPort from 'get-port'
 
 import publicRoutes from 'server/public_routes'
 import { graphQlRoute } from 'config/graphql'
 
 let app: Express
 
-(async () => {
+(async () => { // tslint:disable-line
   app = express()
 
   const router = require('express-promise-router')()
