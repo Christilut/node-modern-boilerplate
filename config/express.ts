@@ -25,26 +25,6 @@ let app: Express
 
   const router = require('express-promise-router')()
 
-  if (env.NODE_ENV === env.Environments.Development) {
-    // HTTP request logging
-    app.use(Morgan(function (tokens, req, res) {
-      if (env.NODE_ENV === env.Environments.Production) {
-        return (
-          (res.statusCode === httpStatus.OK && req.url.includes('/misc/health-check'))
-        )
-      }
-
-      return [
-        tokens.method(req, res),
-        tokens.url(req, res),
-        req.body.operationName,
-        tokens.status(req, res),
-        tokens.res(req, res, 'content-length'), '-',
-        tokens['response-time'](req, res), 'ms'
-      ].join(' ')
-    }))
-  }
-
   // Parse body params and set them to req.body
   app.use(bodyParser.json({ limit: '50mb' }))
   app.use(bodyParser.urlencoded({ extended: true }))
@@ -68,17 +48,6 @@ let app: Express
 
   // Load Forest Admin (must be after CORS)
   require('config/forestadmin')(app)
-
-  // Public routes for login and registration
-  app.use('/', publicRoutes)
-
-  // Private GraphQL routes, require authentication
-  // if (env.NODE_ENV === env.Environments.Development) {
-  //   app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
-  // }
-
-  router.use('/graphql', bodyParser.json(), checkAuthentication, graphQlRoute)
-  app.use('/', router)
 
   // Enable detailed API logging
   if (env.NODE_ENV !== env.Environments.Test) {
@@ -106,41 +75,25 @@ let app: Express
     }))
   }
 
-  // If error is not an instanceOf APIError, convert it.
-  // app.use((err, req, res, next) => {
-  //   if (!(err instanceof APIError)) {
-  //     const apiError = new APIError(err.message, err.status, err.isPublic)
+  // Public routes for login and registration
+  app.use('/', publicRoutes)
 
-  //     return next(apiError)
-  //   }
-  //   return next(err)
-  // })
+  router.use('/graphql', bodyParser.json(), checkAuthentication, graphQlRoute)
+  app.use('/', router)
 
   // Error handler, send stacktrace only during development
   app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     if (env.NODE_ENV !== env.Environments.Test) {
-      const headersWithoutAuth = req.headers
-      delete headersWithoutAuth.authorization
-
-      const requestWithoutAuth = {
-        url: req.url,
-        params: req.params,
-        query: req.query,
-        method: req.method,
-        headers: headersWithoutAuth,
-        body: req.body
-      }
-
       if (err instanceof APIError || err.name === 'APIError') {
         logger.warn('Handled API error', {
           err,
-          request: requestWithoutAuth
+          headers: req.headers
         })
       } else {
-        logger.error('Unhandled exception occurred', {
+        logger.error('Unhandled exception occurred: ' + err.message, {
           err,
-          stack: err.stack.substring(0, 300), // because entire stack is pointless and long
-          request: requestWithoutAuth
+          stack: err.stack,
+          headers: req.headers
         })
 
         if (!err.skipReportToSentry) {
@@ -148,7 +101,7 @@ let app: Express
             req,
             res,
             extra: {
-              body: requestWithoutAuth.body
+              body: req.body
             }
           } as Raven.CaptureOptions)
         }
@@ -174,7 +127,7 @@ let app: Express
     }
   })
 
-  const port = env.NODE_ENV === env.Environments.Test ? await getPort() : env.PORT
+  const port = env.NODE_ENV === env.Environments.Test ? await getPort() : env.PORT || 443
 
   app.listen(port, () => {
     logger.info(`Server started on port ${port} (${env.NODE_ENV})`)

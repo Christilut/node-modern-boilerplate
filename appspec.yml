@@ -1,0 +1,18 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/api/
+hooks:
+  BeforeInstall:
+    - location: scripts/deployment/before-install.sh
+      runas: root
+      timeout: 300
+  ApplicationStart:
+    - location: scripts/deployment/start.sh
+      runas: root
+      timeout: 60
+  ValidateService:
+    - location: scripts/deployment/validate.sh
+      runas: root
+      timeout: 10

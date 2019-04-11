@@ -1,0 +1,29 @@
+version: 0.2
+
+env:
+  variables:
+     NODE_ENV: production
+
+phases:
+  install:
+    commands:
+      - npm install
+
+  # pre_build:
+  #   commands:
+  #     - npm run test
+
+  build:
+    commands:
+      - npm run build
+
+  post_build:
+    commands:
+      - cp appspec.yml dist/
+      - cp -r node_modules/ dist/
+
+artifacts:
+  files:
+    - '**/*'
+  name: api-$(date +%Y-%m-%d)
+  base-directory: dist
