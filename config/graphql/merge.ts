@@ -2,8 +2,9 @@ import env from 'config/env'
 import * as fs from 'fs'
 import { GraphQLDateTime } from 'graphql-iso-date'
 import * as GraphQl from 'graphql-tools'
-import { GraphQlSchema, mergeResolvers, mergeTypes } from 'merge-graphql-schemas'
+import { mergeResolvers, mergeTypes } from 'merge-graphql-schemas'
 import * as path from 'path'
+import { GraphQLSchema } from 'graphql'
 
 const modelDir = path.join(__dirname, '../../server/models')
 
@@ -15,7 +16,7 @@ if (!env.DEBUG) {
 }
 
 // Default schema, for graphql endpoint available to all authenticated users
-function merge(): GraphQlSchema {
+function merge(): GraphQLSchema {
   const schemas: string[] = []
   const resolvers: any[] = [{
     DateTime: GraphQLDateTime
@@ -57,6 +58,6 @@ function merge(): GraphQlSchema {
   }
 }
 
-const schema: GraphQlSchema = merge()
+const schema: GraphQLSchema = merge()
 
 export { schema }
