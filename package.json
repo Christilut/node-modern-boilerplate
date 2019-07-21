@@ -16,8 +16,8 @@
     "build:copy-templates": "copyfiles email-templates/* dist/",
     "build:copy-scripts": "copyfiles scripts/deployment/* dist/",
     "dev": "echo 'Please enter your password to run docker commands:' && npm run dev:container",
-    "dev:container": "sudo docker-compose run start npm run dev:watch",
-    "dev:watch": "cross-env DEBUG=true nodemon --exec 'ts-node' --ext ts server/index.ts",
+    "dev:debug": "nodemon --inspect server/index.ts",
+    "dev:container": "sudo docker-compose run start npm run dev:debug",
     "deploy": "git push heroku master",
     "deploy:aws": "git pull && git checkout production && git merge master && npm run build && npm run test:all && git push && git checkout master && git push",
     "release": "standard-version --no-verify",
@@ -46,9 +46,6 @@
     "API",
     "boilerplate",
     "graphql",
-    "typeorm",
-    "postgres",
-    "sql",
     "typescript"
   ],
   "dependencies": {
