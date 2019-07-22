@@ -8,7 +8,6 @@ import * as compress from 'compression'
 import * as cors from 'cors'
 import * as expressWinston from 'express-winston'
 import * as helmet from 'helmet'
-import * as Raven from 'raven'
 import { APIError } from 'server/helpers/error'
 import { graphiqlExpress } from 'apollo-server-express'
 import { checkAuthentication } from 'server/controllers/auth.controller'
@@ -17,6 +16,7 @@ import * as getPort from 'get-port'
 
 import publicRoutes from 'server/public_routes'
 import { graphQlRoute } from 'config/graphql'
+import { exception } from './sentry'
 
 let app: Express
 
@@ -97,13 +97,11 @@ let app: Express
         })
 
         if (!err.skipReportToSentry) {
-          Raven.captureException(err, {
-            req,
-            res,
+          exception(err, { // TODO: add req & res
             extra: {
               body: req.body
             }
-          } as Raven.CaptureOptions)
+          })
         }
       }
     }

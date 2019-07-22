@@ -1,11 +1,11 @@
 import env from 'config/env'
 import logger from 'config/logger'
 import { APIError, ExtendableError } from 'server/helpers/error'
-import { ExpressHandler, graphqlExpress } from 'apollo-server-express'
+import { graphqlExpress } from 'apollo-server-express'
 import { schema } from './merge'
-import * as Raven from 'raven'
 import * as JWT from 'jsonwebtoken'
 import { IJsonWebTokenContents } from 'server/controllers/auth.controller'
+import { exception } from '../sentry'
 
 function formatError(err, req) {
   logger.warn('GraphQL query failed', err)
@@ -26,7 +26,7 @@ function formatError(err, req) {
         }
       }
 
-      Raven.captureException(err, {
+      exception(err, {
         extra: {
           userId
         }

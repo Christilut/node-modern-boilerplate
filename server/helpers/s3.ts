@@ -2,9 +2,9 @@ import * as AWS from 'aws-sdk'
 import env from 'config/env'
 import logger from 'config/logger'
 import * as httpStatus from 'http-status'
-import * as Raven from 'raven'
 import { APIError } from 'server/helpers/error'
 import * as uuidv1 from 'uuid/v1'
+import { message } from '../../config/sentry'
 
 const DEFAULT_PRESIGNED_URL_EXPIRE_SECONDS = 60 * 15
 
@@ -50,12 +50,12 @@ export async function downloadFile(args: IDownloadFileArgs): Promise<Buffer> {
 
     return s3Result.Body
   } catch (error) {
-    Raven.captureMessage('S3 Failed to download file.', {
+    message('S3 Failed to download file.', {
       extra: {
         s3Message: error.message,
         s3Params
       }
-    } as Raven.CaptureOptions)
+    })
   }
 }
 
@@ -95,11 +95,11 @@ export async function downloadArrayFromS3AndRemove(s3files: IQueueFile[], bucket
           attachment: file.key
         })
 
-        Raven.captureMessage('Failed to delete file from S3', {
+        message('Failed to delete file from S3', {
           errorMessage: error.message,
           bucket,
           attachment: file.key
-        } as Raven.CaptureOptions)
+        })
       }
 
       return files
@@ -135,11 +135,11 @@ export async function removeFile(key: string, bucket: string) {
       key
     })
 
-    Raven.captureMessage('Failed to delete single file from S3', {
+    message('Failed to delete single file from S3', {
       errorMessage: error.message,
       bucket,
       key
-    } as Raven.CaptureOptions)
+    })
   }
 }
 
@@ -168,11 +168,11 @@ export async function removeFolder(folder: string, bucket: string) {
       folder
     })
 
-    Raven.captureMessage('Failed to list folder on S3. Not deleting folder.', {
+    message('Failed to list folder on S3. Not deleting folder.', {
       errorMessage: error.message,
       bucket,
       folder
-    } as Raven.CaptureOptions)
+    })
 
     return // Dont continue
   }
@@ -201,11 +201,11 @@ export async function removeFolder(folder: string, bucket: string) {
       folder
     })
 
-    Raven.captureMessage('Failed to delete folder from S3', {
+    message('Failed to delete folder from S3', {
       errorMessage: error.message,
       bucket,
       folder
-    } as Raven.CaptureOptions)
+    })
   }
 }
 
@@ -268,7 +268,7 @@ export async function downloadFileAsBase64(key: string, bucket: string): Promise
   const file = await downloadFile(s3Params)
 
   if (!file) {
-    Raven.captureMessage('download as base64: key not found on s3', {
+    message('download as base64: key not found on s3', {
       extra: {
         s3Params
       }
