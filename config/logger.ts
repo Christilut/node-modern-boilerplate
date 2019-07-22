@@ -2,26 +2,30 @@ import env from 'config/env'
 const winston = require('winston')
 const { format } = require('winston')
 const WinstonCloudwatch = require('winston-cloudwatch')
-// import { stringify } from 'flatted/esm'
 
 const transports = []
 
-function consoleFormatter(msg) {
-  let output = `${msg.level}: ${msg.message}`
-  if (msg.meta) {
-    if (msg.meta.err) {
-      delete msg.meta.err.config // Delete circular objects from the request that arent interesting anyway
-      delete msg.meta.err.request
+function consoleFormatter(info) {
+  const { level, message, durationMs, ...meta } = info
+
+  let output = `${level}: ${message}`
+
+  if (info.hasOwnProperty('durationMs')) output = `${output} (duration: ${durationMs}ms)`
+
+  if (Object.keys(meta).length > 0) {
+    if (meta.err) {
+      delete info.meta.err.config // Delete circular objects from the request that arent interesting anyway
+      delete info.meta.err.request
     }
 
     output += '\n'
-    output += JSON.stringify(msg.meta, null, '  ')
+    output += JSON.stringify(meta, null, '  ')
     output += '\n'
   }
 
-  if (msg.extra) {
+  if (info.extra) {
     output += '\n'
-    output += JSON.stringify(msg.extra, null, '  ')
+    output += JSON.stringify(info.extra, null, '  ')
     output += '\n'
   }
 
